@@ -13,6 +13,7 @@ import { Sparkles, RefreshCw, Loader2 } from "lucide-react";
 import { applyMerchantDataRelease, type MerchantDataRelease } from "@/db/repositories/merchants";
 import type { Category, Merchant } from "@/db/types";
 import { toast } from "sonner";
+import { showErrorToast } from "@/lib/errorToast";
 
 interface MerchantUpdateCheckDialogProps {
   open: boolean;
@@ -24,12 +25,14 @@ interface MerchantUpdateCheckDialogProps {
 
 /** Statische Rohdatei im Community-Repo, siehe klarwert-community-haendler-db.md, Abschnitt 4. */
 const COMMUNITY_DATA_URL =
-  "https://raw.githubusercontent.com/klarwert/community-haendler-db/main/haendler.json";
+  "https://raw.githubusercontent.com/Klarwert/Klarwert-Community-Rules/main/haendler.json";
 
 interface DiffRow {
   canonical_name: string;
   display_name: string;
   status: "new" | "changed";
+  /** Lokal bereits angepasst (is_modified=1) – Übernahme würde die eigene Anpassung überschreiben. */
+  localModified: boolean;
 }
 
 /** B15 "update"-Variante: Diff der kuratierten Community-Datei vor der Übernahme (Alles-oder-Nichts). */
@@ -64,7 +67,7 @@ export function MerchantUpdateCheckDialog({
         for (const m of data.merchants) {
           const existing = byCanonical.get(m.canonical_name);
           if (!existing) {
-            rows.push({ canonical_name: m.canonical_name, display_name: m.display_name, status: "new" });
+            rows.push({ canonical_name: m.canonical_name, display_name: m.display_name, status: "new", localModified: false });
             continue;
           }
           const currentTemplateKey = existing.default_category_id
@@ -74,7 +77,12 @@ export function MerchantUpdateCheckDialog({
             existing.display_name !== m.display_name ||
             (currentTemplateKey ?? null) !== (m.default_category_template_key ?? null)
           ) {
-            rows.push({ canonical_name: m.canonical_name, display_name: m.display_name, status: "changed" });
+            rows.push({
+              canonical_name: m.canonical_name,
+              display_name: m.display_name,
+              status: "changed",
+              localModified: existing.is_modified === 1,
+            });
           }
         }
         setRelease(data);
@@ -97,7 +105,7 @@ export function MerchantUpdateCheckDialog({
       onApplied();
       onOpenChange(false);
     } catch (e) {
-      toast.error(`Fehler bei der Übernahme: ${String(e)}`);
+      showErrorToast(`Fehler bei der Übernahme: ${String(e)}`);
     } finally {
       setApplying(false);
     }
@@ -142,6 +150,9 @@ export function MerchantUpdateCheckDialog({
                     <RefreshCw className="size-3.5 shrink-0 text-gold" />
                   )}
                   <span className="text-charcoal">{d.display_name}</span>
+                  {d.localModified && (
+                    <span className="text-xs text-gold">eigene Anpassung – wird nicht überschrieben</span>
+                  )}
                   <span className="ml-auto text-xs text-slate">{d.status === "new" ? "neu" : "geändert"}</span>
                 </div>
               ))}

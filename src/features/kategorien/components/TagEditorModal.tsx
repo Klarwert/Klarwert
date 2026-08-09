@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { createTag, updateTag } from "@/db/repositories/tags";
 import type { Tag } from "@/db/types";
 import { toast } from "sonner";
+import { showErrorToast } from "@/lib/errorToast";
 
 const COLOR_SWATCHES = ["#4a6fa5", "#b79a5b", "#c07a4a", "#6b7a80", "#6f9a6d", "#8a5fa0", "#b6503a"];
 
@@ -43,7 +44,7 @@ export function TagEditorModal({ open, tag, onOpenChange, onSaved }: TagEditorMo
       onSaved();
       onOpenChange(false);
     } catch (e) {
-      toast.error(`Fehler: ${String(e)}`);
+      showErrorToast(`Fehler: ${String(e)}`);
     } finally {
       setSubmitting(false);
     }

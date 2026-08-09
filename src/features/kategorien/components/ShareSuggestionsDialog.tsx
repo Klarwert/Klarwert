@@ -9,6 +9,8 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Download, Github } from "lucide-react";
+import { listMerchantAliases } from "@/db/repositories/merchants";
 import type { Category, Merchant } from "@/db/types";
 
 interface ShareSuggestionsDialogProps {
@@ -20,7 +22,7 @@ interface ShareSuggestionsDialogProps {
 }
 
 /** GitHub-Issue-Template im Community-Repo, siehe klarwert-community-haendler-db.md. */
-const COMMUNITY_ISSUE_URL = "https://github.com/klarwert/community-haendler-db/issues/new";
+const COMMUNITY_ISSUE_URL = "https://github.com/Klarwert/Klarwert-Community-Rules/issues/new";
 
 /** B15 "export"-Variante: Zeile-für-Zeile-Vorschau vor dem Teilen von Händler→Kategorie-Vorschlägen. */
 export function ShareSuggestionsDialog({ open, onOpenChange, ownMerchants, categories }: ShareSuggestionsDialogProps) {
@@ -45,12 +47,43 @@ export function ShareSuggestionsDialog({ open, onOpenChange, ownMerchants, categ
     });
   }
 
-  function handleConfirm() {
+  function handleGithubIssue() {
     const chosen = rows.filter((r) => selected.has(r.merchant.id));
     const lines = chosen.map((r) => `- ${r.merchant.display_name} → ${r.categoryName}`).join("\n");
     const body = `Vorgeschlagene Händler→Kategorie-Zuordnungen:\n\n${lines}\n\n(Erzeugt von Klarwert – enthält ausschließlich Händler→Kategorie-Zuordnungen, keine Beträge/Daten/Kontodaten.)`;
     const url = `${COMMUNITY_ISSUE_URL}?title=${encodeURIComponent("Neue Händler-Vorschläge")}&body=${encodeURIComponent(body)}`;
     window.open(url, "_blank", "noopener,noreferrer");
+    onOpenChange(false);
+  }
+
+  /**
+   * "Datei herunterladen" – zweite, gleichwertige Option neben dem GitHub-Issue (Konzept Abschnitt 4):
+   * dieselbe JSON-Struktur wie applyMerchantDataRelease erwartet, ohne dass ein GitHub-Account
+   * vorausgesetzt wird. Wie die Datei danach zum Maintainer gelangt (Discord, Forum, E-Mail),
+   * muss die App nicht wissen.
+   */
+  async function handleDownload() {
+    const chosen = rows.filter((r) => selected.has(r.merchant.id));
+    const merchants = await Promise.all(
+      chosen.map(async (r) => {
+        const aliases = await listMerchantAliases(r.merchant.id);
+        const category = categories.find((c) => c.id === r.merchant.default_category_id);
+        return {
+          canonical_name: r.merchant.canonical_name,
+          display_name: r.merchant.display_name,
+          default_category_template_key: category?.template_key ?? null,
+          aliases: aliases.map((a) => ({ type: a.match_type, value: a.match_value })),
+        };
+      }),
+    );
+    const payload = { source_version: new Date().toISOString().slice(0, 10), merchants };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "klarwert-haendler-vorschlaege.json";
+    a.click();
+    URL.revokeObjectURL(url);
     onOpenChange(false);
   }
 
@@ -88,8 +121,11 @@ export function ShareSuggestionsDialog({ open, onOpenChange, ownMerchants, categ
           <Button variant="ghost" onClick={() => onOpenChange(false)}>
             Abbrechen
           </Button>
-          <Button onClick={handleConfirm} disabled={selected.size === 0}>
-            GitHub-Issue öffnen
+          <Button variant="outline" onClick={() => void handleDownload()} disabled={selected.size === 0}>
+            <Download className="mr-1.5 size-4" /> Datei herunterladen
+          </Button>
+          <Button onClick={handleGithubIssue} disabled={selected.size === 0}>
+            <Github className="mr-1.5 size-4" /> GitHub-Issue öffnen
           </Button>
         </DialogFooter>
       </DialogContent>

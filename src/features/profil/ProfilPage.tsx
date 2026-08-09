@@ -21,6 +21,8 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Checkbox } from "@/components/ui/checkbox";
 import { CustomFieldsManager } from "@/features/profil/components/CustomFieldsManager";
+import { BankTemplateManager } from "@/features/profil/components/BankTemplateManager";
+import { UpdateChecker } from "@/features/profil/components/UpdateChecker";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { usePersons } from "@/hooks/usePersons";
 import { useAssets } from "@/hooks/useAssets";
@@ -30,6 +32,7 @@ import { createPerson, deletePerson, updatePerson } from "@/db/repositories/pers
 import { listPersonAliases, addPersonAlias, removePersonAlias } from "@/db/repositories/personAliases";
 import { deleteAllData, exportBackupJson, importBackupJson } from "@/db/repositories/backup";
 import { toast } from "sonner";
+import { showErrorToast } from "@/lib/errorToast";
 
 const BUNDESLAENDER = [
   { value: "BW", label: "Baden-Württemberg (8 %)" },
@@ -109,7 +112,7 @@ function PersonRow({ person: p, onUpdate, onRemove }: PersonRowProps) {
       }
     }
 
-    toast.error(`Geburtsjahr muss zwischen 1900 und ${currentYear} liegen.`);
+    showErrorToast(`Geburtsjahr muss zwischen 1900 und ${currentYear} liegen.`);
     setBirthYearStr(p.birth_year ? String(p.birth_year) : "");
   };
 
@@ -247,6 +250,7 @@ export function ProfilPage() {
 
   const [ownerPending, setOwnerPending] = useState<Record<number, Set<number>>>({});
   const [newPersonName, setNewPersonName] = useState("");
+  const [newPersonAlias, setNewPersonAlias] = useState("");
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
   const [deleteInputText, setDeleteInputText] = useState("");
 
@@ -262,7 +266,7 @@ export function ProfilPage() {
     const current = new Set(ownerPending[assetId] ?? asset?.owner_ids ?? []);
     if (current.has(personId)) {
       if (current.size === 1) {
-        toast.error("Mindestens ein Person-Owner ist erforderlich.");
+        showErrorToast("Mindestens ein Person-Owner ist erforderlich.");
         return;
       }
       current.delete(personId);
@@ -275,14 +279,21 @@ export function ProfilPage() {
   }
 
   async function handleAddPerson() {
-    if (!newPersonName.trim()) return;
+    if (!newPersonName.trim() || !newPersonAlias.trim()) return;
     try {
-      await createPerson({ name: newPersonName.trim(), role: "adult" });
+      const personId = await createPerson({ name: newPersonName.trim(), role: "adult" });
+      // Alias ist Pflichtfeld (nicht nur der Name selbst): erst darüber weiß die Transfer-/
+      // Sparkonto-Erkennung, wie diese Person in echten Bank-Buchungstexten tatsächlich auftaucht
+      // (z. B. "M. Mustermann" statt "Max Mustermann") – ohne mindestens eine Namensvariante bleibt
+      // die Erkennung wirkungslos, siehe Bugfix-Runde 3, Punkt 4.
+      await addPersonAlias(personId, newPersonAlias.trim());
       setNewPersonName("");
+      setNewPersonAlias("");
       queryClient.invalidateQueries({ queryKey: ["persons"] });
+      queryClient.invalidateQueries({ queryKey: ["person-aliases", personId] });
       toast.success("Person hinzugefügt");
     } catch (e) {
-      toast.error(`Fehler beim Hinzufügen: ${String(e)}`);
+      showErrorToast(`Fehler beim Hinzufügen: ${String(e)}`);
     }
   }
 
@@ -302,7 +313,7 @@ export function ProfilPage() {
 
   async function handleRemovePerson(id: number) {
     if ((persons ?? []).length <= 1) {
-      toast.error("Die letzte Person kann nicht entfernt werden.");
+      showErrorToast("Die letzte Person kann nicht entfernt werden.");
       return;
     }
     await deletePerson(id);
@@ -322,7 +333,7 @@ export function ProfilPage() {
       URL.revokeObjectURL(url);
       toast.success("Backup erfolgreich heruntergeladen");
     } catch (e) {
-      toast.error(`Export fehlgeschlagen: ${String(e)}`);
+      showErrorToast(`Export fehlgeschlagen: ${String(e)}`);
     }
   }
 
@@ -337,7 +348,7 @@ export function ProfilPage() {
         queryClient.invalidateQueries();
         toast.success("Backup erfolgreich wiederhergestellt");
       } catch (err) {
-        toast.error(`Import fehlgeschlagen: ${String(err)}`);
+        showErrorToast(`Import fehlgeschlagen: ${String(err)}`);
       }
     };
     reader.readAsText(file);
@@ -351,7 +362,7 @@ export function ProfilPage() {
       toast.success("Alle Daten wurden gelöscht.");
       window.location.reload();
     } catch (e) {
-      toast.error(`Fehler beim Löschen: ${String(e)}`);
+      showErrorToast(`Fehler beim Löschen: ${String(e)}`);
     } finally {
       setDeleteConfirmOpen(false);
     }
@@ -377,14 +388,25 @@ export function ProfilPage() {
             />
           ))}
 
-          <div className="flex gap-2 pt-2">
-            <Input
-              placeholder="Name neuer Person…"
-              value={newPersonName}
-              onChange={(e) => setNewPersonName(e.target.value)}
-              className="max-w-xs"
-            />
-            <Button onClick={handleAddPerson} disabled={!newPersonName.trim()}>
+          <div className="flex flex-wrap items-start gap-2 pt-2">
+            <div className="space-y-1">
+              <Input
+                placeholder="Name neuer Person…"
+                value={newPersonName}
+                onChange={(e) => setNewPersonName(e.target.value)}
+                className="max-w-xs"
+              />
+            </div>
+            <div className="space-y-1">
+              <Input
+                placeholder="Wie steht der Name in Bank-Buchungen? (Pflicht)"
+                value={newPersonAlias}
+                onChange={(e) => setNewPersonAlias(e.target.value)}
+                className="max-w-xs"
+              />
+              <p className="text-xs text-slate">Wird für die Transfer- und Konto-Erkennung benötigt.</p>
+            </div>
+            <Button onClick={handleAddPerson} disabled={!newPersonName.trim() || !newPersonAlias.trim()}>
               <Plus className="size-4" /> Person
             </Button>
           </div>
@@ -495,12 +517,21 @@ export function ProfilPage() {
         <CustomFieldsManager />
       </div>
 
+      {/* BANK-VORLAGEN */}
+      <div className="space-y-6 rounded-card border border-border bg-card p-6">
+        <h2 className="font-heading text-lg text-charcoal">Bank-Vorlagen</h2>
+        <BankTemplateManager />
+      </div>
+
       {/* 6. ÜBER */}
       <div className="space-y-4 rounded-card border border-border bg-card p-6">
         <h2 className="font-heading text-lg text-charcoal">Über Klarwert</h2>
         <div className="text-sm text-slate space-y-1">
           <p>Version 0.1.0 (Lokale Desktop Finanz-App)</p>
           <p>100 % lokal, private SQLite-Datenbank, kein Login, keine Cloud.</p>
+        </div>
+        <div className="border-t border-border pt-4">
+          <UpdateChecker />
         </div>
       </div>
 

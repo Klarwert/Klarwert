@@ -22,6 +22,7 @@ import { useSparzwecke } from "@/hooks/useSparzwecke";
 import { updateAsset, type AssetWithOwners } from "@/db/repositories/assets";
 import type { AccountType, ValuableType } from "@/db/types";
 import { toast } from "sonner";
+import { showErrorToast } from "@/lib/errorToast";
 
 const ACCOUNT_TYPES: { value: AccountType; label: string }[] = [
   { value: "giro", label: "Girokonto" },
@@ -87,7 +88,7 @@ export function EditAssetModal({ asset, onOpenChange, onSaved }: EditAssetModalP
       onSaved();
       onOpenChange(false);
     } catch (e) {
-      toast.error(`Fehler: ${String(e)}`);
+      showErrorToast(`Fehler: ${String(e)}`);
     } finally {
       setSubmitting(false);
     }
@@ -154,6 +155,13 @@ export function EditAssetModal({ asset, onOpenChange, onSaved }: EditAssetModalP
                   ))}
                 </SelectContent>
               </Select>
+            )}
+            {asset.kind === "account" && (accountType === "tagesgeld" || accountType === "depot") && (
+              <p className="text-xs text-slate">
+                Tagesgeld/Depot gelten als Sparkonto: Überweisungen von einem deiner anderen Konten
+                hierher zählen automatisch als Sparen, eine Entnahme zurück verringert den Sparstand
+                wieder.
+              </p>
             )}
           </div>
 

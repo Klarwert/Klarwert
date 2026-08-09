@@ -13,6 +13,7 @@ import { createRule } from "@/db/repositories/rules";
 import { createMerchant, addMerchantAlias, suppressMerchant, getMerchant } from "@/db/repositories/merchants";
 import { normalizeCounterparty } from "@/lib/merchant-match";
 import type { TransactionWithTags } from "@/db/repositories/transactions";
+import { showErrorToast } from "@/lib/errorToast";
 
 interface LearnDialogProps {
   open: boolean;
@@ -62,7 +63,7 @@ export function LearnDialog({ open, onOpenChange, transaction, newCategoryId, ne
         toast.success(`Neuer Händler-Alias angelegt: „${transaction.counterparty}" → ${newCategoryName}`);
       }
     } catch (e) {
-      toast.error(`Fehler beim Anlegen: ${String(e)}`);
+      showErrorToast(`Fehler beim Anlegen: ${String(e)}`);
     } finally {
       onDone();
     }
@@ -75,7 +76,7 @@ export function LearnDialog({ open, onOpenChange, transaction, newCategoryId, ne
       const merchant = await getMerchant(transaction.merchant_id);
       toast.success(`„${merchant?.display_name ?? "Händler"}" wird bei dir künftig nicht mehr automatisch zugeordnet.`);
     } catch (e) {
-      toast.error(`Fehler: ${String(e)}`);
+      showErrorToast(`Fehler: ${String(e)}`);
     } finally {
       onDone();
     }

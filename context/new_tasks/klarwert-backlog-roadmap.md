@@ -2,15 +2,17 @@
 
 Zusammengetragen aus der gesamten Projekt-Historie. Ergänzt (nicht ersetzt) den Phasenplan in `CLAUDE.md`.
 
-## Priorität jetzt (siehe `klarwert-roadmap-claude-code.md` für die vollständige Reihenfolge/Begründung)
+## Priorität jetzt – siehe `klarwert-roadmap-claude-code.md` für den vollständigen Session-Plan (Runde 3)
 
-Für Claude Code, in dieser Reihenfolge:
+Runde 1+2 (Bugfixes, Tests, Rechner, Mehrkonto-Import, Transfer-Erkennung, Import-Architektur v2) sind laut Claude-Code-Bericht erledigt. Runde 3, für Claude Code in dieser Reihenfolge (App-Repo `Klarwert/Klarwert`):
 
-1. **`prompt-rechner-achsen-fix.md`** – Achsenbeschriftung im Rechner (Skalierung + Abschneiden bei kleinem Fenster).
-2. **`prompt-mehrkonto-import.md`** – Mehrkonto-CSV-Import (inkl. Test mit `transaktionen_c24.csv`).
-3. **`prompt-transfer-sparen-erkennung.md`** – IBAN-/Namensvarianten-basierte Transfer- und Sparen-Erkennung.
+1. **`prompt-app-bugfixes-2.md`** – u. a. `rules_rebuild_old`-Migrationsfehler, Transfer-Darstellung vereinfachen, Sankey-Vollbild/Export, Kategoriefarben.
+2. Offene DB-Integrationstests nachholen (aus Runde 2 ausgelassen).
+3. **`prompt-haendler-regel-vereinigung.md`** – Regel-Vorlagen und Händler zusammenführen, siehe `klarwert-haendler-regel-konzept-v2.md`.
+4. **`prompt-regelbuilder-erweiterung.md`** – alle Felder inkl. Custom-Spalten, Operatoren, UND/ODER, Werte-Picker.
+5. **`prompt-auto-update.md`** – Tauri-Auto-Updater.
 
-**Paralleler Track (andere KI, Google Antigravity):** `prompt-community-datenbanken.md` (Community-Händler-DB + Bank-Format-Templates). Beide Tracks berühren `src/lib/pipeline.ts` – siehe `klarwert-roadmap-claude-code.md` für die Merge-Reihenfolge, bevor beide Agenten gleichzeitig laufen.
+Website-Repo (`Klarwert/klarwert.github.io`): keine neuen Punkte in dieser Runde.
 
 ## Stand: bereits erledigt / gebaut
 

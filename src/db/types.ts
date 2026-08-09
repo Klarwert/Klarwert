@@ -48,6 +48,7 @@ export interface Merchant {
   source_version: string | null;
   is_builtin: 0 | 1;
   is_active: 0 | 1;
+  is_modified: 0 | 1;
 }
 
 export interface MerchantAlias {
@@ -167,17 +168,29 @@ export interface Tag {
   is_deleted: 0 | 1;
 }
 
-export type RuleField = "purpose" | "counterparty" | "amount" | "asset" | "custom";
-export type RuleOperator = "contains" | "equals" | "approx";
+export type RuleField = "purpose" | "counterparty" | "amount" | "asset" | "custom" | "extra_field";
+export type RuleOperator = "contains" | "equals" | "approx" | "greater_than" | "less_than" | "between";
 export type RuleCreatedFrom = "manual" | "aufraeumen" | "vertrag";
 
-export interface RuleCondition {
+/** Bedingungsgruppen einer Regel sind ODER-verknüpft, siehe klarwert-regelbuilder-erweiterung. */
+export interface RuleConditionGroup {
   id: number;
   rule_id: number;
+  group_order: number;
+}
+
+/** Bedingungen INNERHALB einer Gruppe sind UND-verknüpft. */
+export interface RuleCondition {
+  id: number;
+  group_id: number;
   field: RuleField;
   custom_field_id: number | null;
+  /** Gesetzt, wenn field='extra_field': Schlüssel aus transactions.extra_fields_json (Import-Custom-Spalten). */
+  extra_field_key: string | null;
   operator: RuleOperator;
   value: string;
+  /** Nur bei operator='between' gesetzt (oberes Ende des Bereichs). */
+  value_to: string | null;
 }
 
 export type CustomFieldDataType = "text" | "integer" | "decimal" | "boolean" | "date" | "datetime";
@@ -249,6 +262,7 @@ export interface Rule {
   sparzweck_id: number | null;
   created_from: RuleCreatedFrom;
   source_contract_id: number | null;
+  merchant_id: number | null;
   created_at: string;
   is_deleted: 0 | 1;
 }
@@ -316,6 +330,9 @@ export type SettingsMap = {
   kirchensteuer_satz: "8" | "9";
   onboarding_done: "0" | "1";
   date_display_format: "dd.MM.yyyy" | "yyyy-MM-dd";
+  use_rule_templates: "0" | "1";
+  rule_templates_migrated_to_merchants: "0" | "1";
+  check_updates_on_startup: "0" | "1";
 };
 
 export type NotificationType =
@@ -328,7 +345,8 @@ export type NotificationType =
   | "transfer_detected"
   | "budget_80"
   | "budget_exceeded"
-  | "sparzweck_reached";
+  | "sparzweck_reached"
+  | "own_account_suggestion";
 
 export type NotificationPriority = "info" | "warning" | "critical";
 

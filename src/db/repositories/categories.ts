@@ -187,12 +187,12 @@ interface TemplateCategoryDef {
  */
 const TEMPLATE_CATEGORIES: TemplateCategoryDef[] = [
   // Top-level
-  { key: "wohnen", name: "Wohnen", color: "#1d4750", icon: "home", sortOrder: 1 },
-  { key: "kinder", name: "Kinder", color: "#b79a5b", icon: "baby", sortOrder: 2 },
-  { key: "lebenshaltung", name: "Lebenshaltung", color: "#6f9a6d", icon: "shopping-basket", sortOrder: 3 },
+  { key: "wohnen", name: "Wohnen", color: "#2f6b63", icon: "home", sortOrder: 1 },
+  { key: "kinder", name: "Kinder", color: "#c9a44f", icon: "baby", sortOrder: 2 },
+  { key: "lebenshaltung", name: "Lebenshaltung", color: "#7aa662", icon: "shopping-basket", sortOrder: 3 },
   { key: "gesundheit_wellness", name: "Gesundheit und Wellness", color: "#4e8d7c", icon: "heart-pulse", sortOrder: 4 },
   { key: "einnahmen", name: "Einnahmen", color: "#3f7d4e", icon: "banknote", sortOrder: 5 },
-  { key: "versicherung", name: "Versicherung", color: "#6b7a80", icon: "shield", sortOrder: 6 },
+  { key: "versicherung", name: "Versicherung", color: "#5f7a9e", icon: "shield", sortOrder: 6 },
   { key: "freizeit_hobbies_soziales", name: "Freizeit, Hobbies und Soziales", color: "#c07a4a", icon: "ticket", sortOrder: 7 },
   { key: "mobilitaet", name: "Mobilität", color: "#4a6fa5", icon: "car", sortOrder: 8 },
   { key: "sparen_anlegen", name: "Sparen und Anlegen", color: "#2e6e5e", icon: "piggy-bank", sortOrder: 9 },
@@ -202,27 +202,27 @@ const TEMPLATE_CATEGORIES: TemplateCategoryDef[] = [
   { key: "unkategorisiert", name: "Unkategorisiert", color: "#9aa4a8", icon: "circle-help", sortOrder: 13, isSystem: true },
 
   // Wohnen
-  { key: "wohnen.wohnnebenkosten", name: "Wohnnebenkosten", color: "#1d4750", parentKey: "wohnen", sortOrder: 1 },
-  { key: "wohnen.heimwerken_garten", name: "Heimwerken und Garten", color: "#1d4750", parentKey: "wohnen", sortOrder: 2 },
-  { key: "wohnen.strom", name: "Strom", color: "#1d4750", parentKey: "wohnen", sortOrder: 3 },
-  { key: "wohnen.gas", name: "Gas", color: "#1d4750", parentKey: "wohnen", sortOrder: 4 },
-  { key: "wohnen.moebel_haushaltsgeraete", name: "Möbel und Haushaltsgeräte", color: "#1d4750", parentKey: "wohnen", sortOrder: 5 },
-  { key: "wohnen.haushaltsdienstleistungen", name: "Haushaltsdienstleistungen", color: "#1d4750", parentKey: "wohnen", sortOrder: 6 },
-  { key: "wohnen.immobilienkredit", name: "Immobilienkredit", color: "#1d4750", parentKey: "wohnen", sortOrder: 7 },
-  { key: "wohnen.miete_wohngeld", name: "Miete / Wohngeld", color: "#1d4750", parentKey: "wohnen", sortOrder: 8 },
+  { key: "wohnen.wohnnebenkosten", name: "Wohnnebenkosten", color: "#2f6b63", parentKey: "wohnen", sortOrder: 1 },
+  { key: "wohnen.heimwerken_garten", name: "Heimwerken und Garten", color: "#2f6b63", parentKey: "wohnen", sortOrder: 2 },
+  { key: "wohnen.strom", name: "Strom", color: "#2f6b63", parentKey: "wohnen", sortOrder: 3 },
+  { key: "wohnen.gas", name: "Gas", color: "#2f6b63", parentKey: "wohnen", sortOrder: 4 },
+  { key: "wohnen.moebel_haushaltsgeraete", name: "Möbel und Haushaltsgeräte", color: "#2f6b63", parentKey: "wohnen", sortOrder: 5 },
+  { key: "wohnen.haushaltsdienstleistungen", name: "Haushaltsdienstleistungen", color: "#2f6b63", parentKey: "wohnen", sortOrder: 6 },
+  { key: "wohnen.immobilienkredit", name: "Immobilienkredit", color: "#2f6b63", parentKey: "wohnen", sortOrder: 7 },
+  { key: "wohnen.miete_wohngeld", name: "Miete / Wohngeld", color: "#2f6b63", parentKey: "wohnen", sortOrder: 8 },
 
   // Kinder
-  { key: "kinder.kinderbetreuung_gruppen", name: "Kinderbetreuung und -gruppen", color: "#b79a5b", parentKey: "kinder", sortOrder: 1 },
-  { key: "kinder.taschengeld_unterhalt", name: "Taschengeld / Unterhalt", color: "#b79a5b", parentKey: "kinder", sortOrder: 2 },
-  { key: "kinder.spielwaren", name: "Spielwaren", color: "#b79a5b", parentKey: "kinder", sortOrder: 3 },
+  { key: "kinder.kinderbetreuung_gruppen", name: "Kinderbetreuung und -gruppen", color: "#c9a44f", parentKey: "kinder", sortOrder: 1 },
+  { key: "kinder.taschengeld_unterhalt", name: "Taschengeld / Unterhalt", color: "#c9a44f", parentKey: "kinder", sortOrder: 2 },
+  { key: "kinder.spielwaren", name: "Spielwaren", color: "#c9a44f", parentKey: "kinder", sortOrder: 3 },
 
   // Lebenshaltung
-  { key: "lebenshaltung.drogerie", name: "Drogerie", color: "#6f9a6d", parentKey: "lebenshaltung", sortOrder: 1 },
-  { key: "lebenshaltung.lebensmittel_getraenke", name: "Lebensmittel und Getränke", color: "#6f9a6d", parentKey: "lebenshaltung", sortOrder: 2 },
-  { key: "lebenshaltung.haushaltsbedarf", name: "Haushaltsbedarf", color: "#6f9a6d", parentKey: "lebenshaltung", sortOrder: 3 },
-  { key: "lebenshaltung.festnetz_internet", name: "Festnetz und Internet", color: "#6f9a6d", parentKey: "lebenshaltung", sortOrder: 4 },
-  { key: "lebenshaltung.handy", name: "Handy", color: "#6f9a6d", parentKey: "lebenshaltung", sortOrder: 5 },
-  { key: "lebenshaltung.haustier_bedarf", name: "Haustier (-bedarf)", color: "#6f9a6d", parentKey: "lebenshaltung", sortOrder: 6 },
+  { key: "lebenshaltung.drogerie", name: "Drogerie", color: "#7aa662", parentKey: "lebenshaltung", sortOrder: 1 },
+  { key: "lebenshaltung.lebensmittel_getraenke", name: "Lebensmittel und Getränke", color: "#7aa662", parentKey: "lebenshaltung", sortOrder: 2 },
+  { key: "lebenshaltung.haushaltsbedarf", name: "Haushaltsbedarf", color: "#7aa662", parentKey: "lebenshaltung", sortOrder: 3 },
+  { key: "lebenshaltung.festnetz_internet", name: "Festnetz und Internet", color: "#7aa662", parentKey: "lebenshaltung", sortOrder: 4 },
+  { key: "lebenshaltung.handy", name: "Handy", color: "#7aa662", parentKey: "lebenshaltung", sortOrder: 5 },
+  { key: "lebenshaltung.haustier_bedarf", name: "Haustier (-bedarf)", color: "#7aa662", parentKey: "lebenshaltung", sortOrder: 6 },
 
   // Gesundheit und Wellness
   { key: "gesundheit_wellness.arztbesuch_krankenhaus", name: "Arztbesuch / Krankenhaus", color: "#4e8d7c", parentKey: "gesundheit_wellness", sortOrder: 1 },
@@ -239,18 +239,18 @@ const TEMPLATE_CATEGORIES: TemplateCategoryDef[] = [
   { key: "einnahmen.gehalt", name: "Gehalt", color: "#3f7d4e", parentKey: "einnahmen", sortOrder: 7 },
 
   // Versicherung
-  { key: "versicherung.unfallversicherung", name: "Unfallversicherung", color: "#6b7a80", parentKey: "versicherung", sortOrder: 1 },
-  { key: "versicherung.krankenversicherung", name: "Krankenversicherung", color: "#6b7a80", parentKey: "versicherung", sortOrder: 2 },
-  { key: "versicherung.wohngebaeudeversicherung", name: "Wohngebäudeversicherung", color: "#6b7a80", parentKey: "versicherung", sortOrder: 3 },
-  { key: "versicherung.hausratversicherung", name: "Hausratversicherung", color: "#6b7a80", parentKey: "versicherung", sortOrder: 4 },
-  { key: "versicherung.rechtsschutzversicherung", name: "Rechtsschutzversicherung", color: "#6b7a80", parentKey: "versicherung", sortOrder: 5 },
-  { key: "versicherung.haftpflichtversicherung", name: "Haftpflichtversicherung", color: "#6b7a80", parentKey: "versicherung", sortOrder: 6 },
-  { key: "versicherung.pflegeversicherung", name: "Pflegeversicherung", color: "#6b7a80", parentKey: "versicherung", sortOrder: 7 },
-  { key: "versicherung.berufsunfaehigkeitsversicherung", name: "Berufsunfähigkeitsversicherung", color: "#6b7a80", parentKey: "versicherung", sortOrder: 8 },
-  { key: "versicherung.tierversicherung", name: "Tierversicherung", color: "#6b7a80", parentKey: "versicherung", sortOrder: 9 },
-  { key: "versicherung.kranken_zusatzversicherung", name: "Kranken-Zusatzversicherung", color: "#6b7a80", parentKey: "versicherung", sortOrder: 10 },
-  { key: "versicherung.risiko_lebensversicherung", name: "Risiko-Lebensversicherung", color: "#6b7a80", parentKey: "versicherung", sortOrder: 11 },
-  { key: "versicherung.reiseversicherung", name: "Reiseversicherung", color: "#6b7a80", parentKey: "versicherung", sortOrder: 12 },
+  { key: "versicherung.unfallversicherung", name: "Unfallversicherung", color: "#5f7a9e", parentKey: "versicherung", sortOrder: 1 },
+  { key: "versicherung.krankenversicherung", name: "Krankenversicherung", color: "#5f7a9e", parentKey: "versicherung", sortOrder: 2 },
+  { key: "versicherung.wohngebaeudeversicherung", name: "Wohngebäudeversicherung", color: "#5f7a9e", parentKey: "versicherung", sortOrder: 3 },
+  { key: "versicherung.hausratversicherung", name: "Hausratversicherung", color: "#5f7a9e", parentKey: "versicherung", sortOrder: 4 },
+  { key: "versicherung.rechtsschutzversicherung", name: "Rechtsschutzversicherung", color: "#5f7a9e", parentKey: "versicherung", sortOrder: 5 },
+  { key: "versicherung.haftpflichtversicherung", name: "Haftpflichtversicherung", color: "#5f7a9e", parentKey: "versicherung", sortOrder: 6 },
+  { key: "versicherung.pflegeversicherung", name: "Pflegeversicherung", color: "#5f7a9e", parentKey: "versicherung", sortOrder: 7 },
+  { key: "versicherung.berufsunfaehigkeitsversicherung", name: "Berufsunfähigkeitsversicherung", color: "#5f7a9e", parentKey: "versicherung", sortOrder: 8 },
+  { key: "versicherung.tierversicherung", name: "Tierversicherung", color: "#5f7a9e", parentKey: "versicherung", sortOrder: 9 },
+  { key: "versicherung.kranken_zusatzversicherung", name: "Kranken-Zusatzversicherung", color: "#5f7a9e", parentKey: "versicherung", sortOrder: 10 },
+  { key: "versicherung.risiko_lebensversicherung", name: "Risiko-Lebensversicherung", color: "#5f7a9e", parentKey: "versicherung", sortOrder: 11 },
+  { key: "versicherung.reiseversicherung", name: "Reiseversicherung", color: "#5f7a9e", parentKey: "versicherung", sortOrder: 12 },
 
   // Freizeit, Hobbies und Soziales
   { key: "freizeit_hobbies_soziales.kirche_spende", name: "Kirche / Spende", color: "#c07a4a", parentKey: "freizeit_hobbies_soziales", sortOrder: 1 },

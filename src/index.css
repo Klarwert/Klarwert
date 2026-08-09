@@ -37,4 +37,10 @@
   .num {
     @apply font-mono tabular-nums;
   }
+  /* Sonner setzt auf den Toast-Text standardmäßig keine Textmarkierung zu – bei Fehlermeldungen
+     will man aber genau das (z. B. um sie zu kopieren), bevor der Toast automatisch verschwindet. */
+  [data-sonner-toast],
+  [data-sonner-toast] * {
+    user-select: text;
+  }
 }

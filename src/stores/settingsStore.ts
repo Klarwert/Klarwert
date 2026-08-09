@@ -9,12 +9,14 @@ interface SettingsState {
   kirchensteuerSatz: 8 | 9;
   onboardingDone: boolean;
   dateDisplayFormat: "dd.MM.yyyy" | "yyyy-MM-dd";
+  useRuleTemplates: boolean;
   load: () => Promise<void>;
   setCurrency: (currency: string) => Promise<void>;
   setImportReminderDays: (days: number) => Promise<void>;
   setKirchensteuer: (aktiv: boolean, satz: 8 | 9) => Promise<void>;
   completeOnboarding: () => Promise<void>;
   setDateDisplayFormat: (format: "dd.MM.yyyy" | "yyyy-MM-dd") => Promise<void>;
+  setUseRuleTemplates: (enabled: boolean) => Promise<void>;
 }
 
 export const useSettingsStore = create<SettingsState>((set) => ({
@@ -25,6 +27,7 @@ export const useSettingsStore = create<SettingsState>((set) => ({
   kirchensteuerSatz: 8,
   onboardingDone: false,
   dateDisplayFormat: "dd.MM.yyyy",
+  useRuleTemplates: true,
 
   load: async () => {
     const all = await getAllSettings();
@@ -36,6 +39,7 @@ export const useSettingsStore = create<SettingsState>((set) => ({
       kirchensteuerSatz: all.kirchensteuer_satz === "9" ? 9 : 8,
       onboardingDone: all.onboarding_done === "1",
       dateDisplayFormat: all.date_display_format ?? "dd.MM.yyyy",
+      useRuleTemplates: (all.use_rule_templates ?? "1") === "1",
     });
   },
 
@@ -63,5 +67,10 @@ export const useSettingsStore = create<SettingsState>((set) => ({
   setDateDisplayFormat: async (format) => {
     await setSetting("date_display_format", format);
     set({ dateDisplayFormat: format });
+  },
+
+  setUseRuleTemplates: async (enabled) => {
+    await setSetting("use_rule_templates", enabled ? "1" : "0");
+    set({ useRuleTemplates: enabled });
   },
 }));

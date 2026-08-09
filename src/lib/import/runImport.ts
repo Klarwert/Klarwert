@@ -1,12 +1,13 @@
-import { runInTransaction } from "@/db/client";
+import { getDb, runInTransaction } from "@/db/client";
 import type Database from "@tauri-apps/plugin-sql";
 import { runPipelineForTransactions } from "@/lib/pipeline";
 import { detectRecurringPatterns } from "@/lib/contractDetection";
+import { detectOwnAccountSuggestions } from "@/lib/ownAccountDetection";
 import { normalizeFingerprint } from "@/db/repositories/transactions";
 import { createImportRecord } from "@/db/repositories/imports";
 import { addValueHistoryEntry, getAnchor } from "@/db/repositories/valueHistory";
-import { parseAmountWithFormat } from "@/lib/money";
-import { parseDateWithFormat, isoDayBefore, todayIso } from "@/lib/dates";
+import { parseAmountWithFormat, parseDecimalString } from "@/lib/money";
+import { parseDateWithFormat, parseGermanDateToIso, parseIsoDate, isoDayBefore, todayIso } from "@/lib/dates";
 import { EXTRA_FIELD_ROLES, type ColumnRole } from "@/lib/import/bankProfiles";
 import type { ImportMode } from "@/db/types";
 
@@ -27,6 +28,14 @@ export interface RunImportInput {
   currentBalanceInput: number | null;
   /** Mehrkonten-Datei: nur Zeilen importieren, deren bank_account_label diesem Wert entspricht. */
   bankAccountLabelFilter?: string | null;
+  /**
+   * Gestufte Änderungserkennung (Import-Architektur v2, 2.4): bei gleichem external_id wird Text
+   * (counterparty/purpose) immer stillschweigend aktualisiert. Ein abweichender Betrag wird nur
+   * übernommen, wenn dieses Flag true ist – der Aufrufer (Wizard) fragt vorher per Sammel-Dialog
+   * nach (siehe detectAmountChanges), ein reiner Textunterschied löst diese Rückfrage nie aus.
+   * Default true, damit bestehende Aufrufer ohne Vorab-Check ihr bisheriges Verhalten behalten.
+   */
+  applyAmountChanges?: boolean;
   /**
    * Progress-Callback: wird pro Phase aufgerufen.
    * phase: 'reading' | 'saving' | 'pipeline' | 'finalizing'
@@ -49,7 +58,7 @@ export interface RunImportResult {
   errorMessage?: string;
 }
 
-interface ParsedRow {
+export interface ParsedRow {
   booking_date: string;
   value_date: string | null;
   counterparty: string;
@@ -70,11 +79,60 @@ function extractCounterparty(text: string): { counterparty: string; purpose: str
   return { counterparty: text, purpose: text };
 }
 
+const BOOLEAN_TRUE = new Set(["ja", "yes", "true", "1", "wahr"]);
+const BOOLEAN_FALSE = new Set(["nein", "no", "false", "0", "falsch"]);
+const DATE_ONLY = /^(\d{2}\.\d{2}\.\d{4}|\d{4}-\d{2}-\d{2})$/;
+const DATE_TIME = /^(\d{2}\.\d{2}\.\d{4}|\d{4}-\d{2}-\d{2})([ T])(\d{2}:\d{2}(:\d{2})?)/;
+
+/**
+ * Formatiert den Rohwert einer als "Extra-Feld" mitgenommenen Spalte gemäß dem im Wizard gewählten
+ * (oder automatisch erkannten) Datentyp – sonst hätte die Datentyp-Auswahl im Mapping-Schritt keine
+ * Wirkung. Bei Parse-Fehlern wird der unveränderte Rohwert übernommen, statt die Zeile zu verwerfen.
+ */
+export function formatExtraFieldValue(rawValue: string, dataType: string | undefined): string {
+  if (!dataType || dataType === "text") return rawValue;
+  try {
+    switch (dataType) {
+      case "integer": {
+        const cleaned = rawValue.replace(/[.\s]/g, "").replace(",", ".");
+        const n = Number.parseFloat(cleaned);
+        return Number.isNaN(n) ? rawValue : String(Math.round(n));
+      }
+      case "decimal": {
+        const n = parseDecimalString(rawValue);
+        return String(n);
+      }
+      case "boolean": {
+        const lower = rawValue.trim().toLowerCase();
+        if (BOOLEAN_TRUE.has(lower)) return "Ja";
+        if (BOOLEAN_FALSE.has(lower)) return "Nein";
+        return rawValue;
+      }
+      case "date": {
+        const match = DATE_ONLY.exec(rawValue.trim());
+        if (!match) return rawValue;
+        return match[1].includes(".") ? parseGermanDateToIso(match[1]) : parseIsoDate(match[1]);
+      }
+      case "datetime": {
+        const match = DATE_TIME.exec(rawValue.trim());
+        if (!match) return rawValue;
+        const isoDate = match[1].includes(".") ? parseGermanDateToIso(match[1]) : parseIsoDate(match[1]);
+        return `${isoDate} ${match[3]}`;
+      }
+      default:
+        return rawValue;
+    }
+  } catch {
+    return rawValue;
+  }
+}
+
 function buildExtraFields(
   row: string[],
   roleToIndex: Partial<Record<ColumnRole, number>>,
   roleByColumn?: Record<number, ColumnRole | "keep" | "ignore">,
   headers?: string[],
+  dataTypeByColumn?: Record<number, string>,
 ): string | null {
   const entries: [string, string][] = [];
   for (const role of EXTRA_FIELD_ROLES) {
@@ -83,14 +141,14 @@ function buildExtraFields(
     const value = (row[idx] ?? "").trim();
     if (value) entries.push([role, value]);
   }
-  
+
   if (roleByColumn && headers) {
     for (const [colStr, role] of Object.entries(roleByColumn)) {
       if (role === "keep") {
         const idx = Number(colStr);
         const value = (row[idx] ?? "").trim();
         const key = headers[idx] || `Spalte_${idx}`;
-        if (value) entries.push([key, value]);
+        if (value) entries.push([key, formatExtraFieldValue(value, dataTypeByColumn?.[idx])]);
       }
     }
   }
@@ -113,7 +171,7 @@ export function detectBankAccountLabels(
   return [...values];
 }
 
-function parseRows(input: RunImportInput): { parsed: ParsedRow[]; skipped: number; ignoredOtherAccount: number } {
+export function parseRows(input: RunImportInput): { parsed: ParsedRow[]; skipped: number; ignoredOtherAccount: number } {
   const { roleToIndex, rows, dateFormat, decimalFormat, extractCounterpartyFromPurpose } = input;
   const parsed: ParsedRow[] = [];
   let skipped = 0;
@@ -194,7 +252,7 @@ function parseRows(input: RunImportInput): { parsed: ParsedRow[]; skipped: numbe
         amount_cents,
         external_id,
         fingerprint: normalizeFingerprint(booking_date, amount_cents, counterparty),
-        extra_fields_json: buildExtraFields(row, roleToIndex, input.roleByColumn, input.headers),
+        extra_fields_json: buildExtraFields(row, roleToIndex, input.roleByColumn, input.headers, input.dataTypeByColumn),
       });
     } catch {
       skipped += 1;
@@ -202,6 +260,43 @@ function parseRows(input: RunImportInput): { parsed: ParsedRow[]; skipped: numbe
   }
 
   return { parsed, skipped, ignoredOtherAccount };
+}
+
+export interface AmountChange {
+  external_id: string;
+  booking_date: string;
+  counterparty: string;
+  oldAmountCents: number;
+  newAmountCents: number;
+}
+
+/**
+ * Read-only-Vorabprüfung (außerhalb jeder Transaktion): welche Zeilen dieser Datei würden bei
+ * `mode='upsert'` denselben external_id treffen, aber mit einem abweichenden Betrag? Der Wizard
+ * ruft dies vor dem eigentlichen Import auf, um bei Treffern den Sammel-Dialog zu zeigen (2.4).
+ * Reine Textabweichungen lösen hier bewusst nichts aus – die Funktion prüft nur den Betrag.
+ */
+export async function detectAmountChanges(assetId: number, parsed: ParsedRow[]): Promise<AmountChange[]> {
+  const withExternalId = parsed.filter((r) => r.external_id);
+  if (withExternalId.length === 0) return [];
+  const db = await getDb();
+  const changes: AmountChange[] = [];
+  for (const row of withExternalId) {
+    const existing = await db.select<{ amount_cents: number }[]>(
+      "select amount_cents from transactions where asset_id = $1 and external_id = $2 and source = 'import'",
+      [assetId, row.external_id],
+    );
+    if (existing.length > 0 && existing[0].amount_cents !== row.amount_cents) {
+      changes.push({
+        external_id: row.external_id!,
+        booking_date: row.booking_date,
+        counterparty: row.counterparty,
+        oldAmountCents: existing[0].amount_cents,
+        newAmountCents: row.amount_cents,
+      });
+    }
+  }
+  return changes;
 }
 
 interface AccountImportOutcome {
@@ -229,6 +324,7 @@ async function importAccountRows(
   currentBalanceInput: number | null,
   parsed: ParsedRow[],
   onProgress?: RunImportInput["onProgress"],
+  applyAmountChanges = true,
 ): Promise<AccountImportOutcome> {
   let rowsNew = 0;
   let rowsUpdated = 0;
@@ -330,12 +426,23 @@ async function importAccountRows(
       const chunk = parsed.slice(ci, ci + CHUNK);
       for (const row of chunk) {
         let existingId: number | null = null;
+        let existingRow: {
+          booking_date: string;
+          value_date: string | null;
+          counterparty: string;
+          purpose: string | null;
+          amount_cents: number;
+          extra_fields_json: string | null;
+        } | null = null;
         if (row.external_id) {
-          const rows = await db.select<{ id: number }[]>(
-            "select id from transactions where asset_id = $1 and external_id = $2 and source = 'import'",
+          const rows = await db.select<
+            { id: number; booking_date: string; value_date: string | null; counterparty: string; purpose: string | null; amount_cents: number; extra_fields_json: string | null }[]
+          >(
+            "select id, booking_date, value_date, counterparty, purpose, amount_cents, extra_fields_json from transactions where asset_id = $1 and external_id = $2 and source = 'import'",
             [assetId, row.external_id],
           );
           existingId = rows[0]?.id ?? null;
+          existingRow = rows[0] ?? null;
         } else {
           const rows = await db.select<{ id: number }[]>(
             "select id from transactions where asset_id = $1 and fingerprint = $2 and source = 'import'",
@@ -345,22 +452,47 @@ async function importAccountRows(
         }
 
         if (existingId) {
-          if (row.external_id) {
-            await db.execute(
-              `update transactions set booking_date = $1, value_date = $2, counterparty = $3, purpose = $4, amount_cents = $5, fingerprint = $6, extra_fields_json = $7
-               where id = $8`,
-              [
-                row.booking_date,
-                row.value_date,
-                row.counterparty,
-                row.purpose,
-                row.amount_cents,
-                row.fingerprint,
-                row.extra_fields_json,
-                existingId,
-              ],
-            );
-            rowsUpdated += 1;
+          if (row.external_id && existingRow) {
+            // Betrag nur übernehmen, wenn unverändert ODER der Nutzer die Sammel-Rückfrage bestätigt
+            // hat (Import-Architektur v2, 2.4) – reiner Textunterschied wird immer stillschweigend
+            // übernommen, ein abweichender Betrag ohne Bestätigung bleibt unangetastet (inkl. fingerprint,
+            // der den Betrag encodiert).
+            const amountUnchanged = existingRow.amount_cents === row.amount_cents;
+            const textChanged =
+              existingRow.booking_date !== row.booking_date ||
+              existingRow.value_date !== row.value_date ||
+              existingRow.counterparty !== row.counterparty ||
+              existingRow.purpose !== row.purpose ||
+              existingRow.extra_fields_json !== row.extra_fields_json;
+            const willApplyAmountChange = !amountUnchanged && applyAmountChanges;
+
+            // Nichts hat sich tatsächlich geändert -> kein Update, kein irreführendes "N aktualisiert"
+            // beim erneuten Import derselben, unveränderten Datei.
+            if (textChanged || willApplyAmountChange) {
+              if (amountUnchanged || applyAmountChanges) {
+                await db.execute(
+                  `update transactions set booking_date = $1, value_date = $2, counterparty = $3, purpose = $4, amount_cents = $5, fingerprint = $6, extra_fields_json = $7
+                   where id = $8`,
+                  [
+                    row.booking_date,
+                    row.value_date,
+                    row.counterparty,
+                    row.purpose,
+                    row.amount_cents,
+                    row.fingerprint,
+                    row.extra_fields_json,
+                    existingId,
+                  ],
+                );
+              } else {
+                await db.execute(
+                  `update transactions set booking_date = $1, value_date = $2, counterparty = $3, purpose = $4, extra_fields_json = $5
+                   where id = $6`,
+                  [row.booking_date, row.value_date, row.counterparty, row.purpose, row.extra_fields_json, existingId],
+                );
+              }
+              rowsUpdated += 1;
+            }
           } else {
             rowsSkipped += 1;
           }
@@ -393,6 +525,7 @@ async function importAccountRows(
   onProgress?.("pipeline", 0, 1);
   const pipelineResult = await runPipelineForTransactions(newlyInsertedIds, db);
   await detectRecurringPatterns(assetId, db);
+  await detectOwnAccountSuggestions(db);
   onProgress?.("pipeline", 1, 1);
 
   // Kontostand-Verifikation
@@ -464,7 +597,16 @@ export async function runImport(input: RunImportInput): Promise<RunImportResult>
     // Phase B + C + D laufen als EINE Datenbank-Transaktion (CLAUDE.md Transaktions-Disziplin):
     // BEGIN ganz am Anfang, COMMIT ganz am Ende, ROLLBACK im Catch.
     const outcome = await runInTransaction((db) =>
-      importAccountRows(db, input.assetId, input.profileId, input.mode, input.currentBalanceInput, parsed, onProgress),
+      importAccountRows(
+        db,
+        input.assetId,
+        input.profileId,
+        input.mode,
+        input.currentBalanceInput,
+        parsed,
+        onProgress,
+        input.applyAmountChanges ?? true,
+      ),
     );
     const result = { ...outcome, rowsSkipped: outcome.rowsSkipped + parseSkipped };
 
@@ -534,6 +676,7 @@ export interface MultiAccountImportInput {
   rows: string[][];
   roleToIndex: Partial<Record<ColumnRole, number>>;
   roleByColumn?: Record<number, ColumnRole | "keep" | "ignore">;
+  dataTypeByColumn?: Record<number, string>;
   extractCounterpartyFromPurpose?: boolean;
   dateFormat: string;
   decimalFormat: "de" | "en";
@@ -544,6 +687,8 @@ export interface MultiAccountImportInput {
   accountMap: Record<string, number>;
   /** Optional: manuell bestätigter Kontostand je Konto (nur relevant beim jeweiligen Erstimport). */
   currentBalanceInputByAsset?: Record<number, number | null>;
+  /** Siehe RunImportInput.applyAmountChanges – gilt hier für alle Kontogruppen gemeinsam. */
+  applyAmountChanges?: boolean;
   onProgress?: (phase: "reading" | "saving" | "pipeline" | "finalizing", done: number, total: number) => void;
 }
 
@@ -575,6 +720,40 @@ export interface MultiAccountImportResult {
  * Transaktions-Disziplin, kein verschachteltes BEGIN/COMMIT). Jede Kontogruppe erzeugt danach eine
  * eigene Zeile in `imports` mit dem jeweiligen `asset_id`.
  */
+/** Wie detectAmountChanges, aber über alle Kontogruppen einer Mehrkonten-Datei hinweg. */
+export async function detectAmountChangesMultiAccount(input: MultiAccountImportInput): Promise<AmountChange[]> {
+  const rowsByLabel = new Map<string, string[][]>();
+  for (const row of input.rows) {
+    const label = (row[input.accountColumnIndex] ?? "").trim();
+    const assetId = label ? input.accountMap[label] : undefined;
+    if (!label || assetId === undefined) continue;
+    const list = rowsByLabel.get(label) ?? [];
+    list.push(row);
+    rowsByLabel.set(label, list);
+  }
+  const allChanges: AmountChange[] = [];
+  for (const [label, groupRows] of rowsByLabel) {
+    const assetId = input.accountMap[label];
+    const { parsed } = parseRows({
+      assetId,
+      filename: input.filename,
+      profileId: input.profileId,
+      headers: input.headers,
+      rows: groupRows,
+      roleToIndex: input.roleToIndex,
+      roleByColumn: input.roleByColumn,
+      dataTypeByColumn: input.dataTypeByColumn,
+      extractCounterpartyFromPurpose: input.extractCounterpartyFromPurpose,
+      dateFormat: input.dateFormat,
+      decimalFormat: input.decimalFormat,
+      mode: input.mode,
+      currentBalanceInput: null,
+    });
+    allChanges.push(...(await detectAmountChanges(assetId, parsed)));
+  }
+  return allChanges;
+}
+
 export async function runMultiAccountImport(input: MultiAccountImportInput): Promise<MultiAccountImportResult> {
   const { onProgress } = input;
 
@@ -607,6 +786,7 @@ export async function runMultiAccountImport(input: MultiAccountImportInput): Pro
           rows: groupRows,
           roleToIndex: input.roleToIndex,
           roleByColumn: input.roleByColumn,
+      dataTypeByColumn: input.dataTypeByColumn,
           extractCounterpartyFromPurpose: input.extractCounterpartyFromPurpose,
           dateFormat: input.dateFormat,
           decimalFormat: input.decimalFormat,
@@ -614,7 +794,16 @@ export async function runMultiAccountImport(input: MultiAccountImportInput): Pro
           currentBalanceInput: null,
         });
         const currentBalanceInput = input.currentBalanceInputByAsset?.[assetId] ?? null;
-        const outcome = await importAccountRows(db, assetId, input.profileId, input.mode, currentBalanceInput, parsed, onProgress);
+        const outcome = await importAccountRows(
+          db,
+          assetId,
+          input.profileId,
+          input.mode,
+          currentBalanceInput,
+          parsed,
+          onProgress,
+          input.applyAmountChanges ?? true,
+        );
         perAccount.push({
           assetId,
           label,

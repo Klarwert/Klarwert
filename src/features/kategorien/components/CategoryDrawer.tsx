@@ -85,7 +85,9 @@ export function CategoryDrawer({ category, onOpenChange }: CategoryDrawerProps) 
                     }}
                     className="w-full rounded-klein border border-border p-2 text-left text-xs hover:bg-accent"
                   >
-                    {rule.conditions.map((c) => `${FIELD_LABELS[c.field]} enthält "${c.value}"`).join(" UND ")}
+                    {rule.groups
+                      .map((g) => g.conditions.map((c) => `${FIELD_LABELS[c.field]} enthält "${c.value}"`).join(" UND "))
+                      .join(" ODER ")}
                   </button>
                 ))}
                 {(!rules || rules.length === 0) && (

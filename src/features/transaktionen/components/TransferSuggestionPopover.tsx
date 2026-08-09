@@ -6,12 +6,19 @@ import { getCategorizationLogForTransaction } from "@/db/repositories/merchants"
 
 interface TransferSuggestionPopoverProps {
   transactionId: number;
+  /** Anzeigetext des Badges: Zielkategorie ("Kontentransfer") oder Sparzweck ("Sparen: Urlaub"). */
+  label: string;
   onConfirm: () => void;
   onDismiss: () => void;
 }
 
-/** "Transfer?"-Badge mit Bestätigen/Trennen-Popover, zeigt zusätzlich die Erkennungsstufe (Transparenz). */
-export function TransferSuggestionPopover({ transactionId, onConfirm, onDismiss }: TransferSuggestionPopoverProps) {
+/**
+ * Kategorie-Badge für einen vorgeschlagenen (noch nicht bestätigten) Transfer: gestrichelt/gedimmt
+ * dargestellt statt eines vollen Badges, mit Bestätigen/Trennen-Popover. Ersetzt das frühere
+ * separate "Transfer?"-Badge in der Empfänger-Spalte – die Kategorie-Zelle allein trägt jetzt die
+ * Information, konsistent mit jeder anderen Buchung (siehe Bugfix-Runde 3, Punkt 3).
+ */
+export function TransferSuggestionPopover({ transactionId, label, onConfirm, onDismiss }: TransferSuggestionPopoverProps) {
   const { data: log } = useQuery({
     queryKey: ["categorization-log", transactionId],
     queryFn: () => getCategorizationLogForTransaction(transactionId),
@@ -29,7 +36,9 @@ export function TransferSuggestionPopover({ transactionId, onConfirm, onDismiss 
     <Popover>
       <PopoverTrigger asChild onClick={(e) => e.stopPropagation()}>
         <button type="button">
-          <Badge className="bg-gold text-charcoal hover:bg-gold">Transfer?</Badge>
+          <Badge variant="outline" className="border-dashed text-slate">
+            {label}
+          </Badge>
         </button>
       </PopoverTrigger>
       <PopoverContent className="w-48 space-y-2" onClick={(e) => e.stopPropagation()}>

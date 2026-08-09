@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
+import { Check } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -47,8 +49,12 @@ import {
   runImport,
   runMultiAccountImport,
   detectBankAccountLabels,
+  detectAmountChanges,
+  detectAmountChangesMultiAccount,
+  parseRows,
   type RunImportResult,
   type MultiAccountImportResult,
+  type AmountChange,
 } from "@/lib/import/runImport";
 import { parseAmountWithFormat, formatEur, parseAmountToCents } from "@/lib/money";
 import { parseDateWithFormat } from "@/lib/dates";
@@ -145,6 +151,8 @@ export function ImportWizard({ open, assetId, onOpenChange, onCompleted, forceMa
   const [savingAccountMapping, setSavingAccountMapping] = useState(false);
   
   // Progress state
+  const [pendingAmountChanges, setPendingAmountChanges] = useState<AmountChange[] | null>(null);
+
   const [progressPhase, setProgressPhase] = useState<"reading" | "saving" | "pipeline" | "finalizing" | null>(null);
   const [progressDone, setProgressDone] = useState(0);
   const [progressTotal, setProgressTotal] = useState(0);
@@ -457,16 +465,76 @@ export function ImportWizard({ open, assetId, onOpenChange, onCompleted, forceMa
     });
   }, [parsedFile, roleToIndex]);
 
+  const isMultiAccountImport =
+    useMultiAccount && matchedProfileId !== null && roleToIndex.bank_account_label !== undefined;
+
+  function buildAccountMap(): Record<string, number> {
+    const accountMap: Record<string, number> = {};
+    for (const [label, value] of Object.entries(accountMapDraft)) {
+      if (typeof value === "number") accountMap[label] = value;
+    }
+    return accountMap;
+  }
+
   async function handleRunImport() {
     if (!parsedFile || !file) return;
+
+    // Gestufte Änderungserkennung (Import-Architektur v2, 2.4): bei mode='upsert' vorab prüfen,
+    // ob eine bereits importierte Buchung (gleiche external_id) jetzt einen anderen Betrag hat –
+    // falls ja, erst rückfragen statt stillschweigend zu übernehmen oder zu verwerfen.
+    if (mode === "upsert") {
+      const changes =
+        isMultiAccountImport && matchedProfileId
+          ? await detectAmountChangesMultiAccount({
+              filename: file.name,
+              profileId: matchedProfileId,
+              headers: parsedFile.headers,
+              rows: parsedFile.rows,
+              roleToIndex,
+              roleByColumn,
+              dataTypeByColumn,
+              extractCounterpartyFromPurpose,
+              dateFormat: parsedFile.detected.dateFormat,
+              decimalFormat: parsedFile.detected.decimalFormat,
+              mode,
+              accountColumnIndex: roleToIndex.bank_account_label!,
+              accountMap: buildAccountMap(),
+            })
+          : await detectAmountChanges(
+              selectedAssetId,
+              parseRows({
+                assetId: selectedAssetId,
+                filename: file.name,
+                profileId: matchedProfileId,
+                headers: parsedFile.headers,
+                rows: parsedFile.rows,
+                roleToIndex,
+                roleByColumn,
+                dataTypeByColumn,
+                extractCounterpartyFromPurpose,
+                dateFormat: parsedFile.detected.dateFormat,
+                decimalFormat: parsedFile.detected.decimalFormat,
+                mode,
+                currentBalanceInput: null,
+                bankAccountLabelFilter: selectedAccountLabel,
+              }).parsed,
+            );
+      if (changes.length > 0) {
+        setPendingAmountChanges(changes);
+        return;
+      }
+    }
+
+    await executeImport(true);
+  }
+
+  async function executeImport(applyAmountChanges: boolean) {
+    if (!parsedFile || !file) return;
+    setPendingAmountChanges(null);
     setStep("progress");
     const cents = balanceUnknown || !balanceInput.trim() ? null : parseAmountToCents(balanceInput);
 
-    if (useMultiAccount && matchedProfileId && roleToIndex.bank_account_label !== undefined) {
-      const accountMap: Record<string, number> = {};
-      for (const [label, value] of Object.entries(accountMapDraft)) {
-        if (typeof value === "number") accountMap[label] = value;
-      }
+    if (isMultiAccountImport && matchedProfileId) {
       const multiImportResult = await runMultiAccountImport({
         filename: file.name,
         profileId: matchedProfileId,
@@ -474,12 +542,14 @@ export function ImportWizard({ open, assetId, onOpenChange, onCompleted, forceMa
         rows: parsedFile.rows,
         roleToIndex,
         roleByColumn,
+        dataTypeByColumn,
         extractCounterpartyFromPurpose,
         dateFormat: parsedFile.detected.dateFormat,
         decimalFormat: parsedFile.detected.decimalFormat,
         mode,
-        accountColumnIndex: roleToIndex.bank_account_label,
-        accountMap,
+        accountColumnIndex: roleToIndex.bank_account_label!,
+        accountMap: buildAccountMap(),
+        applyAmountChanges,
         onProgress: (phase, done, total) => {
           setProgressPhase(phase);
           setProgressDone(done);
@@ -507,6 +577,7 @@ export function ImportWizard({ open, assetId, onOpenChange, onCompleted, forceMa
       mode,
       currentBalanceInput: cents,
       bankAccountLabelFilter: selectedAccountLabel,
+      applyAmountChanges,
       onProgress: (phase, done, total) => {
         setProgressPhase(phase);
         setProgressDone(done);
@@ -927,6 +998,35 @@ export function ImportWizard({ open, assetId, onOpenChange, onCompleted, forceMa
 
           {step === "progress" && (
             <div className="flex flex-col items-center gap-3 py-8">
+              {parsedFile && (
+                <ul className="w-full max-w-sm space-y-1.5 self-start text-sm text-charcoal">
+                  <li className="flex items-center gap-2">
+                    <Check className="size-4 text-sage" />
+                    <span>
+                      Datei erkannt · Encoding {parsedFile.detected.encoding}
+                      {parsedFile.detected.delimiter ? `, Trennzeichen "${parsedFile.detected.delimiter}"` : ""}
+                    </span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="size-4 text-sage" />
+                    <span>{parsedFile.rows.length} Buchungen gefunden</span>
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <Check className="size-4 text-sage" />
+                    <span>
+                      {matchedProfileName
+                        ? `Passendes Profil erkannt: "${matchedProfileName}"`
+                        : "Neues Bank-Template angelegt"}
+                    </span>
+                  </li>
+                  {useMultiAccount && (
+                    <li className="flex items-center gap-2">
+                      <Check className="size-4 text-sage" />
+                      <span>{Object.keys(accountMapDraft).length} Konten erkannt</span>
+                    </li>
+                  )}
+                </ul>
+              )}
               <div className="h-2 w-full overflow-hidden rounded-pill bg-accent">
                 <div 
                   className="h-full bg-petrol transition-all duration-300"
@@ -1065,6 +1165,36 @@ export function ImportWizard({ open, assetId, onOpenChange, onCompleted, forceMa
           )}
         </div>
       </DialogContent>
+
+      <Dialog open={!!pendingAmountChanges} onOpenChange={(open) => !open && setPendingAmountChanges(null)}>
+        <DialogContent className="max-w-[520px]">
+          <DialogHeader>
+            <DialogTitle>Beträge haben sich geändert</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-slate">
+            {pendingAmountChanges?.length}{" "}
+            {pendingAmountChanges?.length === 1 ? "Buchung hat" : "Buchungen haben"} sich seit dem letzten Import im
+            Betrag geändert. Verwendungszweck/Empfänger werden in jedem Fall aktualisiert – wie soll mit dem
+            geänderten Betrag umgegangen werden?
+          </p>
+          <ul className="max-h-[240px] space-y-1.5 overflow-y-auto rounded-klein border border-border p-2 text-sm">
+            {pendingAmountChanges?.map((c) => (
+              <li key={c.external_id} className="flex items-center justify-between gap-3">
+                <span className="truncate text-charcoal">{c.counterparty}</span>
+                <span className="num shrink-0 text-slate">
+                  {formatEur(c.oldAmountCents)} → {formatEur(c.newAmountCents)}
+                </span>
+              </li>
+            ))}
+          </ul>
+          <DialogFooter>
+            <Button variant="ghost" onClick={() => void executeImport(false)}>
+              Alten Betrag beibehalten
+            </Button>
+            <Button onClick={() => void executeImport(true)}>Neuen Betrag übernehmen</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </Dialog>
   );
 }

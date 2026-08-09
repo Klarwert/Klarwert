@@ -26,8 +26,28 @@ export function AppRoot() {
       await runMigrations();
       await Promise.all([load(), ensureBuiltinBankProfiles()]);
       setReady(true);
+      void checkForUpdateOnStartupIfEnabled();
     } catch (e) {
       setError(String(e));
+    }
+  };
+
+  /**
+   * Optionaler Auto-Check (Default aus, siehe Profil-Seite): bewusst fire-and-forget, jeder Fehler
+   * bleibt lokal und wird nie als App-Fehler angezeigt – Update-Prüfung ist kein Kernfeature.
+   */
+  const checkForUpdateOnStartupIfEnabled = async () => {
+    try {
+      const { getSetting } = await import("@/db/repositories/settings");
+      if ((await getSetting("check_updates_on_startup")) !== "1") return;
+      const { checkForUpdate } = await import("@/lib/updater");
+      const result = await checkForUpdate();
+      if (result.available) {
+        const { toast } = await import("sonner");
+        toast.info(`Version ${result.version} ist verfügbar – siehe Profil & Einstellungen.`);
+      }
+    } catch {
+      // Update-Prüfung ist optional; ein Fehler hier darf die App nie beeinträchtigen.
     }
   };
 

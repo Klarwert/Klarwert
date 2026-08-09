@@ -3,19 +3,15 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Switch } from "@/components/ui/switch";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
-import { Lock, Plus, Pencil, Trash2, Store, X, Search, Share2, RefreshCw } from "lucide-react";
+import { Plus, Pencil, Trash2, Store, Search, Share2, RefreshCw } from "lucide-react";
 import { useCategories } from "@/hooks/useCategories";
 import {
-  listMerchants,
+  listAllMerchants,
   listMerchantAliases,
-  listMerchantSuppressions,
   deleteMerchant,
-  addMerchantAlias,
-  removeMerchantAlias,
-  suppressMerchant,
-  unsuppressMerchant,
+  updateMerchant,
 } from "@/db/repositories/merchants";
 import { MerchantEditorModal } from "@/features/kategorien/components/MerchantEditorModal";
 import { ShareSuggestionsDialog } from "@/features/kategorien/components/ShareSuggestionsDialog";
@@ -23,23 +19,25 @@ import { MerchantUpdateCheckDialog } from "@/features/kategorien/components/Merc
 import type { Merchant } from "@/db/types";
 import { toast } from "sonner";
 
-/** Kategorien → Abschnitt Händler-Datenbank (Product Spec 4.6, Component Library B14/B15). */
+/**
+ * Kategorien → Abschnitt Händler-Datenbank (Product Spec 4.6, Component Library B14/B15).
+ * Seit der Zusammenführung mit den Regel-Vorlagen (klarwert-haendler-regel-konzept-v2.md):
+ * ein Aktiv/Inaktiv-Toggle für ALLE Händler (kuratiert wie eigen, ersetzt "Unterdrücken"), ein
+ * rein informativer Herkunfts-Tag (Kuratiert/Angepasst/Eigene), kuratierte Einträge editierbar.
+ */
 export function HaendlerSection() {
   const queryClient = useQueryClient();
   const { data: categories } = useCategories();
-  const { data: merchants } = useQuery({ queryKey: ["merchants"], queryFn: listMerchants });
+  const { data: merchants } = useQuery({ queryKey: ["merchants", "all"], queryFn: listAllMerchants });
   const { data: aliases } = useQuery({ queryKey: ["merchant-aliases"], queryFn: () => listMerchantAliases() });
-  const { data: suppressions } = useQuery({ queryKey: ["merchant-suppressions"], queryFn: listMerchantSuppressions });
 
   const [search, setSearch] = useState("");
   const [editorOpen, setEditorOpen] = useState(false);
   const [editing, setEditing] = useState<Merchant | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Merchant | null>(null);
-  const [newAliasByMerchant, setNewAliasByMerchant] = useState<Record<number, string>>({});
   const [shareOpen, setShareOpen] = useState(false);
   const [updateCheckOpen, setUpdateCheckOpen] = useState(false);
 
-  const suppressedIds = useMemo(() => new Set((suppressions ?? []).map((s) => s.merchant_id)), [suppressions]);
   const aliasesByMerchant = useMemo(() => {
     const map = new Map<number, typeof aliases>();
     for (const a of aliases ?? []) {
@@ -55,6 +53,11 @@ export function HaendlerSection() {
     return categories?.find((c) => c.id === id)?.name ?? "?";
   }
 
+  function originLabel(m: Merchant): string {
+    if (m.is_builtin === 0) return "Eigene";
+    return m.is_modified === 1 ? "Angepasst" : "Kuratiert";
+  }
+
   const filtered = (merchants ?? []).filter((m) => {
     if (!search.trim()) return true;
     const q = search.trim().toLowerCase();
@@ -66,7 +69,6 @@ export function HaendlerSection() {
   function invalidate() {
     queryClient.invalidateQueries({ queryKey: ["merchants"] });
     queryClient.invalidateQueries({ queryKey: ["merchant-aliases"] });
-    queryClient.invalidateQueries({ queryKey: ["merchant-suppressions"] });
   }
 
   async function handleDelete() {
@@ -77,22 +79,8 @@ export function HaendlerSection() {
     invalidate();
   }
 
-  async function handleAddAlias(merchantId: number) {
-    const value = (newAliasByMerchant[merchantId] ?? "").trim();
-    if (!value) return;
-    await addMerchantAlias({ merchant_id: merchantId, match_type: "name_exact", match_value: value });
-    setNewAliasByMerchant((prev) => ({ ...prev, [merchantId]: "" }));
-    invalidate();
-  }
-
-  async function handleToggleSuppress(merchant: Merchant, suppress: boolean) {
-    if (suppress) {
-      await suppressMerchant(merchant.id);
-      toast.success(`"${merchant.display_name}" wird bei dir nicht mehr automatisch zugeordnet.`);
-    } else {
-      await unsuppressMerchant(merchant.id);
-      toast.success(`Unterdrückung für "${merchant.display_name}" aufgehoben.`);
-    }
+  async function handleToggleActive(merchant: Merchant, active: boolean) {
+    await updateMerchant(merchant.id, { is_active: active ? 1 : 0 });
     invalidate();
   }
 
@@ -144,90 +132,60 @@ export function HaendlerSection() {
 
           <div role="table" className="rounded-standard border border-border bg-card">
             {filtered.map((m) => {
-              const isSuppressed = suppressedIds.has(m.id);
               const rowAliases = (aliasesByMerchant.get(m.id) ?? []) as any[];
-              const isOwn = m.is_builtin === 0;
+              const origin = originLabel(m);
               return (
-                <div key={m.id} role="row" className="flex flex-wrap items-start gap-3 border-b border-border p-2.5 last:border-0">
+                <div
+                  key={m.id}
+                  role="row"
+                  className={`flex flex-wrap items-start gap-3 border-b border-border p-2.5 last:border-0 ${
+                    m.is_active === 0 ? "opacity-50" : ""
+                  }`}
+                >
                   <Store className="mt-1 size-4 shrink-0 text-slate" />
                   <div className="min-w-[140px] flex-1 space-y-1">
                     <div className="flex items-center gap-2">
                       <span className="text-sm font-medium text-charcoal">{m.display_name}</span>
-                      <Badge variant="outline" className={isOwn ? "border-sage text-sage" : "text-slate"}>
-                        {isOwn ? "eigen" : isSuppressed ? "kuratiert, lokal unterdrückt" : "kuratiert"}
+                      <Badge variant="outline" className={origin === "Eigene" ? "border-sage text-sage" : "text-slate"}>
+                        {origin}
                       </Badge>
                     </div>
                     <div className="flex items-center gap-1.5 text-xs text-slate">
-                      {!isOwn && (
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Lock className="size-3" aria-label="Kuratiert, nicht direkt editierbar" />
-                          </TooltipTrigger>
-                          <TooltipContent>kuratiert – zum Abweichen lokal unterdrücken</TooltipContent>
-                        </Tooltip>
-                      )}
-                      <span className={isSuppressed ? "line-through" : ""}>{categoryName(m.default_category_id)}</span>
+                      <span>{categoryName(m.default_category_id)}</span>
                     </div>
-                    <div className="flex flex-wrap items-center gap-1 pt-0.5">
-                      {rowAliases.map((a) => (
-                        <span
-                          key={a.id}
-                          className="inline-flex items-center gap-1 rounded-pill border border-border px-2 py-0.5 text-[11px] text-slate"
-                        >
-                          {a.match_value}
-                          {isOwn && (
-                            <button
-                              type="button"
-                              aria-label={`Alias ${a.match_value} entfernen`}
-                              onClick={async () => {
-                                await removeMerchantAlias(a.id);
-                                invalidate();
-                              }}
-                            >
-                              <X className="size-2.5" />
-                            </button>
-                          )}
-                        </span>
-                      ))}
-                      {isOwn && (
-                        <span className="inline-flex items-center gap-1">
-                          <Input
-                            value={newAliasByMerchant[m.id] ?? ""}
-                            onChange={(e) => setNewAliasByMerchant((prev) => ({ ...prev, [m.id]: e.target.value }))}
-                            onKeyDown={(e) => {
-                              if (e.key === "Enter") {
-                                e.preventDefault();
-                                void handleAddAlias(m.id);
-                              }
-                            }}
-                            placeholder="+ Alias"
-                            className="h-6 w-24 text-[11px]"
-                          />
-                        </span>
-                      )}
-                    </div>
+                    {rowAliases.length > 0 && (
+                      <div className="flex flex-wrap items-center gap-1 pt-0.5">
+                        {rowAliases.map((a) => (
+                          <span
+                            key={a.id}
+                            className="inline-flex items-center gap-1 rounded-pill border border-border px-2 py-0.5 text-[11px] text-slate"
+                          >
+                            {a.match_value}
+                          </span>
+                        ))}
+                      </div>
+                    )}
                   </div>
-                  <div className="flex shrink-0 items-center gap-1">
-                    {isOwn ? (
-                      <>
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          aria-label="Bearbeiten"
-                          onClick={() => {
-                            setEditing(m);
-                            setEditorOpen(true);
-                          }}
-                        >
-                          <Pencil className="size-4" />
-                        </Button>
-                        <Button size="icon" variant="ghost" aria-label="Löschen" onClick={() => setDeleteTarget(m)}>
-                          <Trash2 className="size-4" />
-                        </Button>
-                      </>
-                    ) : (
-                      <Button size="sm" variant="outline" onClick={() => void handleToggleSuppress(m, !isSuppressed)}>
-                        {isSuppressed ? "Unterdrückung aufheben" : "Unterdrücken"}
+                  <div className="flex shrink-0 items-center gap-2">
+                    <Switch
+                      checked={m.is_active === 1}
+                      onCheckedChange={(checked) => void handleToggleActive(m, checked)}
+                      aria-label={m.is_active === 1 ? "Aktiv" : "Inaktiv"}
+                    />
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      aria-label="Bearbeiten"
+                      onClick={() => {
+                        setEditing(m);
+                        setEditorOpen(true);
+                      }}
+                    >
+                      <Pencil className="size-4" />
+                    </Button>
+                    {m.is_builtin === 0 && (
+                      <Button size="icon" variant="ghost" aria-label="Löschen" onClick={() => setDeleteTarget(m)}>
+                        <Trash2 className="size-4" />
                       </Button>
                     )}
                   </div>

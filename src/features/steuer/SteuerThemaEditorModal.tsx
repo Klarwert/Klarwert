@@ -20,6 +20,7 @@ import {
   type SteuerThema,
 } from "@/db/repositories/steuer";
 import { toast } from "sonner";
+import { showErrorToast } from "@/lib/errorToast";
 
 interface SteuerThemaEditorModalProps {
   open: boolean;
@@ -73,7 +74,7 @@ export function SteuerThemaEditorModal({
       onSaved();
       onOpenChange(false);
     } catch (e) {
-      toast.error(`Steuer-Thema konnte nicht gespeichert werden: ${String(e)}`);
+      showErrorToast(`Steuer-Thema konnte nicht gespeichert werden: ${String(e)}`);
     } finally {
       setSubmitting(false);
     }

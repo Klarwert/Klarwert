@@ -185,6 +185,7 @@ create index idx_tx_asset_date on transactions(asset_id, booking_date);
 create index idx_tx_category on transactions(category_id);
 create index idx_tx_fingerprint on transactions(asset_id, fingerprint);
 create index idx_tx_external on transactions(asset_id, external_id);
+create index idx_tx_contract on transactions(contract_id);
 
 -- schema-hook ohne v1-ui (splits)
 create table transaction_splits (

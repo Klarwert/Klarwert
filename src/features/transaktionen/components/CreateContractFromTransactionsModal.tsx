@@ -21,6 +21,7 @@ import { CategorySelect } from "@/components/CategorySelect";
 import { createManualContract, generateRuleForContract } from "@/db/repositories/contracts";
 import type { ContractInterval } from "@/db/types";
 import { toast } from "sonner";
+import { showErrorToast } from "@/lib/errorToast";
 
 interface CreateContractFromTransactionsModalProps {
   open: boolean;
@@ -43,7 +44,7 @@ export function CreateContractFromTransactionsModal({
 
   async function handleSave() {
     if (!name.trim()) {
-      toast.error("Bitte einen Namen angeben.");
+      showErrorToast("Bitte einen Namen angeben.");
       return;
     }
     setSaving(true);
@@ -59,7 +60,7 @@ export function CreateContractFromTransactionsModal({
       setInterval("monthly");
       setCategoryId(null);
     } catch (e) {
-      toast.error(`Fehler: ${String(e)}`);
+      showErrorToast(`Fehler: ${String(e)}`);
     } finally {
       setSaving(false);
     }

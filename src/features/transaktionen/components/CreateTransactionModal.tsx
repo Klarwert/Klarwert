@@ -25,6 +25,7 @@ import { runPipelineForTransactions } from "@/lib/pipeline";
 import { parseAmountToCents } from "@/lib/money";
 import { todayIso } from "@/lib/dates";
 import { toast } from "sonner";
+import { showErrorToast } from "@/lib/errorToast";
 
 interface CreateTransactionModalProps {
   open: boolean;
@@ -65,11 +66,11 @@ export function CreateTransactionModal({
     try {
       cents = parseAmountToCents(amount);
     } catch {
-      toast.error("Ungültiger Betrag");
+      showErrorToast("Ungültiger Betrag");
       return;
     }
     if (cents === 0) {
-      toast.error("Betrag darf nicht 0 sein");
+      showErrorToast("Betrag darf nicht 0 sein");
       return;
     }
     setSubmitting(true);
@@ -88,7 +89,7 @@ export function CreateTransactionModal({
       reset();
       onOpenChange(false);
     } catch (e) {
-      toast.error(`Fehler: ${String(e)}`);
+      showErrorToast(`Fehler: ${String(e)}`);
     } finally {
       setSubmitting(false);
     }

@@ -26,6 +26,7 @@ import { useGlobalFilterStore } from "@/stores/globalFilterStore";
 import { formatEur } from "@/lib/money";
 import type { Category } from "@/db/types";
 import { toast } from "sonner";
+import { showErrorToast } from "@/lib/errorToast";
 
 function iconComponent(name: string | null) {
   if (!name) return null;
@@ -174,7 +175,7 @@ export function KategorienPage() {
       invalidateCategories();
       toast.success("Standard-Kategorien wurden wiederhergestellt.");
     } catch (e) {
-      toast.error(`Fehler beim Wiederherstellen: ${String(e)}`);
+      showErrorToast(`Fehler beim Wiederherstellen: ${String(e)}`);
     }
   }
 

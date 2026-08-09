@@ -25,6 +25,18 @@ export async function getDb(): Promise<Database> {
 }
 
 /**
+ * Test-Seam: injiziert eine Fake-`Database`-Instanz (z. B. ein `node:sqlite`-Adapter, siehe
+ * `src/test/sqliteTestDb.ts`), damit Repositories/Pipeline in Vitest-Integrationstests gegen eine
+ * echte SQLite-Engine statt gegen den (im Node-Testkontext nicht verfügbaren) Tauri-SQL-Plugin
+ * laufen können. Nur für Tests – nie in produktivem App-Code aufrufen.
+ */
+export function __setTestDatabase(db: Database | null): void {
+  dbInstance = db;
+  loading = db ? Promise.resolve(db) : null;
+  transactionDepth = 0;
+}
+
+/**
  * Führt `fn` innerhalb einer SQLite-Transaktion aus; bei Fehler vollständiges Rollback.
  * Unterstützt Verschachtelung via SAVEPOINTs – innere Aufrufe werden als Savepoint
  * behandelt, sodass kein "database is locked" durch verschachteltes BEGIN entsteht.

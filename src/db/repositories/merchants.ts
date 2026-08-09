@@ -8,6 +8,12 @@ export async function listMerchants(): Promise<Merchant[]> {
   );
 }
 
+/** Für die Verwaltungs-Ansicht: auch inaktive Händler, damit sie wieder aktiviert werden können. */
+export async function listAllMerchants(): Promise<Merchant[]> {
+  const db = await getDb();
+  return db.select<Merchant[]>("select * from merchants order by display_name asc");
+}
+
 export async function getMerchant(id: number): Promise<Merchant | null> {
   const db = await getDb();
   const rows = await db.select<Merchant[]>(
@@ -41,7 +47,7 @@ export async function createMerchant(input: {
 
 export async function updateMerchant(
   id: number,
-  updates: Partial<Pick<Merchant, "display_name" | "default_category_id" | "is_active">>,
+  updates: Partial<Pick<Merchant, "display_name" | "default_category_id" | "is_active" | "is_modified">>,
 ): Promise<void> {
   const db = await getDb();
   const sets: string[] = [];
@@ -55,6 +61,40 @@ export async function updateMerchant(
   if (sets.length === 0) return;
   args.push(id);
   await db.execute(`update merchants set ${sets.join(", ")} where id = $${i}`, args);
+}
+
+/**
+ * Bearbeitet einen Händler unabhängig von seiner Herkunft (kuratiert oder eigen) – kuratierte
+ * Händler waren bisher gesperrt, jetzt erzeugt eine Bearbeitung eine lokale Überschreibung
+ * (`is_modified = 1`), das Original bleibt für künftige "Regel-Update prüfen"-Diffs erhalten
+ * (siehe klarwert-haendler-regel-konzept-v2.md, Abschnitt 3).
+ */
+export async function updateMerchantContent(
+  id: number,
+  updates: { display_name: string; default_category_id: number | null },
+): Promise<void> {
+  const merchant = await getMerchant(id);
+  await updateMerchant(id, {
+    ...updates,
+    is_modified: merchant?.is_builtin === 1 ? 1 : merchant?.is_modified,
+  });
+}
+
+/** Vorschläge ähnlicher, bereits vorkommender Empfänger-Rohtexte für die Alias-Auswahl bei Neuanlage. */
+export async function suggestCounterpartiesFor(displayName: string, limit = 8): Promise<string[]> {
+  const db = await getDb();
+  const rows = await db.select<{ counterparty: string }[]>(
+    "select distinct counterparty from transactions where is_deleted = 0",
+  );
+  const { normalizeCounterparty, calculateSimilarity } = await import("@/lib/merchant-match");
+  const target = normalizeCounterparty(displayName);
+  if (!target) return [];
+  return rows
+    .map((r) => ({ raw: r.counterparty, score: calculateSimilarity(target, r.counterparty) }))
+    .filter((r) => r.score >= 0.5)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, limit)
+    .map((r) => r.raw);
 }
 
 export async function deleteMerchant(id: number): Promise<void> {
@@ -187,14 +227,22 @@ export async function applyMerchantDataRelease(release: MerchantDataRelease): Pr
       categoryId = catRows[0]?.id ?? null;
     }
 
-    const existing = await db.select<{ id: number }[]>(
-      "select id from merchants where canonical_name = $1",
+    const existing = await db.select<{ id: number; is_modified: number }[]>(
+      "select id, is_modified from merchants where canonical_name = $1",
       [m.canonical_name],
     );
 
     let merchantId: number;
     if (existing.length > 0) {
       merchantId = existing[0].id;
+      // Lokale Anpassung ("Angepasst", is_modified=1) nie stillschweigend überschreiben – nur den
+      // Referenzstand (source_version) mitziehen, Inhalt/Aliase bleiben unangetastet (Konzept
+      // Abschnitt 3: "übernehmen, ignorieren, oder beides vergleichen" bleibt eine bewusste
+      // Nutzerentscheidung, kein Auto-Overwrite).
+      if (existing[0].is_modified === 1) {
+        await db.execute("update merchants set source_version = $1 where id = $2", [release.source_version, merchantId]);
+        continue;
+      }
       await db.execute(
         "update merchants set display_name = $1, default_category_id = $2, source_version = $3, is_builtin = 1 where id = $4",
         [m.display_name, categoryId, release.source_version, merchantId],

@@ -19,6 +19,7 @@ import { deleteScenario, listSavedScenarios, saveScenario, type SavedScenario } 
 import { amountAxisLabel } from "@/lib/charts/theme";
 import { useElementWidth } from "@/hooks/useElementWidth";
 import { toast } from "sonner";
+import { showErrorToast } from "@/lib/errorToast";
 
 const NARROW_CHART_BREAKPOINT = 500;
 
@@ -444,7 +445,7 @@ export function RechnerPage() {
       }
       toast.success(`Szenario "${scen.name}" geladen`);
     } catch {
-      toast.error("Fehler beim Laden des Szenarios");
+      showErrorToast("Fehler beim Laden des Szenarios");
     }
   }
 
