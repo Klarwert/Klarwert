@@ -68,6 +68,7 @@ export function VermoegenPage() {
   const navigate = useNavigationStore((s) => s.navigate);
 
   const pendingOpenCreateAsset = useUiStore((s) => s.pendingOpenCreateAsset);
+  const pendingAssetPrefill = useUiStore((s) => s.pendingAssetPrefill);
   const consumeOpenCreateAssetRequest = useUiStore((s) => s.consumeOpenCreateAssetRequest);
 
   const [createOpen, setCreateOpen] = useState(false);
@@ -79,11 +80,15 @@ export function VermoegenPage() {
   const [importAssetId, setImportAssetId] = useState<number | null>(null);
   const [editImportFormatAssetId, setEditImportFormatAssetId] = useState<number | null>(null);
 
+  const [createAssetPrefill, setCreateAssetPrefill] = useState<typeof pendingAssetPrefill>(null);
+
   useEffect(() => {
     if (pendingOpenCreateAsset) {
+      setCreateAssetPrefill(pendingAssetPrefill);
       setCreateOpen(true);
       consumeOpenCreateAssetRequest();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pendingOpenCreateAsset, consumeOpenCreateAssetRequest]);
 
   // Globalfilter (2.2): Personen-Filter reduziert Liste+Summe, Konto-Filter macht die Seite
@@ -295,7 +300,11 @@ export function VermoegenPage() {
 
       <CreateAssetModal
         open={createOpen}
-        onOpenChange={setCreateOpen}
+        onOpenChange={(open) => {
+          setCreateOpen(open);
+          if (!open) setCreateAssetPrefill(null);
+        }}
+        initial={createAssetPrefill ?? undefined}
         onCreated={(id, kind) => {
           invalidateAll();
           if (kind === "account") setImportAssetId(id);

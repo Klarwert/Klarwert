@@ -13,6 +13,8 @@
     "sql:allow-close",
     "dialog:default",
     "fs:default",
-    "fs:allow-open"
+    "fs:allow-open",
+    "updater:default",
+    "process:default"
   ]
 }

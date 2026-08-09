@@ -29,6 +29,7 @@ import {
 import { parseAmountToCents, formatEur } from "@/lib/money";
 import type { PeriodType } from "@/lib/periods";
 import { toast } from "sonner";
+import { showErrorToast } from "@/lib/errorToast";
 
 const PERIOD_LABELS: Record<PeriodType, string> = {
   week: "Woche",
@@ -97,7 +98,7 @@ export function BudgetEditorModal({
     try {
       const limitCents = parseAmountToCents(limit);
       if (limitCents <= 0) {
-        toast.error("Budget-Limit muss größer als 0 sein.");
+        showErrorToast("Budget-Limit muss größer als 0 sein.");
         return;
       }
       if (budget) {
@@ -110,7 +111,7 @@ export function BudgetEditorModal({
       onSaved();
       onOpenChange(false);
     } catch (e) {
-      toast.error(`Budget konnte nicht gespeichert werden: ${String(e)}`);
+      showErrorToast(`Budget konnte nicht gespeichert werden: ${String(e)}`);
     } finally {
       setSubmitting(false);
     }

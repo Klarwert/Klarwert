@@ -11,6 +11,11 @@
 -- aus migrate.ts entfernt.
 
 pragma foreign_keys = off;
+-- siehe migration 012: ohne dieses pragma schreibt sqlite bei "alter table ... rename" automatisch
+-- fremdschlüssel-referenzen in ANDEREN tabellen (hier: transactions.contract_id, rule_conditions.rule_id,
+-- transactions.applied_rule_id) auf den temporären zwischennamen um – das ist der eigentliche, bisher
+-- nicht behobene grund für "no such table: main.contracts_old"/"main.rules_rebuild_old".
+pragma legacy_alter_table = on;
 
 -- Leftover-Tabellen aus vorherigen (abgebrochenen) Rebuild-Läufen entfernen
 drop table if exists contracts_clean_temp;
@@ -93,5 +98,6 @@ from rules_rebuild_old;
 
 drop table rules_rebuild_old;
 
+pragma legacy_alter_table = off;
 pragma foreign_keys = on;
 pragma foreign_key_check;

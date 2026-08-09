@@ -3,6 +3,7 @@ import { todayIso } from "@/lib/dates";
 import type { AssetWithOwners } from "@/db/repositories/assets";
 
 interface AnchorInfo {
+  id: number;
   value: number;
   date: string;
 }
@@ -19,16 +20,34 @@ interface ValueHistoryLite {
   value_cents: number;
 }
 
-async function fetchAnchors(): Promise<Map<number, AnchorInfo>> {
+/**
+ * Ein Konto kann mehrere 'anchor'-Einträge haben: den Erstimport-Anker plus spätere
+ * Saldo-Korrekturen (siehe UpdateValueModal) – jede Korrektur setzt einen neuen Anker,
+ * der ab ihrem Datum den vorherigen ablöst. Darum je Asset eine (nach Datum/Id) sortierte
+ * Liste statt eines einzelnen Werts.
+ */
+async function fetchAnchors(): Promise<Map<number, AnchorInfo[]>> {
   const db = await getDb();
-  const rows = await db.select<{ asset_id: number; valued_at: string; value_cents: number }[]>(
-    "select asset_id, valued_at, value_cents from value_history where source = 'anchor'",
+  const rows = await db.select<{ id: number; asset_id: number; valued_at: string; value_cents: number }[]>(
+    "select id, asset_id, valued_at, value_cents from value_history where source = 'anchor' order by valued_at asc, id asc",
   );
-  const map = new Map<number, AnchorInfo>();
+  const map = new Map<number, AnchorInfo[]>();
   for (const r of rows) {
-    map.set(r.asset_id, { value: r.value_cents, date: r.valued_at });
+    const list = map.get(r.asset_id) ?? [];
+    list.push({ id: r.id, value: r.value_cents, date: r.valued_at });
+    map.set(r.asset_id, list);
   }
   return map;
+}
+
+/** Der zum Stichtag gültige Anker: der letzte Anker mit Datum <= cutoff. */
+function anchorAt(anchorList: AnchorInfo[], cutoff: string): AnchorInfo | undefined {
+  let result: AnchorInfo | undefined;
+  for (const a of anchorList) {
+    if (a.date > cutoff) break;
+    result = a;
+  }
+  return result;
 }
 
 async function fetchTransactionsLite(): Promise<TxLite[]> {
@@ -55,10 +74,10 @@ async function fetchValuableHistory(): Promise<Map<number, ValueHistoryLite[]>> 
 function accountBalanceAt(
   assetId: number,
   cutoff: string,
-  anchors: Map<number, AnchorInfo>,
+  anchors: Map<number, AnchorInfo[]>,
   txByAsset: Map<number, TxLite[]>,
 ): number {
-  const anchor = anchors.get(assetId);
+  const anchor = anchorAt(anchors.get(assetId) ?? [], cutoff);
   const anchorValue = anchor?.value ?? 0;
   const anchorDate = anchor?.date ?? "0000-01-01";
   const txs = txByAsset.get(assetId) ?? [];
@@ -166,20 +185,27 @@ export async function getAssetIdsWithAnchor(): Promise<Set<number>> {
 /** Sparkline-Punkte (kumulierter Kontostand) für ein einzelnes Konto, jüngste zuerst abgeschnitten. */
 export async function getAccountSparkline(assetId: number, maxPoints = 15): Promise<number[]> {
   const db = await getDb();
-  const anchor = await db.select<{ valued_at: string; value_cents: number }[]>(
-    "select valued_at, value_cents from value_history where asset_id = $1 and source = 'anchor' limit 1",
+  const anchors = await db.select<{ valued_at: string; value_cents: number }[]>(
+    "select valued_at, value_cents from value_history where asset_id = $1 and source = 'anchor' order by valued_at asc, id asc",
     [assetId],
   );
-  const anchorValue = anchor[0]?.value_cents ?? 0;
   const txs = await db.select<{ booking_date: string; amount_cents: number }[]>(
     "select booking_date, amount_cents from transactions where asset_id = $1 and is_deleted = 0 order by booking_date asc, id asc",
     [assetId],
   );
+
+  type Event = { date: string; order: number; apply: (running: number) => number; isTx: boolean };
+  const events: Event[] = [
+    ...anchors.map((a) => ({ date: a.valued_at, order: 0, apply: () => a.value_cents, isTx: false })),
+    ...txs.map((t) => ({ date: t.booking_date, order: 1, apply: (running: number) => running + t.amount_cents, isTx: true })),
+  ];
+  events.sort((a, b) => (a.date === b.date ? a.order - b.order : a.date < b.date ? -1 : 1));
+
   const points: number[] = [];
-  let running = anchorValue;
-  for (const tx of txs) {
-    running += tx.amount_cents;
-    points.push(running);
+  let running = 0;
+  for (const event of events) {
+    running = event.apply(running);
+    if (event.isTx) points.push(running);
   }
   if (points.length === 0) return [];
   return points.slice(-maxPoints);

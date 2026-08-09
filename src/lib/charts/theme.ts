@@ -220,6 +220,16 @@ export function createOverviewSankeyOption({
       trigger: "item",
       valueFormatter: (v) => formatEur(Number(v)),
     },
+    // ECharts liefert den Bild-Export bereits mitgeliefert (toolbox.feature.saveAsImage) – keine
+    // eigene Canvas-Export-Lösung nötig (siehe Bugfix-Runde 3, Punkt 5).
+    toolbox: {
+      feature: {
+        saveAsImage: { title: "Als Bild speichern", name: "geldfluss" },
+      },
+      right: 4,
+      top: 0,
+      iconStyle: { borderColor: chartColors.slate },
+    },
     series: [
       {
         type: "sankey",
@@ -227,8 +237,11 @@ export function createOverviewSankeyOption({
         nodeWidth: 12,
         nodeGap: 10,
         left: 8,
-        right: 24,
-        top: 12,
+        // Rechter Rand relativ statt fix in Pixeln: bei vielen/langen Kategorienamen skaliert der
+        // Platz für die Labels mit der tatsächlichen Container-Breite, statt bei schmaler
+        // Darstellung abgeschnitten zu werden (Bugfix-Runde 3, Punkt 5).
+        right: "18%",
+        top: 28,
         bottom: 12,
         label: { color: chartColors.petrol, fontSize: 11 },
         lineStyle: { color: "gradient", opacity: 0.28, curveness: 0.45 },

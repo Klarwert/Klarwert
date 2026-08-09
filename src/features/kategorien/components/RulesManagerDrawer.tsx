@@ -46,9 +46,9 @@ const OPERATOR_LABELS: Record<string, string> = {
 };
 
 function ruleText(rule: RuleWithConditions): string {
-  return rule.conditions
-    .map((c) => `${FIELD_LABELS[c.field]} ${OPERATOR_LABELS[c.operator]} "${c.value}"`)
-    .join(" UND ");
+  return rule.groups
+    .map((g) => g.conditions.map((c) => `${FIELD_LABELS[c.field]} ${OPERATOR_LABELS[c.operator]} "${c.value}"`).join(" UND "))
+    .join(" ODER ");
 }
 
 function SortableRuleRow({

@@ -48,6 +48,7 @@ import { useCategories } from "@/hooks/useCategories";
 import { getCategorizationLogForTransaction, listMerchants } from "@/db/repositories/merchants";
 import { listRules } from "@/db/repositories/rules";
 import type { CategorizationAlternative, CategorizationMatchedBy } from "@/db/types";
+import { showErrorToast } from "@/lib/errorToast";
 
 const STAGE_LABELS: Partial<Record<CategorizationMatchedBy, string>> = {
   manual: "Manuell gesetzt",
@@ -189,7 +190,7 @@ export function TransactionDrawer({ transaction, onOpenChange, onSaved }: Transa
 
   function ruleLabel(id: number | null | undefined): string {
     const rule = id ? allRules?.find((r) => r.id === id) : undefined;
-    const condition = rule?.conditions[0];
+    const condition = rule?.groups[0]?.conditions[0];
     if (!condition) return "Automatisch über Benutzerregel";
     const field = RULE_FIELD_LABELS[condition.field] ?? condition.field;
     const operator = RULE_OPERATOR_LABELS[condition.operator] ?? condition.operator;
@@ -283,7 +284,7 @@ export function TransactionDrawer({ transaction, onOpenChange, onSaved }: Transa
         onOpenChange(false);
       }
     } catch (e) {
-      toast.error(`Fehler: ${String(e)}`);
+      showErrorToast(`Fehler: ${String(e)}`);
     } finally {
       setSubmitting(false);
     }

@@ -13,6 +13,7 @@ import { createSparzweck, updateSparzweck } from "@/db/repositories/sparzwecke";
 import { parseAmountToCents } from "@/lib/money";
 import type { Sparzweck } from "@/db/types";
 import { toast } from "sonner";
+import { showErrorToast } from "@/lib/errorToast";
 
 const COLOR_SWATCHES = ["#2e6e5e", "#1d4750", "#b79a5b", "#3e8fa3", "#6b7a80", "#c07a4a", "#4a6fa5"];
 
@@ -50,7 +51,7 @@ export function SparzweckEditorModal({ open, sparzweck, onOpenChange, onSaved }:
       onSaved();
       onOpenChange(false);
     } catch (e) {
-      toast.error(`Fehler: ${String(e)}`);
+      showErrorToast(`Fehler: ${String(e)}`);
     } finally {
       setSubmitting(false);
     }

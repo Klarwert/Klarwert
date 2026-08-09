@@ -1,5 +1,7 @@
 -- klarwert - migration 007: extended aliases per round 2
-BEGIN TRANSACTION;
+-- kein eigenes begin/commit hier: migrate.ts kapselt seit dem transaktions-disziplin-fix
+-- (siehe applyMigrations) jede migration bereits selbst in einer echten transaktion; ein
+-- zusätzliches begin hier kollidiert damit ("cannot start a transaction within a transaction").
 insert or ignore into category_aliases (category_id, alias) select id, 'Nebenkosten' from categories where name = 'Wohnnebenkosten' and is_deleted = 0;
 insert or ignore into category_aliases (category_id, alias) select id, 'Betriebskosten' from categories where name = 'Wohnnebenkosten' and is_deleted = 0;
 insert or ignore into category_aliases (category_id, alias) select id, 'Hausgeld' from categories where name = 'Wohnnebenkosten' and is_deleted = 0;
@@ -379,4 +381,3 @@ insert or ignore into category_aliases (category_id, alias) select id, 'Ratenkre
 insert or ignore into category_aliases (category_id, alias) select id, 'Darlehen' from categories where name = 'Kredittilgung und -zinsen' and is_deleted = 0;
 insert or ignore into category_aliases (category_id, alias) select id, 'Tilgung' from categories where name = 'Kredittilgung und -zinsen' and is_deleted = 0;
 insert or ignore into category_aliases (category_id, alias) select id, 'Kreditzinsen' from categories where name = 'Kredittilgung und -zinsen' and is_deleted = 0;
-COMMIT;

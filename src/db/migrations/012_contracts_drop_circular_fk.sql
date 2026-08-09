@@ -6,6 +6,12 @@
 -- amount_tolerance_percent/merchant_id/confidence ergänzt.
 
 pragma foreign_keys = off;
+-- ohne dieses pragma schreibt sqlite bei "alter table contracts rename" automatisch die FK-referenz
+-- in transactions.contract_id (und jeder anderen tabelle mit "references contracts(...)") auf den
+-- temporären namen "contracts_old" um – nach dem drop unten bleibt diese referenz dauerhaft
+-- kaputt ("no such table: main.contracts_old" bei jedem folgenden zugriff). siehe migration 009,
+-- die das für ihre eigenen renames bereits richtig macht; hier fehlte es bisher.
+pragma legacy_alter_table = on;
 
 drop table if exists contracts_old;
 alter table contracts rename to contracts_old;
@@ -42,5 +48,6 @@ drop table contracts_old;
 
 create index if not exists idx_contracts_merchant on contracts(merchant_id);
 
+pragma legacy_alter_table = off;
 pragma foreign_keys = on;
 pragma foreign_key_check;

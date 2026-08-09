@@ -14,6 +14,7 @@ import { createCollection, updateCollection } from "@/db/repositories/collection
 import { parseAmountToCents } from "@/lib/money";
 import type { Collection } from "@/db/types";
 import { toast } from "sonner";
+import { showErrorToast } from "@/lib/errorToast";
 
 interface CollectionEditorModalProps {
   open: boolean;
@@ -53,7 +54,7 @@ export function CollectionEditorModal({ open, collection, onOpenChange, onSaved 
       onSaved();
       onOpenChange(false);
     } catch (e) {
-      toast.error(`Fehler: ${String(e)}`);
+      showErrorToast(`Fehler: ${String(e)}`);
     } finally {
       setSubmitting(false);
     }

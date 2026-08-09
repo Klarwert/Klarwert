@@ -37,6 +37,49 @@ export const EXTRA_FIELD_ROLES: ColumnRole[] = [
 
 export type ColumnMap = Partial<Record<ColumnRole, string>>;
 
+/** Deutsche Klartext-Bezeichnungen für die Bank-Vorlagen-Verwaltung (nicht-technische Nutzer). */
+export const COLUMN_ROLE_LABELS: Record<ColumnRole, string> = {
+  date: "Datum (Buchungstag)",
+  value_date: "Wertstellungsdatum",
+  amount: "Betrag",
+  counterparty: "Empfänger/Zahlungspflichtiger",
+  counterparty_incoming: "Empfänger (bei Eingang)",
+  counterparty_outgoing: "Empfänger (bei Ausgang)",
+  purpose: "Verwendungszweck",
+  external_id: "Externe Buchungs-ID",
+  transaction_type: "Umsatztyp",
+  card_payment_at: "Datum Karteneinsatz",
+  cash_withdrawal_at: "Datum Bargeldabhebung",
+  recipient_iban: "IBAN",
+  recipient_bic: "BIC",
+  recipient_account_number: "Kontonummer",
+  description: "Beschreibung",
+  bank_category: "Kategorie (von der Bank)",
+  bank_subcategory: "Unterkategorie (von der Bank)",
+  bank_account_label: "Kontobezeichnung",
+};
+
+export const ALL_COLUMN_ROLES: ColumnRole[] = [
+  "date",
+  "amount",
+  "counterparty",
+  "purpose",
+  "external_id",
+  "value_date",
+  "counterparty_incoming",
+  "counterparty_outgoing",
+  "transaction_type",
+  "card_payment_at",
+  "cash_withdrawal_at",
+  "recipient_iban",
+  "recipient_bic",
+  "recipient_account_number",
+  "description",
+  "bank_category",
+  "bank_subcategory",
+  "bank_account_label",
+];
+
 export interface BuiltinBankProfile {
   name: string;
   delimiter: "," | ";" | "\t";

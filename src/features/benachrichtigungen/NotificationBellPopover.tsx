@@ -4,6 +4,7 @@ import { AlertCircle, AlertTriangle, Bell, Check, Info } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { useNavigationStore } from "@/stores/navigationStore";
+import { useUiStore } from "@/stores/uiStore";
 import {
   archiveNotification,
   checkSystemNotifications,
@@ -37,6 +38,8 @@ function getNavigationPage(type: string): "vermoegen" | "vertraege" | "transakti
       return "budgets";
     case "sparzweck_reached":
       return "sammlungen";
+    case "own_account_suggestion":
+      return "vermoegen";
     default:
       return "uebersicht";
   }
@@ -45,6 +48,7 @@ function getNavigationPage(type: string): "vermoegen" | "vertraege" | "transakti
 export function NotificationBellPopover() {
   const queryClient = useQueryClient();
   const navigate = useNavigationStore((s) => s.navigate);
+  const requestOpenCreateAsset = useUiStore((s) => s.requestOpenCreateAsset);
 
   // Trigger system notification check on mount
   useEffect(() => {
@@ -69,6 +73,10 @@ export function NotificationBellPopover() {
       await markNotificationRead(item.id);
       queryClient.invalidateQueries({ queryKey: ["notifications"] });
       queryClient.invalidateQueries({ queryKey: ["notifications-unread"] });
+    }
+    if (item.type === "own_account_suggestion" && item.ref_table?.startsWith("own_account_iban:")) {
+      const iban = item.ref_table.slice("own_account_iban:".length);
+      requestOpenCreateAsset({ iban, ibanLocked: true });
     }
     const page = getNavigationPage(item.type);
     navigate(page);

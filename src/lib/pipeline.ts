@@ -13,6 +13,26 @@ interface PipelineTx {
   category_id: number | null;
   categorization_source: string;
   is_transfer: 0 | 1;
+  extra_fields_json?: string | null;
+}
+
+/** Baut aus einer PipelineTx die für conditionMatches/findMatchingRule benötigte SuggestTx. */
+function buildSuggestTx(tx: PipelineTx): SuggestTx {
+  let extraFields: Record<string, string> | undefined;
+  if (tx.extra_fields_json) {
+    try {
+      extraFields = JSON.parse(tx.extra_fields_json);
+    } catch {
+      extraFields = undefined;
+    }
+  }
+  return {
+    asset_id: tx.asset_id,
+    counterparty: tx.counterparty,
+    purpose: tx.purpose,
+    amount_cents: tx.amount_cents,
+    extraFields,
+  };
 }
 
 export interface PipelineResult {
@@ -32,7 +52,7 @@ async function getKontentransferCategoryId(db: Database): Promise<number | null>
   return kontentransferCategoryIdCache;
 }
 
-import { normalize, findMatchingRule } from "./pipeline/suggest-category";
+import { normalize, findMatchingRule, evaluateConditionGroups, type SuggestTx } from "./pipeline/suggest-category";
 import {
   normalizeCounterparty,
   extractMerchantFromPaymentProvider,
@@ -182,6 +202,52 @@ async function findMerchantMatch(tx: PipelineTx, db: Database): Promise<Merchant
   return null;
 }
 
+interface MerchantRuleRow {
+  id: number;
+  priority: number;
+  category_id: number | null;
+}
+
+/**
+ * Nach einem Alias-Treffer (Ebene A): die verknüpften `rules` dieses Händlers in Prioritätsreihenfolge
+ * prüfen, erste treffende gewinnt (siehe klarwert-haendler-regel-konzept-v2.md). Eine Regel ohne
+ * Bedingungen gilt als Default-Treffer (deckt den einfachen Fall "ein Alias, eine Kategorie" ab).
+ * Hat der Händler keine einzige verknüpfte Regel (z. B. noch nicht migrierter/älterer Datensatz),
+ * fällt die Funktion auf `fallbackCategoryId` (merchants.default_category_id) zurück.
+ */
+async function resolveMerchantCategory(
+  merchantId: number,
+  tx: PipelineTx,
+  db: Database,
+  fallbackCategoryId: number | null,
+): Promise<{ categoryId: number | null; ruleId: number | null }> {
+  const rules = await db.select<MerchantRuleRow[]>(
+    "select id, priority, category_id from rules where merchant_id = $1 and is_deleted = 0 order by priority asc",
+    [merchantId],
+  );
+  if (rules.length === 0) return { categoryId: fallbackCategoryId, ruleId: null };
+
+  const suggestTx = buildSuggestTx(tx);
+  for (const rule of rules) {
+    const groupRows = await db.select<{ id: number }[]>(
+      "select id from rule_condition_groups where rule_id = $1 order by group_order asc",
+      [rule.id],
+    );
+    const groups = await Promise.all(
+      groupRows.map(async (g) => ({
+        conditions: await db.select<import("@/db/types").RuleCondition[]>(
+          "select * from rule_conditions where group_id = $1",
+          [g.id],
+        ),
+      })),
+    );
+    if (evaluateConditionGroups(groups, suggestTx)) {
+      return { categoryId: rule.category_id ?? fallbackCategoryId, ruleId: rule.id };
+    }
+  }
+  return { categoryId: fallbackCategoryId, ruleId: null };
+}
+
 /** Dedupliziert Kandidaten nach Händler (höchste Confidence gewinnt), absteigend sortiert. */
 function dedupeByMerchant(candidates: MerchantMatchResult[]): MerchantMatchResult[] {
   const byMerchant = new Map<number, MerchantMatchResult>();
@@ -291,9 +357,12 @@ async function findTransferPartnerByIban(tx: PipelineTx, db: Database): Promise<
 }
 
 /**
- * Stufe 3 (niedrigste Konfidenz, nur Hinweis): normalisierter Empfängername gegen person_aliases.
- * Erzeugt bewusst KEINE automatische Transfer-Markierung (Namensgleichheit allein ist zu unsicher),
- * sondern nur eine Benachrichtigung mit dem Hinweis, die IBAN zu ergänzen.
+ * Stufe 3 (niedrigste Konfidenz, nur Hinweis): normalisierter Empfängername gegen person_aliases
+ * UND den eigentlichen Personennamen selbst (persons.name) – eine Person ist damit sofort nutzbar,
+ * auch bevor eine zusätzliche Namensvariante hinterlegt wurde. Case-insensitiv über
+ * normalizeCounterparty (lowercased). Erzeugt bewusst KEINE automatische Transfer-Markierung
+ * (Namensgleichheit allein ist zu unsicher), sondern nur eine Benachrichtigung mit dem Hinweis,
+ * die IBAN zu ergänzen.
  */
 async function findTransferPartnerByName(
   tx: PipelineTx,
@@ -301,11 +370,16 @@ async function findTransferPartnerByName(
 ): Promise<{ personId: number; personName: string } | null> {
   const normCounterparty = normalizeCounterparty(tx.counterparty);
   if (!normCounterparty) return null;
+  const persons = await db.select<{ id: number; name: string }[]>("select id, name from persons where is_active = 1");
   const aliases = await db.select<{ person_id: number; alias: string; person_name: string }[]>(
     `select pa.person_id, pa.alias, p.name as person_name
      from person_aliases pa join persons p on p.id = pa.person_id`,
   );
-  for (const a of aliases) {
+  const candidates = [
+    ...persons.map((p) => ({ person_id: p.id, alias: p.name, person_name: p.name })),
+    ...aliases,
+  ];
+  for (const a of candidates) {
     const normAlias = normalizeCounterparty(a.alias);
     if (!normAlias) continue;
     if (normCounterparty === normAlias || normCounterparty.includes(normAlias) || normAlias.includes(normCounterparty)) {
@@ -326,18 +400,22 @@ async function applySingleSidedTransfer(
     "update transactions set is_transfer = 1, transfer_status = 'confirmed', category_id = coalesce(category_id, $1) where id = $2",
     [categoryId, tx.id],
   );
-  if (tx.amount_cents < 0) {
-    const destination = await db.select<{ account_type: string | null; default_sparzweck_id: number | null }[]>(
-      "select account_type, default_sparzweck_id from assets where id = $1",
-      [destinationAssetId],
-    );
-    const dest = destination[0];
-    if (dest && (dest.account_type === "tagesgeld" || dest.account_type === "depot")) {
-      await db.execute("update transactions set is_saving = 1, sparzweck_id = coalesce(sparzweck_id, $1) where id = $2", [
-        dest.default_sparzweck_id,
-        tx.id,
-      ]);
-    }
+  // Bewusst KEIN Vorzeichen-Filter mehr hier: destinationAssetId ist per IBAN-Match immer das gleiche
+  // eigene Konto, unabhängig von der Buchungsrichtung. Eine Einzahlung (tx negativ) UND eine Entnahme
+  // (tx positiv, Geld kommt von diesem Konto zurück) müssen beide erfasst werden – sonst verringert
+  // eine Entnahme vom Sparkonto den ausgewiesenen Sparstand nie (siehe Bugfix-Runde 3, Punkt 4:
+  // getCumulativeSaving() summiert -amount_cents, das Vorzeichen der markierten Zeile allein
+  // entscheidet, ob es sich um Zu- oder Abgang handelt).
+  const destination = await db.select<{ account_type: string | null; default_sparzweck_id: number | null }[]>(
+    "select account_type, default_sparzweck_id from assets where id = $1",
+    [destinationAssetId],
+  );
+  const dest = destination[0];
+  if (dest && (dest.account_type === "tagesgeld" || dest.account_type === "depot")) {
+    await db.execute("update transactions set is_saving = 1, sparzweck_id = coalesce(sparzweck_id, $1) where id = $2", [
+      dest.default_sparzweck_id,
+      tx.id,
+    ]);
   }
 }
 
@@ -351,17 +429,32 @@ async function applyTransferPair(txA: PipelineTx, txB: PipelineTx, categoryId: n
     [txA.id, categoryId, txB.id],
   );
 
-  const outgoing = txA.amount_cents < 0 ? txA : txB;
-  const incoming = outgoing === txA ? txB : txA;
-  const destination = await db.select<{ account_type: string | null; default_sparzweck_id: number | null }[]>(
-    "select account_type, default_sparzweck_id from assets where id = $1",
-    [incoming.asset_id],
+  const [assetA, assetB] = await db.select<{ id: number; account_type: string | null; default_sparzweck_id: number | null }[]>(
+    "select id, account_type, default_sparzweck_id from assets where id in ($1, $2)",
+    [txA.asset_id, txB.asset_id],
   );
-  const dest = destination[0];
-  if (dest && (dest.account_type === "tagesgeld" || dest.account_type === "depot")) {
+  const isSavingType = (accountType: string | null) => accountType === "tagesgeld" || accountType === "depot";
+  const assetByAssetId = (assetId: number) => (assetA?.id === assetId ? assetA : assetB?.id === assetId ? assetB : undefined);
+  const assetTxA = assetByAssetId(txA.asset_id);
+  const assetTxB = assetByAssetId(txB.asset_id);
+
+  // Wichtig: die Sparen-Markierung (is_saving/sparzweck_id) läuft immer auf der NICHT-Spar-Seite des
+  // Paares (typischerweise das Girokonto) – ihr Vorzeichen encodiert bereits korrekt Zu- (negativ,
+  // Geld verlässt das Girokonto) vs. Abgang (positiv, Geld kommt vom Sparkonto zurück). Die Spar-Seite
+  // selbst bekommt keine Sparzweck-Zuordnung (sonst würde getCumulativeSaving beide Seiten zählen).
+  let savingLeg: PipelineTx | null = null;
+  let savingAsset: { default_sparzweck_id: number | null } | undefined;
+  if (isSavingType(assetTxA?.account_type ?? null) && !isSavingType(assetTxB?.account_type ?? null)) {
+    savingLeg = txB;
+    savingAsset = assetTxA;
+  } else if (isSavingType(assetTxB?.account_type ?? null) && !isSavingType(assetTxA?.account_type ?? null)) {
+    savingLeg = txA;
+    savingAsset = assetTxB;
+  }
+  if (savingLeg && savingAsset) {
     await db.execute("update transactions set is_saving = 1, sparzweck_id = coalesce(sparzweck_id, $1) where id = $2", [
-      dest.default_sparzweck_id,
-      outgoing.id,
+      savingAsset.default_sparzweck_id,
+      savingLeg.id,
     ]);
   }
 }
@@ -390,8 +483,13 @@ async function applyRule(tx: PipelineTx, rule: RuleWithConditions, db: Database)
 
 /**
  * Kategorisierungs-Pipeline (Product Spec Kap. 3):
- * 1. Manuell > 2. Vertrag > 3. Transfer > 4. Benutzerregeln > 5. Händler-DB > 6. Ähnlichkeit > 7. Unkategorisiert.
+ * 1. Manuell > 2. Vertrag > 3. Transfer > 4. Benutzerregeln > 5. Händler-DB > 6. Ähnlichkeit
+ * > 7. Unkategorisiert.
  * Läuft nach jedem Import sowie bei manueller Transaktionsanlage. Überschreibt nie manuelle Zuweisungen.
+ *
+ * Die frühere separate "Regel-Vorlagen"-Stufe (Text-Suchbegriff -> Kategorie) ist entfallen und in
+ * die Händler-Erkennung aufgegangen – jede Vorlage ist jetzt ein Händler mit einer verknüpften
+ * `rules`-Zeile (siehe klarwert-haendler-regel-konzept-v2.md, migrateRuleTemplatesToMerchants()).
  *
  * @param transactionIds  IDs der zu bewertenden Transaktionen.
  * @param dbOrNull        Optionale offene DB-Connection (z. B. aus Import-Transaktion).
@@ -477,7 +575,7 @@ export async function runPipelineForTransactions(
     }
 
     // 3. Benutzerregeln
-    const rule = findMatchingRule(rules, tx);
+    const rule = findMatchingRule(rules, buildSuggestTx(tx));
     if (rule) {
       const didCategorize = await applyRule(tx, rule, db);
       if (didCategorize) {
@@ -492,23 +590,26 @@ export async function runPipelineForTransactions(
       continue;
     }
 
-    // 4. Händler-DB (Ebene A)
+    // 5. Händler-DB (Ebene A) – inkl. der zum Händler verknüpften Regeln (siehe resolveMerchantCategory)
     const merchantMatch = await findMerchantMatch(tx, db);
     if (merchantMatch) {
       const { best, alternatives } = merchantMatch;
+      const resolved = await resolveMerchantCategory(best.merchant_id, tx, db, best.category_id);
       await db.execute(
         `update transactions set
            merchant_id = $1,
            category_id = coalesce($2, category_id),
            categorization_source = 'merchant',
-           categorization_confidence = $3
-         where id = $4`,
-        [best.merchant_id, best.category_id, best.confidence, id],
+           categorization_confidence = $3,
+           applied_rule_id = coalesce($4, applied_rule_id)
+         where id = $5`,
+        [best.merchant_id, resolved.categoryId, best.confidence, resolved.ruleId, id],
       );
       await logCategorization({
         transaction_id: id,
         matched_by: best.matched_by,
         merchant_id: best.merchant_id,
+        rule_id: resolved.ruleId,
         confidence: best.confidence,
         alternatives: alternatives.map((a) => ({
           matched_by: a.matched_by,
@@ -521,7 +622,7 @@ export async function runPipelineForTransactions(
       continue;
     }
 
-    // 5. Ähnlichkeits-Fallback (Ebene A Ähnlichkeit)
+    // 6. Ähnlichkeits-Fallback (Ebene A Ähnlichkeit)
     const similarityMatch = await findSimilarityMatch(tx, db);
     if (similarityMatch) {
       await db.execute(

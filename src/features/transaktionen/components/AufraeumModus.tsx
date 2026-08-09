@@ -12,6 +12,7 @@ import { useSettingsStore } from "@/stores/settingsStore";
 import { suggestCategory } from "@/lib/pipeline/suggest-category";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
+import { showErrorToast } from "@/lib/errorToast";
 
 interface AufraeumModusProps {
   open: boolean;
@@ -128,45 +129,49 @@ export function AufraeumModus({ open, dateFrom, dateTo, assetId, personId, onOpe
   }
 
   async function handleCategorize(categoryId: number | null) {
-    if (phase === "stapel" && currentGroup) {
-      // Apply to whole group
-      for (const tx of currentGroup) {
-        await updateTransaction(tx.id, { 
-          category_id: categoryId, 
-          categorization_source: categoryId ? (createRuleChecked ? "rule" : "manual") : "none" 
+    try {
+      if (phase === "stapel" && currentGroup) {
+        // Apply to whole group
+        for (const tx of currentGroup) {
+          await updateTransaction(tx.id, {
+            category_id: categoryId,
+            categorization_source: categoryId ? (createRuleChecked ? "rule" : "manual") : "none",
+          });
+          if (categoryId) setCategorizedCount((c) => c + 1);
+        }
+        if (categoryId && createRuleChecked) {
+          await createRule(
+            [{ field: "counterparty", operator: "contains", value: currentGroup[0].counterparty }],
+            {
+              category_id: categoryId,
+              tag_id: null,
+              mark_as_transfer: false,
+              mark_as_saving: false,
+              sparzweck_id: null,
+            },
+          );
+          setRulesCreatedCount((c) => c + 1);
+        }
+        if (categoryId) {
+          setRecentCategoryIds((prev) => [categoryId, ...prev.filter((id) => id !== categoryId)].slice(0, 6));
+        }
+        await advance();
+      } else if (phase === "einzeln" && currentSingle) {
+        await updateTransaction(currentSingle.id, {
+          category_id: categoryId,
+          categorization_source: categoryId ? "manual" : "none",
         });
         if (categoryId) setCategorizedCount((c) => c + 1);
-      }
-      if (categoryId && createRuleChecked) {
-        await createRule(
-          [{ field: "counterparty", operator: "contains", value: currentGroup[0].counterparty }],
-          {
-            category_id: categoryId,
-            tag_id: null,
-            mark_as_transfer: false,
-            mark_as_saving: false,
-            sparzweck_id: null,
-          },
-        );
-        setRulesCreatedCount((c) => c + 1);
-      }
-      if (categoryId) {
-        setRecentCategoryIds((prev) => [categoryId, ...prev.filter((id) => id !== categoryId)].slice(0, 6));
-      }
-      await advance();
-    } else if (phase === "einzeln" && currentSingle) {
-      await updateTransaction(currentSingle.id, { 
-        category_id: categoryId, 
-        categorization_source: categoryId ? "manual" : "none" 
-      });
-      if (categoryId) setCategorizedCount((c) => c + 1);
-      
-      if (categoryId !== null) {
-        setRecentCategoryIds((prev) => [categoryId, ...prev.filter((id) => id !== categoryId)].slice(0, 6));
-      }
 
-      // No rule suggestion here since occurrenceCount === 1 for singles
-      await advance();
+        if (categoryId !== null) {
+          setRecentCategoryIds((prev) => [categoryId, ...prev.filter((id) => id !== categoryId)].slice(0, 6));
+        }
+
+        // No rule suggestion here since occurrenceCount === 1 for singles
+        await advance();
+      }
+    } catch (e) {
+      showErrorToast(`Kategorisierung fehlgeschlagen: ${String(e)}`);
     }
   }
 

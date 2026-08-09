@@ -1,26 +1,41 @@
 import { useEffect, useState } from "react";
+import { COLUMN_ROLE_LABELS, type ColumnRole } from "@/lib/import/bankProfiles";
 
 export interface OptionalColumn {
   key: string;
   label: string;
 }
 
-export const OPTIONAL_COLUMNS: OptionalColumn[] = [
+/** Immer verfügbare Spalten, unabhängig vom Bankprofil (keine extra_fields_json-Werte). */
+export const CORE_OPTIONAL_COLUMNS: OptionalColumn[] = [
   { key: "purpose", label: "Verwendungszweck" },
   { key: "asset_name", label: "Quellkonto" },
   { key: "external_id", label: "Buchungs-ID" },
   { key: "tags", label: "Tags" },
-  { key: "transaction_type", label: "Transaktionstyp" },
-  { key: "card_payment_at", label: "Karteneinsatz-Zeitpunkt" },
-  { key: "cash_withdrawal_at", label: "Bargeldabhebung-Zeitpunkt" },
-  { key: "recipient_iban", label: "Empfänger-IBAN" },
-  { key: "recipient_bic", label: "Empfänger-BIC" },
-  { key: "recipient_account_number", label: "Empfänger-Kontonummer" },
-  { key: "description", label: "Beschreibung" },
-  { key: "bank_category", label: "Bank-Kategorie" },
-  { key: "bank_subcategory", label: "Bank-Unterkategorie" },
-  { key: "bank_account_label", label: "Kontoname (Bank)" },
 ];
+
+/**
+ * Ermittelt die Vereinigungsmenge aller tatsächlich vorkommenden extra_fields_json-Schlüssel über
+ * die übergebenen (aktuell gefilterten) Buchungen – statt einer festen Liste, damit auch Extra-Felder
+ * aus Community-Bankvorlagen mit unbekannten Rollen als Spalte anwählbar sind (siehe Import-Architektur v2, 2.2).
+ */
+export function buildDynamicOptionalColumns(
+  transactions: { extra_fields_json: string | null }[] | undefined,
+): OptionalColumn[] {
+  const keys = new Set<string>();
+  for (const t of transactions ?? []) {
+    if (!t.extra_fields_json) continue;
+    try {
+      const obj = JSON.parse(t.extra_fields_json) as Record<string, unknown>;
+      for (const k of Object.keys(obj)) keys.add(k);
+    } catch {
+      // ignorieren, ungültiges JSON
+    }
+  }
+  return [...keys]
+    .sort()
+    .map((key) => ({ key, label: COLUMN_ROLE_LABELS[key as ColumnRole] ?? key }));
+}
 
 const STORAGE_KEY = "klarwert.transactions.visibleColumns";
 

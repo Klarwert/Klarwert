@@ -8,6 +8,11 @@ const DEFAULT_SETTINGS: Partial<SettingsMap> = {
   kirchensteuer_satz: "8",
   onboarding_done: "0",
   date_display_format: "dd.MM.yyyy",
+  use_rule_templates: "1",
+  rule_templates_migrated_to_merchants: "0",
+  // Default aus (nicht ein): eine Netzwerkanfrage an GitHub beim Start soll der Nutzer bewusst
+  // aktivieren, nichts passiert ungefragt im Hintergrund (siehe prompt-auto-update.md).
+  check_updates_on_startup: "0",
 };
 
 export async function getAllSettings(): Promise<SettingsMap> {

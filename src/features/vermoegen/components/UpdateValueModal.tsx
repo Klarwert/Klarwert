@@ -11,10 +11,12 @@ import { AmountInput } from "@/components/AmountInput";
 import { DateInput } from "@/components/DateInput";
 import { Label } from "@/components/ui/label";
 import { addValueHistoryEntry } from "@/db/repositories/valueHistory";
+import { setLastConfirmedBalance } from "@/db/repositories/assets";
 import { parseAmountToCents } from "@/lib/money";
 import { todayIso } from "@/lib/dates";
 import type { AssetWithOwners } from "@/db/repositories/assets";
 import { toast } from "sonner";
+import { showErrorToast } from "@/lib/errorToast";
 
 interface UpdateValueModalProps {
   asset: AssetWithOwners | null;
@@ -41,17 +43,31 @@ export function UpdateValueModal({ asset, onOpenChange, onSaved }: UpdateValueMo
     if (!asset || !value.trim()) return;
     setSubmitting(true);
     try {
-      await addValueHistoryEntry({
-        asset_id: asset.id,
-        valued_at: date,
-        value_cents: parseAmountToCents(value),
-        source: "manual",
-      });
+      const cents = parseAmountToCents(value);
+      if (asset.kind === "account") {
+        // Für Konten ist der Kontostand = Anker + Transaktionen (Invariante 4). Eine Korrektur
+        // muss deshalb selbst als neuer Anker ab `date` gesetzt werden, sonst hat sie keine
+        // Wirkung auf den berechneten Saldo (siehe accountBalanceAt in networth.ts).
+        await addValueHistoryEntry({
+          asset_id: asset.id,
+          valued_at: date,
+          value_cents: cents,
+          source: "anchor",
+        });
+        await setLastConfirmedBalance(asset.id, cents, date);
+      } else {
+        await addValueHistoryEntry({
+          asset_id: asset.id,
+          valued_at: date,
+          value_cents: cents,
+          source: "manual",
+        });
+      }
       toast.success("Wert aktualisiert");
       onSaved();
       onOpenChange(false);
     } catch (e) {
-      toast.error(`Fehler: ${String(e)}`);
+      showErrorToast(`Fehler: ${String(e)}`);
     } finally {
       setSubmitting(false);
     }

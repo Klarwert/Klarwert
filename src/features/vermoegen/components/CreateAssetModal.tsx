@@ -28,6 +28,7 @@ import { parseAmountToCents } from "@/lib/money";
 import { todayIso } from "@/lib/dates";
 import type { AccountType, AssetKind, ValuableType } from "@/db/types";
 import { toast } from "sonner";
+import { showErrorToast } from "@/lib/errorToast";
 
 const ACCOUNT_TYPES: { value: AccountType; label: string }[] = [
   { value: "giro", label: "Girokonto" },
@@ -47,14 +48,20 @@ interface CreateAssetModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onCreated: (assetId: number, kind: AssetKind) => void;
+  /**
+   * Vorbefüllung für den Auto-Konto-Vorschlag (wiederholt auffällige eigene IBAN + Namensabgleich,
+   * siehe Bugfix-Runde 3, Punkt 4): IBAN kommt aus echten Bankdaten und ist deshalb ausgegraut/nicht
+   * editierbar – der Nutzer bestätigt oder verwirft den Vorschlag, tippt die IBAN nicht selbst ab.
+   */
+  initial?: { name?: string; iban?: string; ibanLocked?: boolean };
 }
 
-export function CreateAssetModal({ open, onOpenChange, onCreated }: CreateAssetModalProps) {
+export function CreateAssetModal({ open, onOpenChange, onCreated, initial }: CreateAssetModalProps) {
   const [kind, setKind] = useState<AssetKind>("account");
   const [accountType, setAccountType] = useState<AccountType>("giro");
   const [valuableType, setValuableType] = useState<ValuableType>("sonstiges");
-  const [name, setName] = useState("");
-  const [iban, setIban] = useState("");
+  const [name, setName] = useState(initial?.name ?? "");
+  const [iban, setIban] = useState(initial?.iban ?? "");
   const [ownerIds, setOwnerIds] = useState<number[]>([]);
   const [sparzweckId, setSparzweckId] = useState<number | null>(null);
   const [value, setValue] = useState("");
@@ -71,6 +78,15 @@ export function CreateAssetModal({ open, onOpenChange, onCreated }: CreateAssetM
       setOwnerIds([persons[0].id]);
     }
   }, [persons]);
+
+  useEffect(() => {
+    if (open && initial) {
+      setKind("account");
+      setName(initial.name ?? "");
+      setIban(initial.iban ?? "");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   const showSparzweck =
     (kind === "account" && (accountType === "tagesgeld" || accountType === "depot")) ||
@@ -118,7 +134,7 @@ export function CreateAssetModal({ open, onOpenChange, onCreated }: CreateAssetM
       reset();
       onOpenChange(false);
     } catch (e) {
-      toast.error(`Fehler: ${String(e)}`);
+      showErrorToast(`Fehler: ${String(e)}`);
     } finally {
       setSubmitting(false);
     }
@@ -206,6 +222,13 @@ export function CreateAssetModal({ open, onOpenChange, onCreated }: CreateAssetM
                 </SelectContent>
               </Select>
             )}
+            {kind === "account" && (accountType === "tagesgeld" || accountType === "depot") && (
+              <p className="text-xs text-slate">
+                Tagesgeld/Depot gelten als Sparkonto: Überweisungen von einem deiner anderen Konten
+                hierher zählen automatisch als Sparen, eine Entnahme zurück verringert den Sparstand
+                wieder.
+              </p>
+            )}
           </div>
 
           <div className="space-y-1.5">
@@ -226,9 +249,13 @@ export function CreateAssetModal({ open, onOpenChange, onCreated }: CreateAssetM
                 value={iban}
                 placeholder="DE12 3456 7890 1234 5678 90"
                 onChange={(e) => setIban(e.target.value)}
+                disabled={initial?.ibanLocked}
+                className={initial?.ibanLocked ? "bg-accent text-slate" : undefined}
               />
               <p className="text-xs text-slate">
-                Grundlage für die sichere Transfer-/Sparen-Erkennung, auch ohne Gegenbuchung.
+                {initial?.ibanLocked
+                  ? "Aus deinen Buchungen übernommen, deshalb nicht editierbar."
+                  : "Grundlage für die sichere Transfer-/Sparen-Erkennung, auch ohne Gegenbuchung."}
               </p>
             </div>
           )}

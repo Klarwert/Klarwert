@@ -22,6 +22,7 @@ import type { TransactionWithTags } from "@/db/repositories/transactions";
 import { toast } from "sonner";
 import { Trash2 } from "lucide-react";
 import { TransactionDrawer } from "@/features/transaktionen/components/TransactionDrawer";
+import { showErrorToast } from "@/lib/errorToast";
 
 interface ContractDrawerProps {
   contract: Contract | "new" | null;
@@ -83,7 +84,7 @@ export function ContractDrawer({ contract, onOpenChange, onChanged }: ContractDr
   async function handleSave() {
     const cents = Math.round(parseFloat(amountStr.replace(",", ".")) * 100);
     if (!name.trim() || isNaN(cents)) {
-      toast.error("Bitte Name und gültigen Betrag eingeben");
+      showErrorToast("Bitte Name und gültigen Betrag eingeben");
       return;
     }
 

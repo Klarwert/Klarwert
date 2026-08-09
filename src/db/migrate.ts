@@ -1,4 +1,4 @@
-import { getDb } from "@/db/client";
+import { getDb, runInTransaction } from "@/db/client";
 import { seedTemplateCategories } from "@/db/repositories/categories";
 import schema001 from "@/db/migrations/001_schema.sql?raw";
 import seed002 from "@/db/migrations/002_seed.sql?raw";
@@ -17,6 +17,12 @@ import multiAccountImport014 from "@/db/migrations/014_multi_account_import.sql?
 import transferIbanPersonAliases015 from "@/db/migrations/015_transfer_iban_person_aliases.sql?raw";
 import fixStaleContractsReference016 from "@/db/migrations/016_fix_stale_contracts_reference.sql?raw";
 import importProfileLocallyModified017 from "@/db/migrations/017_import_profile_locally_modified.sql?raw";
+import transactionsContractIdIndex018 from "@/db/migrations/018_transactions_contract_id_index.sql?raw";
+import ruleTemplates019 from "@/db/migrations/019_rule_templates.sql?raw";
+import fixStaleFkReferences020 from "@/db/migrations/020_fix_stale_fk_references.sql?raw";
+import ownAccountSuggestionNotification021 from "@/db/migrations/021_own_account_suggestion_notification.sql?raw";
+import merchantRulesMerge022 from "@/db/migrations/022_merchant_rules_merge.sql?raw";
+import ruleConditionGroups023 from "@/db/migrations/023_rule_condition_groups.sql?raw";
 
 interface MigrationDef {
   version: number;
@@ -42,6 +48,12 @@ const MIGRATIONS: MigrationDef[] = [
   { version: 15, name: "transfer_iban_person_aliases", sql: transferIbanPersonAliases015 },
   { version: 16, name: "fix_stale_contracts_reference", sql: fixStaleContractsReference016 },
   { version: 17, name: "import_profile_locally_modified", sql: importProfileLocallyModified017 },
+  { version: 18, name: "transactions_contract_id_index", sql: transactionsContractIdIndex018 },
+  { version: 19, name: "rule_templates", sql: ruleTemplates019 },
+  { version: 20, name: "fix_stale_fk_references", sql: fixStaleFkReferences020 },
+  { version: 21, name: "own_account_suggestion_notification", sql: ownAccountSuggestionNotification021 },
+  { version: 22, name: "merchant_rules_merge", sql: merchantRulesMerge022 },
+  { version: 23, name: "rule_condition_groups", sql: ruleConditionGroups023 },
 ];
 
 /**
@@ -50,7 +62,7 @@ const MIGRATIONS: MigrationDef[] = [
  * escapetes Anführungszeichen) sowie innerhalb von `--`-Zeilenkommentaren,
  * damit z. B. `check (x in (';'))` oder `-- hex; ...` nicht fälschlich brechen.
  */
-function splitStatements(sql: string): string[] {
+export function splitStatements(sql: string): string[] {
   const statements: string[] = [];
   let current = "";
   let inString = false;
@@ -98,8 +110,13 @@ async function sanitizeDatabaseState(): Promise<void> {
   const db = await getDb();
   await db.execute("PRAGMA foreign_keys = OFF;");
   try {
+    // "_rebuild_old" deckt Leichen aus Table-Rebuild-Migrationen ab (z. B. rules_rebuild_old aus
+    // Migration 016), die vor dem Transaktions-Fix in migrate.ts (siehe applyMigrations) bei einem
+    // mittendrin fehlschlagenden Rebuild dauerhaft liegen bleiben konnten. Bereits betroffene
+    // Installationen heilen sich damit beim nächsten Start selbst, ohne die Migration erneut
+    // ausführen zu müssen (die ohnehin idempotent wäre, aber so schneller wieder lauffähig ist).
     const tempTables = await db.select<{ name: string }[]>(
-      "select name from sqlite_master where type = 'table' and (name like '%_fix_temp%' or name like '%_clean_temp%' or name like '%_temp')",
+      "select name from sqlite_master where type = 'table' and (name like '%_fix_temp%' or name like '%_clean_temp%' or name like '%_temp' or name like '%_rebuild_old')",
     );
 
     for (const tempTable of tempTables) {
@@ -107,6 +124,7 @@ async function sanitizeDatabaseState(): Promise<void> {
       const baseName = tempName
         .replace("_fix_temp", "")
         .replace("_clean_temp", "")
+        .replace("_rebuild_old", "")
         .replace("_temp", "");
 
       if (!baseName) continue;
@@ -258,29 +276,46 @@ async function applyMigrations(): Promise<void> {
     await db.execute("PRAGMA foreign_keys = OFF;");
     try {
       for (const migration of pending) {
-        for (const statement of splitStatements(migration.sql)) {
-          try {
-            await db.execute(statement);
-          } catch (e) {
-            const errStr = String(e).toLowerCase();
-            // Ignoriere unschädliche Fehler, wenn Spalten/Tabellen/Indizes bereits existieren
-            if (
-              errStr.includes("duplicate column name") ||
-              errStr.includes("already exists")
-            ) {
-              console.warn(
-                `[Migration v${migration.version} '${migration.name}'] Ignoriere redundantes DDL:`,
-                statement,
-              );
-            } else {
-              throw e;
+        // CLAUDE.md "Daten-Robustheit": jede Migration läuft in EINER Transaktion, Rollback bei
+        // Fehler, kein Teilzustand. Vorher fehlte das hier komplett – ein mitten in einem
+        // Table-Rebuild (z. B. Migration 016, rules -> rules_rebuild_old -> rules) fehlschlagender
+        // Schritt hinterließ die Zwischentabelle dauerhaft, weil nichts zurückgerollt wurde
+        // ("no such table: main.rules_rebuild_old" bei jedem folgenden Start). Mit echtem
+        // BEGIN/COMMIT/ROLLBACK pro Migration bleibt bei einem Fehler der Vorzustand vollständig
+        // erhalten und dieselbe, korrekte Migration wird beim nächsten Start einfach erneut versucht.
+        await runInTransaction(async (txDb) => {
+          // Erneut aufrufen (nicht nur einmal vor der Schleife): bei einer wirklich frischen
+          // Installation existiert z. B. `transactions` beim ersten Aufruf ganz oben noch nicht
+          // (Migration 1 legt die Tabelle erst an) – die dortigen ALTER TABLE-Versuche schlagen
+          // dann mit "no such table" fehl (stillschweigend ignoriert) und Spalten wie `value_date`
+          // fehlen dadurch tatsächlich, wenn ein späteres Rebuild (z. B. Migration 008/009) sie schon
+          // beim Kopieren aus der alten Tabelle braucht ("no such column: value_date"). Idempotent
+          // und billig genug, um vor jeder Migration erneut zu laufen.
+          await ensureEssentialColumnsExist();
+          for (const statement of splitStatements(migration.sql)) {
+            try {
+              await txDb.execute(statement);
+            } catch (e) {
+              const errStr = String(e).toLowerCase();
+              // Ignoriere unschädliche Fehler, wenn Spalten/Tabellen/Indizes bereits existieren
+              if (
+                errStr.includes("duplicate column name") ||
+                errStr.includes("already exists")
+              ) {
+                console.warn(
+                  `[Migration v${migration.version} '${migration.name}'] Ignoriere redundantes DDL:`,
+                  statement,
+                );
+              } else {
+                throw e;
+              }
             }
           }
-        }
-        await db.execute(
-          "insert into _migrations (version, name) values ($1, $2)",
-          [migration.version, migration.name],
-        );
+          await txDb.execute(
+            "insert into _migrations (version, name) values ($1, $2)",
+            [migration.version, migration.name],
+          );
+        });
       }
     } finally {
       await db.execute("PRAGMA foreign_keys = ON;");
@@ -304,6 +339,18 @@ async function applyMigrations(): Promise<void> {
     await seedDefaultMerchants();
   } catch (e) {
     console.warn("Merchant seed notice:", e);
+  }
+  try {
+    const { seedBuiltinRuleTemplates } = await import("@/db/repositories/ruleTemplates");
+    await seedBuiltinRuleTemplates();
+  } catch (e) {
+    console.warn("Rule-template seed notice:", e);
+  }
+  try {
+    const { migrateRuleTemplatesToMerchants } = await import("@/db/repositories/migrateRuleTemplates");
+    await migrateRuleTemplatesToMerchants();
+  } catch (e) {
+    console.warn("Rule-template -> merchant migration notice:", e);
   }
 }
 

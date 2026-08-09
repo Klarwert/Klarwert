@@ -23,21 +23,26 @@ import { createCategory, updateCategory, getCategoryAliases, addCategoryAlias, r
 import type { Category } from "@/db/types";
 import { toast } from "sonner";
 import { X, Plus } from "lucide-react";
+import { showErrorToast } from "@/lib/errorToast";
 
+// Eigene, deutlich abgegrenzte Palette für Kategorie-Icons – bewusst getrennt von den 6 semantischen
+// Statusfarben (chartColors: petrol/petrolLight/sage/brick/gold/slate), die für Vorzeichen/Zustand
+// reserviert bleiben. Vorher überschnitten sich mehrere Einträge hier exakt mit diesen Statusfarben
+// (siehe Bugfix-Runde 3, Punkt 6).
 const COLOR_SWATCHES = [
-  "#1d4750",
-  "#b79a5b",
-  "#6f9a6d",
+  "#2f6b63",
+  "#c9a44f",
+  "#7aa662",
   "#4e8d7c",
   "#3f7d4e",
-  "#6b7a80",
+  "#5f7a9e",
   "#c07a4a",
   "#4a6fa5",
   "#2e6e5e",
   "#8a5fa0",
   "#3e8fa3",
   "#55606a",
-  "#b6503a",
+  "#a9724f",
 ];
 
 const ICON_CHOICES = [
@@ -130,7 +135,7 @@ export function CategoryEditorModal({ open, category, onOpenChange, onSaved }: C
       onSaved();
       onOpenChange(false);
     } catch (e) {
-      toast.error(`Fehler: ${String(e)}`);
+      showErrorToast(`Fehler: ${String(e)}`);
     } finally {
       setSubmitting(false);
     }

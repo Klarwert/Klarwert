@@ -43,8 +43,12 @@ export function formatAxisAmount(cents: number): string {
 }
 
 
-/** Parst eine deutsche oder englische Betragsangabe (Text) in Integer-Cents nach der "Letztes Zeichen gewinnt"-Regel. */
-export function parseAmountToCents(input: string): number {
+/**
+ * Normalisiert eine deutsche oder englische Zahleneingabe (Text) zu einem JS-Float nach der
+ * "Letztes Zeichen gewinnt"-Regel: welches Zeichen (Komma/Punkt) zuletzt im String vorkommt, ist
+ * der Dezimaltrenner, alle vorherigen Vorkommen desselben Zeichentyps sind Tausendertrenner.
+ */
+export function parseDecimalString(input: string): number {
   let normalized = input.trim().replace(/[€\s+]/g, "");
   const lastComma = normalized.lastIndexOf(",");
   const lastPoint = normalized.lastIndexOf(".");
@@ -88,7 +92,12 @@ export function parseAmountToCents(input: string): number {
   if (Number.isNaN(value)) {
     throw new Error(`Ungültiger Betrag: "${input}"`);
   }
-  return Math.round(value * 100);
+  return value;
+}
+
+/** Parst eine deutsche oder englische Betragsangabe (Text) in Integer-Cents. */
+export function parseAmountToCents(input: string): number {
+  return Math.round(parseDecimalString(input) * 100);
 }
 
 export function addCents(...values: number[]): number {

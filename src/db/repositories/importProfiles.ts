@@ -10,8 +10,12 @@ export async function listImportProfiles(): Promise<ImportProfile[]> {
 
 export async function findByFingerprint(fingerprint: string): Promise<ImportProfile | null> {
   const db = await getDb();
+  // Bei identischen Spaltenüberschriften (z. B. eine unveränderte Kopie eines mitgelieferten
+  // Bank-Templates) mehrere Profile mit demselben Fingerprint möglich – die eigene/angepasste
+  // Vorlage soll dann Vorrang vor der mitgelieferten haben, sonst wirkt eine Kopie/Bearbeitung
+  // beim nächsten Import wie wirkungslos (die Erkennung würde weiterhin das Original treffen).
   const rows = await db.select<ImportProfile[]>(
-    "select * from import_profiles where header_fingerprint = $1 and is_deleted = 0 limit 1",
+    "select * from import_profiles where header_fingerprint = $1 and is_deleted = 0 order by is_builtin asc, id desc limit 1",
     [fingerprint],
   );
   return rows[0] ?? null;
@@ -60,17 +64,19 @@ export async function updateImportProfile(
   const db = await getDb();
   await db.execute(
     `update import_profiles set
-      header_fingerprint = coalesce($1, header_fingerprint),
-      delimiter = coalesce($2, delimiter),
-      encoding = coalesce($3, encoding),
-      date_format = coalesce($4, date_format),
-      decimal_format = coalesce($5, decimal_format),
-      column_map_json = coalesce($6, column_map_json),
-      import_all_columns = coalesce($7, import_all_columns),
-      account_column_index = coalesce($8, account_column_index),
-      locally_modified = coalesce($9, locally_modified)
-     where id = $10`,
+      name = coalesce($1, name),
+      header_fingerprint = coalesce($2, header_fingerprint),
+      delimiter = coalesce($3, delimiter),
+      encoding = coalesce($4, encoding),
+      date_format = coalesce($5, date_format),
+      decimal_format = coalesce($6, decimal_format),
+      column_map_json = coalesce($7, column_map_json),
+      import_all_columns = coalesce($8, import_all_columns),
+      account_column_index = coalesce($9, account_column_index),
+      locally_modified = coalesce($10, locally_modified)
+     where id = $11`,
     [
+      input.name ?? null,
       input.header_fingerprint ?? null,
       input.delimiter ?? null,
       input.encoding ?? null,
@@ -83,6 +89,11 @@ export async function updateImportProfile(
       id,
     ],
   );
+}
+
+export async function deleteImportProfile(id: number): Promise<void> {
+  const db = await getDb();
+  await db.execute("update import_profiles set is_deleted = 1 where id = $1", [id]);
 }
 
 /** Kontokennungs-Mapping (Mehrkonto-Dateien, z. B. C24): source_value (z. B. Kontoname/-nummer laut Bank-Export) -> Klarwert-Konto. */

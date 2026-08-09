@@ -28,7 +28,7 @@ import {
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { PeriodSwitcher } from "@/components/PeriodSwitcher";
 import { ColumnVisibilityPopover } from "@/components/ColumnVisibilityPopover";
-import { OPTIONAL_COLUMNS, useColumnVisibility } from "@/hooks/useColumnVisibility";
+import { CORE_OPTIONAL_COLUMNS, buildDynamicOptionalColumns, useColumnVisibility } from "@/hooks/useColumnVisibility";
 import { getPeriodRange } from "@/lib/periods";
 import { usePeriodStore } from "@/stores/periodStore";
 import { useGlobalFilterStore } from "@/stores/globalFilterStore";
@@ -36,6 +36,7 @@ import { useAssets } from "@/hooks/useAssets";
 import { useCategories } from "@/hooks/useCategories";
 import { useTags } from "@/hooks/useTags";
 import { useCollections } from "@/hooks/useCollections";
+import { useSparzwecke } from "@/hooks/useSparzwecke";
 import { reorderRules } from "@/db/repositories/rules";
 import { addTagToTransactions } from "@/db/repositories/transactions";
 import { addTransactionsToCollection } from "@/db/repositories/collections";
@@ -97,6 +98,12 @@ export function TransaktionenPage() {
   const { data: categories } = useCategories();
   const { data: tags } = useTags();
   const { data: collections } = useCollections();
+  const { data: sparzwecke } = useSparzwecke();
+
+  function sparzweckLabel(sparzweckId: number | null): string | null {
+    if (!sparzweckId) return null;
+    return sparzwecke?.find((s) => s.id === sparzweckId)?.name ?? null;
+  }
   const { visible: visibleColumns, toggle: toggleColumn } = useColumnVisibility();
 
   const [search, setSearch] = useState("");
@@ -168,6 +175,10 @@ export function TransaktionenPage() {
     queryKey: ["transactions", filter],
     queryFn: () => listTransactions(filter),
   });
+  const optionalColumns = useMemo(
+    () => [...CORE_OPTIONAL_COLUMNS, ...buildDynamicOptionalColumns(transactions)],
+    [transactions],
+  );
   const { data: totalCount } = useQuery({
     queryKey: ["transactions-count", filter],
     queryFn: () => countTransactions({ ...filter, limit: undefined, offset: undefined }),
@@ -239,7 +250,7 @@ export function TransaktionenPage() {
 
   function handleExportCsv() {
     if (!transactions) return;
-    const optionalCols = OPTIONAL_COLUMNS.filter((c) => visibleColumns.has(c.key));
+    const optionalCols = optionalColumns.filter((c) => visibleColumns.has(c.key));
     const headers = [
       "Datum",
       "Konto",
@@ -288,7 +299,7 @@ export function TransaktionenPage() {
   }
 
   const allSelected = !!transactions && transactions.length > 0 && selectedIds.length === transactions.length;
-  const visibleOptionalColumns = OPTIONAL_COLUMNS.filter((c) => visibleColumns.has(c.key));
+  const visibleOptionalColumns = optionalColumns.filter((c) => visibleColumns.has(c.key));
 
   return (
     <div className="space-y-4 pb-20">
@@ -338,7 +349,7 @@ export function TransaktionenPage() {
         <Button variant="ghost" size="icon" aria-label="Änderungsverlauf" onClick={() => setHistoryOpen(true)}>
           <History className="size-4" />
         </Button>
-        <ColumnVisibilityPopover visible={visibleColumns} onToggle={toggleColumn} />
+        <ColumnVisibilityPopover columns={optionalColumns} visible={visibleColumns} onToggle={toggleColumn} />
       </div>
 
       <div className="flex flex-wrap items-center gap-2">
@@ -445,23 +456,31 @@ export function TransaktionenPage() {
                         />
                       </td>
                       <td className="p-2">{formatDate(t.booking_date, dateDisplayFormat)}</td>
-                      <td className="p-2">
-                        <div className="flex items-center gap-1.5">
-                          {t.counterparty}
-                          {t.is_transfer === 1 && t.transfer_status === "confirmed" && (
-                            <Badge className="bg-sage text-card hover:bg-sage">Transfer</Badge>
-                          )}
-                          {t.is_transfer === 1 && t.transfer_status === "suggested" && (
-                            <TransferSuggestionPopover
-                              transactionId={t.id}
-                              onConfirm={() => void confirmTransferPair(t.id).then(invalidate)}
-                              onDismiss={() => void dismissTransferPair(t.id).then(invalidate)}
-                            />
-                          )}
-                          {t.is_saving === 1 && <span className="size-1.5 rounded-full bg-sage" />}
-                        </div>
+                      <td className="p-2">{t.counterparty}</td>
+                      <td className="p-2 text-slate">
+                        {(() => {
+                          // Transfer-/Sparen-Status steuert die Darstellung der Kategorie-Zelle statt
+                          // eines separaten Empfänger-Spalten-Badges (Bugfix-Runde 3, Punkt 3). Die
+                          // technischen Felder is_transfer/transfer_pair_id/is_saving bleiben unverändert
+                          // für Auswertungen bestehen, nur die Anzeige wird vereinheitlicht.
+                          const sparLabel = sparzweckLabel(t.sparzweck_id);
+                          const label = t.is_saving === 1 ? `Sparen${sparLabel ? `: ${sparLabel}` : ""}` : categoryLabel(t.category_id);
+                          if (t.is_transfer === 1 && t.transfer_status === "suggested") {
+                            return (
+                              <TransferSuggestionPopover
+                                transactionId={t.id}
+                                label={label}
+                                onConfirm={() => void confirmTransferPair(t.id).then(invalidate)}
+                                onDismiss={() => void dismissTransferPair(t.id).then(invalidate)}
+                              />
+                            );
+                          }
+                          if (t.is_transfer === 1 && t.transfer_status === "confirmed") {
+                            return <Badge className="bg-sage text-card hover:bg-sage">{label}</Badge>;
+                          }
+                          return label;
+                        })()}
                       </td>
-                      <td className="p-2 text-slate">{categoryLabel(t.category_id)}</td>
                       <td className="num p-2 text-right">{formatEur(t.amount_cents)}</td>
                       {visibleOptionalColumns.map((c) => {
                         let val = "";

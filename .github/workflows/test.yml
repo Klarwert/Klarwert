@@ -1,0 +1,22 @@
+name: Tests
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          # 24+ für node:sqlite ohne --experimental-sqlite-Flag (In-Memory-Integrationstests,
+          # siehe src/test/sqliteTestDb.ts) – Node 20/22 kennen das Built-in-Modul noch nicht
+          # bzw. nur hinter dem Flag.
+          node-version: 24
+      - run: npm ci
+      - run: npm test

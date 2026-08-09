@@ -8,6 +8,7 @@ import {
   Eye,
   FolderKanban,
   Gauge,
+  Maximize2,
   PiggyBank,
   Receipt,
   Settings2,
@@ -219,6 +220,7 @@ export function UebersichtPage() {
   const [comparisonMode, setComparisonMode] = useState<"prev_period" | "prev_year">("prev_period");
   const [cashflowCount, setCashflowCount] = useState<number>(6);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [sankeyFullscreen, setSankeyFullscreen] = useState(false);
   const [visibleWidgets, setVisibleWidgets] = useState<Set<WidgetKey>>(() => new Set(WIDGETS));
 
   const period = getPeriodRange(type, new Date(`${anchorIso}T00:00:00`));
@@ -418,7 +420,18 @@ export function UebersichtPage() {
       )}
 
       {visibleWidgets.has("money_flow") && (
-        <Widget title="Geldfluss" icon={TrendingUp} className="min-h-[250px]">
+        <Widget
+          title="Geldfluss"
+          icon={TrendingUp}
+          className="min-h-[250px]"
+          action={
+            sankeyChart && (
+              <Button variant="ghost" size="icon" onClick={() => setSankeyFullscreen(true)} aria-label="Vollbild">
+                <Maximize2 className="size-4" />
+              </Button>
+            )
+          }
+        >
           {sankeyChart ? (
             <ReactECharts option={sankeyChart} style={{ height: 220, width: "100%" }} opts={{ renderer: "svg" }} />
           ) : (
@@ -426,6 +439,17 @@ export function UebersichtPage() {
           )}
         </Widget>
       )}
+
+      <Dialog open={sankeyFullscreen} onOpenChange={setSankeyFullscreen}>
+        <DialogContent className="max-w-[95vw] max-h-[90vh]">
+          <DialogHeader>
+            <DialogTitle>Geldfluss</DialogTitle>
+          </DialogHeader>
+          {sankeyChart && (
+            <ReactECharts option={sankeyChart} style={{ height: "75vh", width: "100%" }} opts={{ renderer: "svg" }} />
+          )}
+        </DialogContent>
+      </Dialog>
 
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1.15fr)_minmax(320px,0.85fr)]">
         <div className="space-y-4">

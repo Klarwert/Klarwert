@@ -49,6 +49,11 @@ jobs:
         uses: tauri-apps/tauri-action@v1
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Signiert Update-Artefakte + erzeugt latest.json automatisch (siehe prompt-auto-update.md).
+          # Secrets müssen einmalig manuell angelegt werden (tauri.conf.json#plugins.updater.pubkey
+          # bleibt bis dahin leer/"active": false) – siehe SECURITY.md bzw. den Kommentar dort.
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY_PASSWORD }}
         with:
           tagName: v__VERSION__
           releaseName: 'Klarwert v__VERSION__'
