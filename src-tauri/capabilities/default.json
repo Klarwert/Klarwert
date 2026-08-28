@@ -1,0 +1,91 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Capability for the main window",
+  "windows": [
+    "main"
+  ],
+  "permissions": [
+    "core:default",
+    "opener:default",
+    "sql:default",
+    "sql:allow-load",
+    "sql:allow-execute",
+    "sql:allow-select",
+    "sql:allow-close",
+    "dialog:default",
+    "fs:default",
+    "fs:allow-open",
+    "updater:default",
+    "process:default",
+    "fs:allow-appdata-read-recursive",
+    "fs:allow-appdata-write-recursive",
+    {
+      "identifier": "fs:allow-read",
+      "allow": [
+        {
+          "path": "$DOCUMENT/Klarwert/**"
+        },
+        {
+          "path": "$APP_DATA/**"
+        }
+      ]
+    },
+    {
+      "identifier": "fs:allow-write",
+      "allow": [
+        {
+          "path": "$DOCUMENT/Klarwert/**"
+        },
+        {
+          "path": "$APP_DATA/**"
+        }
+      ]
+    },
+    {
+      "identifier": "fs:allow-mkdir",
+      "allow": [
+        {
+          "path": "$DOCUMENT/Klarwert/**"
+        },
+        {
+          "path": "$APP_DATA/**"
+        }
+      ]
+    },
+    {
+      "identifier": "fs:allow-copy-file",
+      "allow": [
+        {
+          "path": "$DOCUMENT/Klarwert/**"
+        },
+        {
+          "path": "$APP_DATA/**"
+        }
+      ]
+    },
+    {
+      "identifier": "fs:allow-exists",
+      "allow": [
+        {
+          "path": "$DOCUMENT/Klarwert/**"
+        },
+        {
+          "path": "$APP_DATA/**"
+        }
+      ]
+    },
+    {
+      "identifier": "fs:allow-remove",
+      "allow": [
+        {
+          "path": "$DOCUMENT/Klarwert/**"
+        },
+        {
+          "path": "$APP_DATA/**"
+        }
+      ]
+    },
+    "notification:default"
+  ]
+}

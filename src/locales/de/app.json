@@ -1,0 +1,191 @@
+{
+  "title": "Klarwert",
+  "nav": {
+    "uebersicht": "Übersicht",
+    "vermoegen": "Vermögen",
+    "transaktionen": "Transaktionen",
+    "kategorien": "Kategorien",
+    "vertraege": "Verträge",
+    "sammlungen": "Sammlungen",
+    "budgets": "Budgets",
+    "steuer": "Steuer",
+    "rechner": "Rechner",
+    "erfassen": "Erfassen",
+    "ordnen": "Ordnen",
+    "planen": "Planen",
+    "haushalt": "Haushalt"
+  },
+  "common": {
+    "save": "Speichern",
+    "cancel": "Abbrechen",
+    "delete": "Löschen",
+    "edit": "Bearbeiten",
+    "add": "Hinzufügen",
+    "close": "Schließen",
+    "confirm": "Bestätigen",
+    "reset": "Zurücksetzen",
+    "saving": "Speichert...",
+    "search": "Suchen",
+    "noResults": "Keine Treffer",
+    "filter": "Filter",
+    "loading": "Lädt…",
+    "error": "Fehler",
+    "success": "Erfolgreich",
+    "yes": "Ja",
+    "no": "Nein",
+    "none": "Keine",
+    "all": "Alle",
+    "more": "Mehr",
+    "back": "Zurück",
+    "next": "Weiter",
+    "create": "Erstellen",
+    "import": "Importieren",
+    "export": "Exportieren",
+    "actions": "Aktionen",
+    "name": "Name",
+    "date": "Datum",
+    "amount": "Betrag",
+    "category": "Kategorie",
+    "account": "Konto",
+    "note": "Notiz",
+    "tags": "Tags",
+    "unknown": "Unbekannt",
+    "optional": "optional",
+    "required": "Pflichtfeld",
+    "apply": "Anwenden",
+    "advanced": "Erweitert",
+    "only": "Nur",
+    "without": "Ohne",
+    "selectAccount": "Konto wählen",
+    "invalidAmount": "Ungültiger Betrag",
+    "amountNotZero": "Betrag darf nicht 0 sein"
+  },
+  "globalbar": {
+    "allAccounts": "Alle Konten",
+    "allPersons": "Alle Personen",
+    "accountFilter": "Konto-Filter",
+    "personFilter": "Personen-Filter",
+    "filterHint": "Filtert alle angezeigten Beträge und Listen. Stammdaten (Kategorien, Regeln, Einstellungen) bleiben immer vollständig sichtbar."
+  },
+  "currency": {
+    "eur": "Euro (€)",
+    "usd": "US-Dollar ($)",
+    "chf": "Schweizer Franken (CHF)"
+  },
+  "date": {
+    "today": "Heute",
+    "yesterday": "Gestern",
+    "bookingDate": "Buchungsdatum",
+    "valueDate": "Wertstellungsdatum"
+  },
+  "errors": {
+    "loadFailed": "Laden fehlgeschlagen",
+    "saveFailed": "Speichern fehlgeschlagen",
+    "deleteFailed": "Löschen fehlgeschlagen",
+    "importFailed": "Import fehlgeschlagen: {{error}}",
+    "exportFailed": "Export fehlgeschlagen: {{error}}",
+    "unknownError": "Unbekannter Fehler",
+    "invalidJson": "Ungültiges JSON-Format: {{error}}"
+  },
+  "import": {
+    "title": "Import",
+    "file": {
+      "title": "Datei auswählen",
+      "dragDrop": "Datei hierher ziehen oder auswählen (.csv, .xlsx, ≤20 MB)",
+      "errorFormat": "Nur .csv oder .xlsx werden unterstützt.",
+      "errorSize": "Datei ist größer als 20 MB.",
+      "otherFile": "Andere Datei wählen"
+    },
+    "mapping": {
+      "coreRoles": "Kernfelder",
+      "bankRoles": "Weitere Bankfelder",
+      "extraRoles": "Als Extra-Feld importieren",
+      "ignore": "Ignorieren",
+      "type": {
+        "text": "Text",
+        "integer": "Ganzzahl",
+        "decimal": "Dezimalzahl",
+        "boolean": "Ja/Nein",
+        "date": "Datum",
+        "datetime": "Datum + Uhrzeit"
+      },
+      "errorCore": "Bitte Datum, Betrag und Empfänger zuordnen."
+    },
+    "accountMapping": {
+      "title": "Zielkonto",
+      "newAccount": "+ Neues Konto anlegen",
+      "ignore": "Nicht importieren",
+      "errorAccount": "Bitte jeden Wert einem Konto zuordnen."
+    },
+    "preview": {
+      "date": "Datum",
+      "counterparty": "Empfänger",
+      "purpose": "Zweck",
+      "amount": "Betrag",
+      "summary": "Aufschlüsselung je Konto"
+    },
+    "mode": {
+      "upsert": "Aktualisieren (empfohlen)",
+      "upsertDesc": "Neue Buchungen ergänzen, Duplikate überspringen.",
+      "replace": "Komplett neu laden",
+      "replaceDesc": "Importierte Zeilen ersetzen, manuelle bleiben."
+    },
+    "result": {
+      "done": "Fertig",
+      "balanceUnconfirmed": "Saldo unbestätigt – nachholbar auf der Vermögen-Seite.",
+      "amountsChanged": "Beträge haben sich geändert",
+      "acceptNewAmount": "Neuen Betrag übernehmen",
+      "errorNoFile": "Bitte zuerst eine Datei auswählen.",
+      "failed": "Import fehlgeschlagen: {{error}}",
+      "unchanged": "Der Altbestand ist unverändert.",
+      "rowsRead": "Gelesene Zeilen: {{count}}",
+      "rowsNew": "Neu: {{count}}",
+      "rowsUpdated": "Aktualisiert: {{count}}",
+      "rowsSkipped": "Übersprungene Duplikate: {{count}}",
+      "rowsAutoCategorized": "Automatisch kategorisiert: {{count}} von {{total}}",
+      "transfersFound": "Erkannte Transfers: {{count}}",
+      "rowsIgnoredOtherAccount": "{{count}} Zeilen anderer Konten ignoriert.",
+      "balanceMismatch": "Saldo-Abweichung: {{amount}}",
+      "lostMetadataCount": "{{count}} Buchungen mit Zusatzdaten konnten nicht übertragen werden.",
+      "multiAccountSummary": "{{new}} neu · {{updated}} aktualisiert · {{skipped}} übersprungen · {{categorized}} automatisch kategorisiert",
+      "multiAccountTransfers": " · {{count}} Transfers erkannt",
+      "rowsIgnoredUnmapped": "{{count}} Zeilen ohne zuordenbare Kontokennung ignoriert."
+    },
+    "headerConfirm": {
+      "description": "Die Kopfzeile konnte nicht eindeutig erkannt werden. Klicke auf die Zeile, ab der die echten Spaltennamen stehen – alles darüber wird verworfen."
+    },
+    "progress": {
+      "fileDetected": "Datei erkannt · Encoding {{encoding}}",
+      "delimiterSuffix": ", Trennzeichen \"{{delimiter}}\"",
+      "rowsFound": "{{count}} Buchungen gefunden",
+      "profileMatched": "Passendes Profil erkannt: \"{{name}}\"",
+      "profileNew": "Neues Bank-Template angelegt",
+      "accountsDetected": "{{count}} Konten erkannt",
+      "phaseReading": "Datei wird gelesen…",
+      "phaseSaving": "{{done}} von {{total}} Zeilen werden gespeichert…",
+      "phasePipeline": "Kategorisierung, Vertrags- und Transfer-Erkennung läuft…",
+      "phaseFinalizing": "Import wird abgeschlossen…",
+      "loading": "Lädt…"
+    },
+    "roles": {
+      "date": "Datum",
+      "amount": "Betrag",
+      "counterparty": "Empfänger",
+      "purpose": "Verwendungszweck",
+      "external_id": "Buchungs-ID",
+      "value_date": "Wertstellung / Valuta",
+      "counterparty_incoming": "Zahlungspflichtiger (Eingang)",
+      "counterparty_outgoing": "Zahlungsempfänger (Ausgang)",
+      "transaction_type": "Transaktionstyp",
+      "card_payment_at": "Karteneinsatz-Zeitpunkt",
+      "cash_withdrawal_at": "Bargeldabhebung-Zeitpunkt",
+      "recipient_iban": "Empfänger-IBAN",
+      "recipient_bic": "Empfänger-BIC",
+      "recipient_account_number": "Empfänger-Kontonummer",
+      "description": "Beschreibung",
+      "bank_category": "Bank-Kategorie",
+      "bank_subcategory": "Bank-Unterkategorie",
+      "bank_account_label": "Kontoname/Kontonummer (Bank)"
+    }
+  }
+}

@@ -1,0 +1,266 @@
+{
+  "title": "Profile & Settings",
+  "subtitle": "Manage people, settings, backups and data.",
+  "tabs": {
+    "general": "General",
+    "persons": "People & Accounts",
+    "import": "Import & Quotes",
+    "system": "Data & System"
+  },
+  "persons": {
+    "title": "People",
+    "role": {
+      "adult": "Adult",
+      "child": "Child"
+    },
+    "birthYear": "Year of birth",
+    "kirchensteuer": "Church tax liable",
+    "bundesland": "Federal state:",
+    "aliases": "Also known as (for transfer detection)",
+    "addAlias": "Add alias",
+    "aliasHint": "Required for transfer and account detection.",
+    "add": "Add person",
+    "remove": "Person removed",
+    "lastPersonError": "The last person cannot be removed.",
+    "ownerMatrix": "Person-account mapping",
+    "showHidden": "Show hidden accounts too",
+    "bundeslandPlaceholder": "Select federal state…",
+    "aliasRemove": "Remove alias {{alias}}",
+    "aliasPlaceholder": "+ Name variant",
+    "namePlaceholder": "Name of new person…",
+    "aliasMandatoryPlaceholder": "How does the name appear in bank transactions? (Required)",
+    "addBtn": "Person",
+    "added": "Person added",
+    "addError": "Error adding person: {{error}}",
+    "minOwnerError": "At least one person-owner is required.",
+    "account": "Account",
+    "birthYearError": "Year of birth must be between 1900 and {{year}}."
+  },
+  "settings": {
+    "title": "General",
+    "language": "Language",
+    "currency": "Currency",
+    "dateFormat": "Date format",
+    "importReminder": "Import reminder (days)"
+  },
+  "settingsCategories": {
+    "general": "General",
+    "notifications": "Notifications",
+    "quotes": "Price data",
+    "experimental": "Experimental",
+    "data": "Data"
+  },
+  "settingsKeys": {
+    "currency": "Currency",
+    "date_display_format": "Date format",
+    "language": "Language",
+    "onboarding_done": "Onboarding completed",
+    "kirchensteuer_aktiv": "Church tax active",
+    "kirchensteuer_satz": "Church tax rate (%)",
+    "use_rule_templates": "Use default categorization rules",
+    "rule_templates_migrated_to_merchants": "Rule templates migrated",
+    "check_updates_on_startup": "Check for updates on startup",
+    "notification_level": "Notification level",
+    "notify_transfer_detected": "Notify on transfer detection",
+    "import_reminder_days": "Import reminder (days)",
+    "notify_contract_detected": "Notify on contract detection",
+    "quotes_enabled": "Enable quote database",
+    "quotes_provider": "Quote data provider",
+    "quotes_privacy_accepted": "Privacy policy (Quotes) accepted",
+    "db_version": "Database version",
+    "last_sync": "Last synchronization",
+    "enable_experimental_features": "Enable experimental features"
+  },
+  "settingsValues": {
+    "notificationLevel": {
+      "all": "All warnings & hints",
+      "warning": "Warnings & Critical",
+      "critical": "Critical only",
+      "none": "No notifications"
+    },
+    "currency": {
+      "EUR": "Euro (€)",
+      "USD": "US Dollar ($)",
+      "CHF": "Swiss Franc (CHF)"
+    },
+    "dateFormat": {
+      "ddMMyyyy": "dd.MM.yyyy (31.12.2023)",
+      "yyyyMMdd": "yyyy-MM-dd (2023-12-31)"
+    },
+    "language": {
+      "de": "Deutsch",
+      "en": "English"
+    }
+  },
+  "data": {
+    "title": "Data & Backup",
+    "dbPath": "Database location",
+    "dbPathHint": "The active database file. Do not delete this file to avoid data loss.",
+    "backupDir": "Local backup directory (Automatic)",
+    "backupDirHint": "Klarwert stores automatic backups here (e.g. before updates) and saves CSV exports.",
+    "openFolder": "Open folder",
+    "exportJson": "Export as JSON",
+    "exportCsv": "All tables as CSV",
+    "importJson": "Import JSON backup",
+    "exportSuccess": "Backup downloaded successfully",
+    "exportCsvSuccess": "CSV export saved in Klarwert folder (Documents)",
+    "importSuccess": "Backup restored successfully",
+    "hint": "In addition to automatic backups, data can be saved in open formats at any time."
+  },
+  "danger": {
+    "title": "Danger zone",
+    "description": "Deletes all stored data (accounts, transactions, categories, rules).",
+    "button": "Delete all data",
+    "confirmTitle": "Permanently delete all data?",
+    "confirmDescription": "Enter 'delete' to confirm resetting the app.",
+    "confirmButton": "Permanently delete",
+    "confirmInput": "delete",
+    "success": "All data has been deleted.",
+    "error": "Error deleting: {{error}}"
+  },
+  "about": {
+    "title": "About Klarwert",
+    "version": "Version {{version}} (Local Desktop Finance App)",
+    "description": "100% local, private SQLite database, no login, no cloud."
+  },
+  "customFields": "Custom fields",
+  "bankTemplates": "Bank templates",
+  "communityData": {
+    "title": "Community Data",
+    "description": "Merchant categories and bank profiles, curated by the Klarwert community."
+  },
+  "quotes": {
+    "title": "Price Data (Securities)",
+    "description": "Optional fetching of closing prices for your portfolio positions. Disabled by default."
+  },
+  "updates": {
+    "title": "App Updates"
+  },
+  "community": {
+    "check": "Check community update",
+    "desc": "Loads merchant categories and bank profiles from the community repo. No account data leaves your device.",
+    "available": "Available updates",
+    "bankProfiles": "Bank profiles ({{version}})",
+    "merchants": "Merchant rules ({{version}})",
+    "applyMerchants": "Check rule update",
+    "applyBankProfiles": "Apply",
+    "noDetails": "No details (format error)",
+    "noAssignment": "No assignment",
+    "preview": "Preview",
+    "hide": "Hide",
+    "merchantsSuccess": "Merchant database updated (as of {{version}}).",
+    "merchantsError": "Merchant database update failed: {{error}}",
+    "bankProfilesSuccess": "Bank profiles imported: {{parts}} (as of {{version}}).",
+    "bankProfilesError": "Bank profile update failed: {{error}}",
+    "parts": {
+      "new": "{{count}} new",
+      "updated": "{{count}} updated",
+      "skipped": "{{count}} skipped (own modification)",
+      "none": "no change"
+    },
+    "bankProfilesHint": "Bank profiles are automatically offered during the next import if the column fingerprint of your CSV file matches."
+  },
+  "templates": {
+    "removed": "Template removed",
+    "removeError": "Deletion failed",
+    "importDialog": "Import bank templates",
+    "noTemplatesFound": "The file contains no bank templates.",
+    "importError": "Import failed",
+    "importSuccess": "Templates imported",
+    "description": "Bank templates determine how Klarwert reads a CSV file from your bank (which column is date, amount, recipient, etc.). Built-in templates are protected – edit them to automatically create your own copy.",
+    "builtin": "Built-in",
+    "modified": "modified",
+    "columnsMapped": "columns mapped",
+    "copyAndEdit": "Copy & Edit",
+    "noneFound": "No templates available yet.",
+    "new": "New template",
+    "importFromTitle": "Bank templates from file",
+    "importPreviewTitle": "Template import preview",
+    "importPreviewDesc": "{{count}} templates found. Which ones should be saved?",
+    "deleteTitle": "Delete template?",
+    "deleteDesc": "\"{{name}}\" will no longer be used for automatic recognition during import.",
+    "editorModal": {
+      "titleEditCopy": "Edit template as copy",
+      "titleEdit": "Edit bank template",
+      "titleNew": "New bank template",
+      "descBuiltin": "This template is bundled with Klarwert and can't be edited directly. Your changes will be saved as your own copy.",
+      "descCustom": "Enter how the columns in your bank's CSV file are named, and assign a meaning to each column.",
+      "copySuffix": "(copy)",
+      "nameLabel": "Template name",
+      "namePlaceholder": "e.g. My Bank Checking Account",
+      "columnsLabel": "Columns from the CSV file",
+      "columnsHint": "Open your export file once and copy the column headers exactly as they appear there.",
+      "headerPlaceholder": "Column name in the file",
+      "noRole": "(don't use)",
+      "addColumn": "Add column",
+      "importAllColumns": "Also import unmapped columns as extra info (viewable via the eye icon)",
+      "delimiterLabel": "Delimiter",
+      "encodingLabel": "Character encoding",
+      "dateFormatLabel": "Date format",
+      "decimalFormatLabel": "Number format",
+      "delimiterSemicolon": "Semicolon ( ; )",
+      "delimiterComma": "Comma ( , )",
+      "delimiterTab": "Tab",
+      "encodingUtf8": "UTF-8 (modern banks)",
+      "encodingWindows1252": "Windows-1252 (older/German banks)",
+      "decimalDe": "German (1.234,56)",
+      "decimalEn": "English (1,234.56)",
+      "cancel": "Cancel",
+      "save": "Save",
+      "saveAsCopy": "Save as copy",
+      "updated": "Template updated",
+      "copyCreated": "Copy created",
+      "created": "Template created",
+      "saveFailed": "Save failed: {{error}}",
+      "errorNameRequired": "Please enter a name for the template.",
+      "errorColumnRequired": "Please enter at least one named column.",
+      "errorRolesRequired": "At least 'Date' and 'Amount' must be assigned to a column."
+    }
+  },
+  "customFieldsManager": {
+    "dataTypes": {
+      "text": "Text",
+      "integer": "Integer",
+      "decimal": "Decimal",
+      "boolean": "Yes/No",
+      "date": "Date",
+      "datetime": "Date + time"
+    },
+    "empty": "No custom fields yet. Fields are created during import from columns you mark as \"Import as extra field\".",
+    "type": "Type: {{type}}",
+    "hint": "New fields are created automatically when you mark columns as \"Import as extra field\" during file import.",
+    "deleteConfirm": "Really delete this field? All associated data will be lost."
+  },
+  "quoteSettings": {
+    "loading": "Loading…",
+    "privacyTitle": "Privacy notice – please read",
+    "privacyNote": "Quote requests are cached in the local database. Fetching happens at most once per day per security. This is the only optional network access this app makes – all other data stays exclusively on your device.",
+    "acceptAndEnable": "I understand – Enable",
+    "cancel": "Cancel",
+    "title": "Automatic quote data",
+    "activeStatus": "Active — {{provider}}",
+    "disabledStatus": "Disabled — quotes are maintained manually",
+    "disable": "Disable",
+    "enable": "Enable",
+    "enabledToast": "Quote data enabled.",
+    "disabledToast": "Quote data disabled.",
+    "settingsSavedToast": "Quote settings saved.",
+    "providerLabel": "Data provider",
+    "alpacaSignup": "Create a free Alpaca account",
+    "apiKeyLabel": "API Key ID",
+    "apiSecretLabel": "API Secret Key",
+    "apiKeyStorageNote": "API key and secret are stored exclusively locally (unencrypted) in the app database.",
+    "saveSettings": "Save settings"
+  },
+  "updateChecker": {
+    "autoCheckLabel": "Check automatically on startup",
+    "autoCheckHint": "Asks GitHub once on startup whether a newer version is available.",
+    "checkButton": "Check for updates",
+    "checkUnavailable": "Update check currently unavailable (e.g. no internet connection).",
+    "upToDate": "You're on the latest version.",
+    "versionAvailable": "Version {{version}} is available.",
+    "installing": "Installing…",
+    "downloadAndInstall": "Download and install",
+    "updateFailed": "Update failed: {{error}}"
+  }
+}

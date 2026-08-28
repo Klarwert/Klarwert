@@ -1,0 +1,5 @@
+dist
+node_modules
+src-tauri
+src/lib/import/__fixtures__
+package-lock.json

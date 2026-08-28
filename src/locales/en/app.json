@@ -1,0 +1,191 @@
+{
+  "title": "Klarwert",
+  "nav": {
+    "uebersicht": "Overview",
+    "vermoegen": "Net Worth",
+    "transaktionen": "Transactions",
+    "kategorien": "Categories",
+    "vertraege": "Contracts",
+    "sammlungen": "Collections",
+    "budgets": "Budgets",
+    "steuer": "Tax",
+    "rechner": "Calculator",
+    "erfassen": "Track",
+    "ordnen": "Organize",
+    "planen": "Plan",
+    "haushalt": "Household"
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "close": "Close",
+    "confirm": "Confirm",
+    "reset": "Reset",
+    "saving": "Saving...",
+    "search": "Search",
+    "noResults": "No results",
+    "filter": "Filter",
+    "loading": "Loading…",
+    "error": "Error",
+    "success": "Success",
+    "yes": "Yes",
+    "no": "No",
+    "none": "None",
+    "all": "All",
+    "more": "More",
+    "back": "Back",
+    "next": "Next",
+    "create": "Create",
+    "import": "Import",
+    "export": "Export",
+    "actions": "Actions",
+    "name": "Name",
+    "date": "Date",
+    "amount": "Amount",
+    "category": "Category",
+    "account": "Account",
+    "note": "Note",
+    "tags": "Tags",
+    "unknown": "Unknown",
+    "optional": "optional",
+    "required": "Required",
+    "apply": "Apply",
+    "advanced": "Advanced",
+    "only": "Only",
+    "without": "Without",
+    "selectAccount": "Select account",
+    "invalidAmount": "Invalid amount",
+    "amountNotZero": "Amount cannot be 0"
+  },
+  "globalbar": {
+    "allAccounts": "All accounts",
+    "allPersons": "All persons",
+    "accountFilter": "Account filter",
+    "personFilter": "Person filter",
+    "filterHint": "Filters all displayed amounts and lists. Master data (categories, rules, settings) always remain fully visible."
+  },
+  "currency": {
+    "eur": "Euro (€)",
+    "usd": "US Dollar ($)",
+    "chf": "Swiss Franc (CHF)"
+  },
+  "date": {
+    "today": "Today",
+    "yesterday": "Yesterday",
+    "bookingDate": "Booking date",
+    "valueDate": "Value date"
+  },
+  "errors": {
+    "loadFailed": "Failed to load",
+    "saveFailed": "Failed to save",
+    "deleteFailed": "Failed to delete",
+    "importFailed": "Import failed: {{error}}",
+    "exportFailed": "Export failed: {{error}}",
+    "unknownError": "Unknown error",
+    "invalidJson": "Invalid JSON format: {{error}}"
+  },
+  "import": {
+    "title": "Import",
+    "file": {
+      "title": "Select file",
+      "dragDrop": "Drag and drop file here or select (.csv, .xlsx, ≤20 MB)",
+      "errorFormat": "Only .csv or .xlsx are supported.",
+      "errorSize": "File is larger than 20 MB.",
+      "otherFile": "Select different file"
+    },
+    "mapping": {
+      "coreRoles": "Core fields",
+      "bankRoles": "Additional bank fields",
+      "extraRoles": "Import as extra field",
+      "ignore": "Ignore",
+      "type": {
+        "text": "Text",
+        "integer": "Integer",
+        "decimal": "Decimal",
+        "boolean": "Yes/No",
+        "date": "Date",
+        "datetime": "Date + Time"
+      },
+      "errorCore": "Please map date, amount and counterparty."
+    },
+    "accountMapping": {
+      "title": "Target account",
+      "newAccount": "+ Create new account",
+      "ignore": "Do not import",
+      "errorAccount": "Please map each value to an account."
+    },
+    "preview": {
+      "date": "Date",
+      "counterparty": "Counterparty",
+      "purpose": "Purpose",
+      "amount": "Amount",
+      "summary": "Breakdown per account"
+    },
+    "mode": {
+      "upsert": "Update (recommended)",
+      "upsertDesc": "Add new transactions, skip duplicates.",
+      "replace": "Reload completely",
+      "replaceDesc": "Replace imported rows, manual ones stay."
+    },
+    "result": {
+      "done": "Done",
+      "balanceUnconfirmed": "Balance unconfirmed – can be done later on Assets page.",
+      "amountsChanged": "Amounts have changed",
+      "acceptNewAmount": "Accept new amount",
+      "errorNoFile": "Please select a file first.",
+      "failed": "Import failed: {{error}}",
+      "unchanged": "The existing data is unchanged.",
+      "rowsRead": "Rows read: {{count}}",
+      "rowsNew": "New: {{count}}",
+      "rowsUpdated": "Updated: {{count}}",
+      "rowsSkipped": "Duplicates skipped: {{count}}",
+      "rowsAutoCategorized": "Automatically categorized: {{count}} of {{total}}",
+      "transfersFound": "Transfers detected: {{count}}",
+      "rowsIgnoredOtherAccount": "{{count}} rows from other accounts ignored.",
+      "balanceMismatch": "Balance mismatch: {{amount}}",
+      "lostMetadataCount": "{{count}} transactions with extra data could not be carried over.",
+      "multiAccountSummary": "{{new}} new · {{updated}} updated · {{skipped}} skipped · {{categorized}} auto-categorized",
+      "multiAccountTransfers": " · {{count}} transfers detected",
+      "rowsIgnoredUnmapped": "{{count}} rows without an assignable account identifier ignored."
+    },
+    "headerConfirm": {
+      "description": "The header row could not be clearly detected. Click the row where the actual column names start – everything above it will be discarded."
+    },
+    "progress": {
+      "fileDetected": "File detected · encoding {{encoding}}",
+      "delimiterSuffix": ", delimiter \"{{delimiter}}\"",
+      "rowsFound": "{{count}} transactions found",
+      "profileMatched": "Matching profile detected: \"{{name}}\"",
+      "profileNew": "New bank template created",
+      "accountsDetected": "{{count}} accounts detected",
+      "phaseReading": "Reading file…",
+      "phaseSaving": "Saving {{done}} of {{total}} rows…",
+      "phasePipeline": "Running categorization, contract and transfer detection…",
+      "phaseFinalizing": "Finishing import…",
+      "loading": "Loading…"
+    },
+    "roles": {
+      "date": "Date",
+      "amount": "Amount",
+      "counterparty": "Counterparty",
+      "purpose": "Purpose",
+      "external_id": "Transaction ID",
+      "value_date": "Value date",
+      "counterparty_incoming": "Payer (incoming)",
+      "counterparty_outgoing": "Payee (outgoing)",
+      "transaction_type": "Transaction type",
+      "card_payment_at": "Card payment time",
+      "cash_withdrawal_at": "Cash withdrawal time",
+      "recipient_iban": "Recipient IBAN",
+      "recipient_bic": "Recipient BIC",
+      "recipient_account_number": "Recipient account number",
+      "description": "Description",
+      "bank_category": "Bank category",
+      "bank_subcategory": "Bank subcategory",
+      "bank_account_label": "Account name/number (Bank)"
+    }
+  }
+}

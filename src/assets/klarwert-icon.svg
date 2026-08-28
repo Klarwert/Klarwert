@@ -1,0 +1,8 @@
+<svg viewBox="0 0 256 256" xmlns="http://www.w3.org/2000/svg">
+  <!-- Klarwert App-Icon: petrolfarbene Kachel, drei Zeilen als reduziertes Kontoauszug-/Ledger-Motiv,
+       unterste Zeile (das "Ergebnis") in Sage – ruhig, geometrisch, ohne Text, gut lesbar ab 16px. -->
+  <rect x="0" y="0" width="256" height="256" rx="56" fill="#123138"/>
+  <rect x="74" y="81"  width="108" height="22" rx="11" fill="#f3efe4"/>
+  <rect x="74" y="117" width="84"  height="22" rx="11" fill="#f3efe4" opacity="0.72"/>
+  <rect x="74" y="153" width="60"  height="22" rx="11" fill="#6f9a6d"/>
+</svg>

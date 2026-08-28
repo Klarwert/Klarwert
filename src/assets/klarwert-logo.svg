@@ -1,0 +1,13 @@
+<svg viewBox="0 0 640 160" xmlns="http://www.w3.org/2000/svg">
+  <!-- Klarwert Logo (Icon + Wordmark). Hinweis: Fraunces wird nur korrekt dargestellt, wenn die
+       Schrift im jeweiligen Rendering-Kontext geladen ist (im Browser/der App via @font-face,
+       hier per font-family-Fallback abgesichert). Für Rasterexporte außerhalb der App (z. B. README)
+       vorher im Browser mit geladener Fraunces-Schrift rendern/exportieren. -->
+  <g transform="translate(16,16) scale(0.5)">
+    <rect x="0" y="0" width="256" height="256" rx="56" fill="#123138"/>
+    <rect x="74" y="81"  width="108" height="22" rx="11" fill="#f3efe4"/>
+    <rect x="74" y="117" width="84"  height="22" rx="11" fill="#f3efe4" opacity="0.72"/>
+    <rect x="74" y="153" width="60"  height="22" rx="11" fill="#6f9a6d"/>
+  </g>
+  <text x="176" y="100" font-family="Fraunces, Georgia, serif" font-size="62" font-weight="500" fill="#262321">Klarwert</text>
+</svg>

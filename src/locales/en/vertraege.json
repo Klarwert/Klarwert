@@ -1,0 +1,73 @@
+{
+  "title": "Contracts",
+  "add": "Add contract",
+  "noContracts": "No contracts found.",
+  "name": "Contract name",
+  "amount": "Amount",
+  "interval": {
+    "monthly": "Monthly",
+    "quarterly": "Quarterly",
+    "yearly": "Yearly",
+    "weekly": "Weekly",
+    "irregular": "Irregular"
+  },
+  "nextDue": "Next due",
+  "lastSeen": "Last seen",
+  "category": "Category",
+  "edit": "Edit contract",
+  "delete": "Delete contract",
+  "autoDetected": "Auto-detected",
+  "manual": "Manually added",
+  "count": "{{count}} contracts",
+  "fixedCosts": "{{amount}} fixed costs/month",
+  "search": "Search…",
+  "views": {
+    "contracts": "Active contracts",
+    "archive": "Archive",
+    "recurring": "Recurring payments"
+  },
+  "status": {
+    "detected": "Newly detected",
+    "confirmed": "Confirmed",
+    "price_changed": "Price change detected",
+    "paused": "Paused",
+    "ended": "Ended",
+    "suggested_ended": "Possibly ended"
+  },
+  "previousAmount": "previously {{amount}}",
+  "noActive": "No active contracts found.",
+  "noArchive": "No archived contracts found.",
+  "noRecurring": "No further recurring payments.",
+  "dismiss": "Dismiss",
+  "upgrade": "Upgrade to contract",
+  "upgraded": "Upgraded to contract",
+  "drawer": {
+    "name": "Name",
+    "amount": "Amount (€)",
+    "interval": "Interval",
+    "status": "Status",
+    "category": "Category",
+    "lastBookings": "Recent transactions",
+    "noBookings": "No linked transactions.",
+    "cancel": "Cancel",
+    "save": "Save",
+    "invalidInput": "Please enter a name and valid amount",
+    "created": "Contract created",
+    "updated": "Contract updated",
+    "deleteConfirm": "Really delete contract? Linked transactions will become 'Uncategorized' again.",
+    "deleted": "Contract deleted"
+  },
+  "fromTransactions": {
+    "title": "Summarise as contract",
+    "description": "Create a new contract from {{count}} selected transactions.",
+    "contractName": "Contract name",
+    "namePlaceholder": "e.g. Netflix, Rent...",
+    "intervalPlaceholder": "Choose interval",
+    "categoryOptional": "Category (optional)",
+    "categoryPlaceholder": "Choose contract category",
+    "categoryApplied": "Will be applied to all selected transactions.",
+    "createBtn": "Create & Link",
+    "createdSuccess": "Contract created and transactions linked.",
+    "nameRequired": "Please enter a name."
+  }
+}

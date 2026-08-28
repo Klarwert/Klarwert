@@ -1,0 +1,26 @@
+{
+  "step0": {
+    "title": "Willkommen bei Klarwert",
+    "description": "100 % lokal – deine Finanzdaten bleiben auf diesem Gerät. Kein Login, keine Cloud.",
+    "start": "Los geht's",
+    "skip": "Überspringen",
+    "exploreDemo": "Mit Demo-Daten erkunden",
+    "exploreDemoTooltip": "Erstellt einen Musterhaushalt mit mehreren Monaten Beispiel-Transaktionen, Konten, einem Budget und einer Sammlung – ideal, um Klarwert unverbindlich auszuprobieren. Über \"Alle Daten löschen\" im Profil jederzeit rückgängig zu machen.",
+    "demoError": "Demo-Daten konnten nicht angelegt werden: {{error}}"
+  },
+  "step1": {
+    "title": "Wer bist du?",
+    "description": "Personen dienen nur der Zuordnung, es gibt keine Zugriffsrechte.",
+    "yourName": "Dein Name",
+    "additionalPerson": "Weitere Person",
+    "removeAdditionalPerson": "Weitere Person entfernen",
+    "addPerson": "+ weitere Person",
+    "currency": "Währung",
+    "continue": "Weiter"
+  },
+  "step2": {
+    "title": "Leg dein erstes Konto an",
+    "description": "Damit Klarwert deine Finanzen anzeigen kann, brauchst du mindestens ein Konto oder einen Vermögenswert.",
+    "createAccount": "Konto anlegen"
+  }
+}

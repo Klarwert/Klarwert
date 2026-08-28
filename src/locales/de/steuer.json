@@ -1,0 +1,52 @@
+{
+  "title": "Steuer",
+  "year": "Steuerjahr",
+  "topics": "Themen",
+  "noTopics": "Keine Steuer-Themen gefunden.",
+  "noTopicsDesc": "Lege Themen an, um relevante Buchungen für die Steuererklärung zu sammeln.",
+  "addTopic": "Thema anlegen",
+  "export": "{{name}} als CSV exportieren",
+  "total": "Gesamt",
+  "deductible": "Absetzbar",
+  "income": "Einnahmen",
+  "expenses": "Ausgaben",
+  "topicAdd": "Neues Thema",
+  "uncategorized": "Unkategorisiert",
+  "edit": "{{name}} bearbeiten",
+  "noTransactions": "Keine Buchungen in diesem Jahr.",
+  "headers": {
+    "date": "Datum",
+    "account": "Konto",
+    "counterparty": "Empfänger",
+    "purpose": "Zweck",
+    "amount": "Betrag",
+    "category": "Kategorie",
+    "contract": "Vertrag",
+    "contractYearSum": "Vertrag Jahressumme"
+  },
+  "contractYearSum": "Jahr: {{sum}}",
+  "search": {
+    "title": "Suche",
+    "placeholder": "Suche in Zweck, Empfänger...",
+    "allResults": "Alle {{count}} Treffer anzeigen",
+    "noResults": "Keine Treffer"
+  },
+  "summary": "{{count}} Buchungen · {{sum}}",
+  "yearSelect": "Steuerjahr",
+  "exportAll": "Alle exportieren",
+  "editor": {
+    "addTitle": "Steuer-Thema anlegen",
+    "editTitle": "Steuer-Thema bearbeiten",
+    "name": "Name",
+    "categories": "Kategorien",
+    "keywords": "Stichwörter",
+    "addKeyword": "Hinzufügen",
+    "noKeywords": "Keine Stichwörter.",
+    "removeKeyword": "{{keyword}} entfernen",
+    "savedSuccess": "Steuer-Thema gespeichert",
+    "savedError": "Steuer-Thema konnte nicht gespeichert werden",
+    "deleteSuccess": "Steuer-Thema gelöscht",
+    "deleteConfirmTitle": "Steuer-Thema löschen?",
+    "deleteConfirmDesc": "Das gespeicherte Filter-Thema wird entfernt. Transaktionen bleiben unverändert."
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "title": "Verträge",
+  "add": "Vertrag anlegen",
+  "noContracts": "Keine Verträge gefunden.",
+  "name": "Vertragsname",
+  "amount": "Betrag",
+  "interval": {
+    "monthly": "Monatlich",
+    "quarterly": "Vierteljährlich",
+    "yearly": "Jährlich",
+    "weekly": "Wöchentlich",
+    "irregular": "Unregelmäßig"
+  },
+  "nextDue": "Nächste Fälligkeit",
+  "lastSeen": "Zuletzt gesehen",
+  "category": "Kategorie",
+  "edit": "Vertrag bearbeiten",
+  "delete": "Vertrag löschen",
+  "autoDetected": "Automatisch erkannt",
+  "manual": "Manuell angelegt",
+  "count": "{{count}} Verträge",
+  "fixedCosts": "{{amount}} feste Kosten/Monat",
+  "search": "Suchen…",
+  "views": {
+    "contracts": "Aktive Verträge",
+    "archive": "Archiv",
+    "recurring": "Wiederkehrende Zahlungen"
+  },
+  "status": {
+    "detected": "Neu erkannt",
+    "confirmed": "Bestätigt",
+    "price_changed": "Preisänderung erkannt",
+    "paused": "Pausiert",
+    "ended": "Beendet",
+    "suggested_ended": "Mögl. beendet"
+  },
+  "previousAmount": "vorher {{amount}}",
+  "noActive": "Keine aktiven Verträge gefunden.",
+  "noArchive": "Keine archivierten Verträge gefunden.",
+  "noRecurring": "Keine weiteren wiederkehrenden Zahlungen.",
+  "dismiss": "Trennen",
+  "upgrade": "Zu Vertrag hochstufen",
+  "upgraded": "Zu Vertrag hochgestuft",
+  "drawer": {
+    "name": "Name",
+    "amount": "Betrag (€)",
+    "interval": "Turnus",
+    "status": "Status",
+    "category": "Kategorie",
+    "lastBookings": "Letzte Buchungen",
+    "noBookings": "Keine Buchungen verknüpft.",
+    "cancel": "Abbrechen",
+    "save": "Speichern",
+    "invalidInput": "Bitte Name und gültigen Betrag eingeben",
+    "created": "Vertrag angelegt",
+    "updated": "Vertrag aktualisiert",
+    "deleteConfirm": "Vertrag wirklich löschen? Verknüpfte Buchungen werden wieder 'Unkategorisiert'.",
+    "deleted": "Vertrag gelöscht"
+  },
+  "fromTransactions": {
+    "title": "Als Vertrag zusammenfassen",
+    "description": "Erstelle einen neuen Vertrag aus {{count}} ausgewählten Transaktionen.",
+    "contractName": "Name des Vertrags",
+    "namePlaceholder": "z.B. Netflix, Miete...",
+    "intervalPlaceholder": "Intervall wählen",
+    "categoryOptional": "Kategorie (optional)",
+    "categoryPlaceholder": "Vertragskategorie wählen",
+    "categoryApplied": "Wird auf alle ausgewählten Transaktionen angewendet.",
+    "createBtn": "Erstellen & Verknüpfen",
+    "createdSuccess": "Vertrag erstellt und Transaktionen verknüpft.",
+    "nameRequired": "Bitte einen Namen angeben."
+  }
+}

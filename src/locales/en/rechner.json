@@ -1,0 +1,107 @@
+{
+  "title": "Calculator",
+  "description": "Simulate FIRE goals, compound interest, and withdrawal plans.",
+  "tabs": {
+    "fire": "FIRE",
+    "zinseszins": "Compound Interest",
+    "entnahme": "Withdrawal Plan"
+  },
+  "common": {
+    "saveScenario": "Scenario saved",
+    "loadScenario": "Scenario \"{{name}}\" loaded",
+    "deleteScenario": "Scenario deleted",
+    "errorLoadScenario": "Error loading scenario",
+    "contributions": "Contributions",
+    "growth": "Growth",
+    "earnings": "Earnings",
+    "capitalCurve": "Capital Curve"
+  },
+  "fire": {
+    "title": "FIRE Inputs",
+    "mode": "Calculation Mode",
+    "modes": {
+      "when_free": "When am I free?",
+      "how_much": "How much do I need to save?"
+    },
+    "monthlyNet": "Target Net Income (€ / mo)",
+    "monthlyNetTooltip": "Monthly amount available after taxes.",
+    "savingsRate": "Monthly Savings Rate (€)",
+    "targetAge": "Target Retirement Age",
+    "return": "Return (% p.a.)",
+    "returnTooltip": "Expected pre-tax return (e.g., 6% for stock ETF).",
+    "inflation": "Inflation (% p.a.)",
+    "swr": "Withdrawal Rate (% SWR)",
+    "swrTooltip": "Safe Withdrawal Rate (e.g., 3.5% or 4%).",
+    "tax": "Tax Rate (%)",
+    "capital": "Current Capital (€)",
+    "personForAge": "Person for Age",
+    "personDefault": "Profile Default ({{age}} years)",
+    "teilfreistellung": "Partial Exemption 30% (Stock ETF)",
+    "capitalDepletion": "With Capital Depletion (up to age 100)",
+    "result": {
+      "targetYearAge": "Target Year / Age",
+      "requiredCapital": "Required Capital",
+      "requiredSavingsRate": "Required Savings Rate",
+      "yearAgeValue": "{{year}} (age {{age}})",
+      "inYears": "in {{count}} years",
+      "perMonth": "{{amount}} / mo.",
+      "personYears": "{{years}} years"
+    }
+  },
+  "zins": {
+    "title": "Compound Interest Inputs",
+    "initial": "Initial Capital (€)",
+    "savings": "Savings Rate (€ / mo)",
+    "stepUp": "Annual Increase (%)",
+    "stepUpTooltip": "Annual increase of the savings rate, e.g., to adjust for inflation.",
+    "return": "Return (% p.a.)",
+    "years": "Duration (Years)",
+    "inflation": "Inflation (% p.a.)",
+    "ter": "TER (% p.a.)",
+    "terTooltip": "Total Expense Ratio (e.g., ETF fees).",
+    "taxActive": "Consider Taxes",
+    "taxActiveTooltip": "Accounts for advance lump sum (Vorabpauschale) and capital gains tax (with 30% partial exemption).",
+    "taxRate": "Tax Rate (%)",
+    "payout": "Distribution Type",
+    "payoutThes": "Accumulating",
+    "payoutAus": "Distributing",
+    "result": {
+      "title": "Result after {{years}} years",
+      "totalSaved": "Total Saved",
+      "earningsNet": "Earnings (after tax)",
+      "endCapital": "Final Capital",
+      "endCapitalReal": "Real: {{amount}}"
+    }
+  },
+  "ent": {
+    "title": "Withdrawal Plan Inputs",
+    "initial": "Initial Capital (€)",
+    "monthly": "Withdrawal (€ / mo)",
+    "adjustInf": "Dynamic (Inflation Adjustment)",
+    "adjustInfTooltip": "Increases the monthly withdrawal annually by the inflation rate.",
+    "horizon": "Withdrawal Duration (Years)",
+    "return": "Return (% p.a.)",
+    "inflation": "Inflation (% p.a.)",
+    "ter": "TER (% p.a.)",
+    "taxActive": "Consider Taxes",
+    "taxActiveTooltip": "Accounts for FIFO principle (First-In, First-Out) and 30% partial exemption for stock ETFs.",
+    "taxRate": "Tax Rate (%)",
+    "result": {
+      "title": "Result after {{years}} years",
+      "residualCapital": "Remaining Capital",
+      "totalWithdrawn": "Withdrawn (Nominal)",
+      "capitalUntil": "Capital lasts until",
+      "endOfHorizon": "End of horizon",
+      "ageAt": "Age {{age}}"
+    }
+  },
+  "scenarios": {
+    "saveTitle": "Save Current Scenario",
+    "placeholder": "Name for the scenario…",
+    "saveButton": "Save",
+    "savedTitle": "Saved Scenarios",
+    "loadAction": "Load",
+    "deleteAction": "Delete",
+    "noneSaved": "No saved scenarios for this type."
+  }
+}

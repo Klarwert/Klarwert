@@ -1,0 +1,26 @@
+{
+  "step0": {
+    "title": "Welcome to Klarwert",
+    "description": "100% local – your financial data stays on this device. No login, no cloud.",
+    "start": "Let's go",
+    "skip": "Skip",
+    "exploreDemo": "Explore with demo data",
+    "exploreDemoTooltip": "Creates a sample household with several months of example transactions, accounts, a budget, and a collection – a great way to try Klarwert risk-free. Reversible any time via \"Delete all data\" in Profile.",
+    "demoError": "Could not create demo data: {{error}}"
+  },
+  "step1": {
+    "title": "Who are you?",
+    "description": "People are only used for assignment; there are no access rights.",
+    "yourName": "Your name",
+    "additionalPerson": "Additional person",
+    "removeAdditionalPerson": "Remove additional person",
+    "addPerson": "+ add person",
+    "currency": "Currency",
+    "continue": "Continue"
+  },
+  "step2": {
+    "title": "Create your first account",
+    "description": "For Klarwert to show your finances, you need at least one account or asset.",
+    "createAccount": "Create account"
+  }
+}

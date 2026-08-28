@@ -1,0 +1,52 @@
+{
+  "title": "Taxes",
+  "year": "Tax year",
+  "topics": "Topics",
+  "noTopics": "No tax topics found.",
+  "noTopicsDesc": "Create topics to collect relevant transactions for your tax return.",
+  "addTopic": "Create topic",
+  "export": "Export {{name}} as CSV",
+  "total": "Total",
+  "deductible": "Deductible",
+  "income": "Income",
+  "expenses": "Expenses",
+  "topicAdd": "New topic",
+  "uncategorized": "Uncategorized",
+  "edit": "Edit {{name}}",
+  "noTransactions": "No transactions this year.",
+  "headers": {
+    "date": "Date",
+    "account": "Account",
+    "counterparty": "Counterparty",
+    "purpose": "Purpose",
+    "amount": "Amount",
+    "category": "Category",
+    "contract": "Contract",
+    "contractYearSum": "Contract year sum"
+  },
+  "contractYearSum": "Year: {{sum}}",
+  "search": {
+    "title": "Search",
+    "placeholder": "Search in purpose, counterparty...",
+    "allResults": "Show all {{count}} results",
+    "noResults": "No results"
+  },
+  "summary": "{{count}} transactions · {{sum}}",
+  "yearSelect": "Tax year",
+  "exportAll": "Export all",
+  "editor": {
+    "addTitle": "Create tax topic",
+    "editTitle": "Edit tax topic",
+    "name": "Name",
+    "categories": "Categories",
+    "keywords": "Keywords",
+    "addKeyword": "Add",
+    "noKeywords": "No keywords.",
+    "removeKeyword": "Remove {{keyword}}",
+    "savedSuccess": "Tax topic saved",
+    "savedError": "Tax topic could not be saved",
+    "deleteSuccess": "Tax topic deleted",
+    "deleteConfirmTitle": "Delete tax topic?",
+    "deleteConfirmDesc": "The saved filter topic will be removed. Transactions remain unchanged."
+  }
+}

@@ -1,0 +1,51 @@
+{
+  "title": "Overview",
+  "netWorth": "Net worth",
+  "income": "Income",
+  "expenses": "Expenses",
+  "savings": "Savings rate",
+  "balance": "Balance",
+  "period": "Period",
+  "noData": "No data for this period",
+  "toggleWidgets": "Show/hide elements",
+  "totalIncome": "Total income",
+  "totalExpenses": "Expenses",
+  "netCashflow": "Net cashflow",
+  "noSavings": "No savings transactions in this period.",
+  "noIncome": "No income in this period.",
+  "noExpenses": "No expenses in this period.",
+  "noPlanned": "No planned transactions.",
+  "noCategory": "No category",
+  "transactions": "Transactions",
+  "open": "Open",
+  "contracts": "Contracts",
+  "categorized": "{{done}} of {{total}} transactions categorized",
+  "openTasks": "{{count}} open",
+  "cleanUp": "clean up",
+  "widgets": {
+    "kpis": "Key Metrics",
+    "money_flow": "Money Flow",
+    "categorization": "Categorization",
+    "collection_focus": "Collection in Focus",
+    "category_expenses": "Expenses by Category",
+    "cashflow": "Cashflow",
+    "saving_by_purpose": "Savings by Purpose",
+    "person_comparison": "Comparison by Person",
+    "planned_contracts": "Planned Transactions"
+  },
+  "trend": {
+    "vsLastPeriod": "vs. prev period",
+    "vs": "vs. {{label}}: {{change}}",
+    "positive": "better",
+    "negative": "worse"
+  },
+  "period_switcher": {
+    "week": "Week",
+    "month": "Month",
+    "quarter": "Quarter",
+    "year": "Year",
+    "current": "Current period",
+    "prev": "Previous period",
+    "next": "Next period"
+  }
+}

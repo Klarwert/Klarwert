@@ -1,0 +1,107 @@
+{
+  "title": "Rechner",
+  "description": "Simuliere FIRE-Ziel, Zinseszins-Effekt und Entnahmepläne.",
+  "tabs": {
+    "fire": "FIRE",
+    "zinseszins": "Zinseszins",
+    "entnahme": "Entnahmeplan"
+  },
+  "common": {
+    "saveScenario": "Szenario gespeichert",
+    "loadScenario": "Szenario \"{{name}}\" geladen",
+    "deleteScenario": "Szenario gelöscht",
+    "errorLoadScenario": "Fehler beim Laden des Szenarios",
+    "contributions": "Einzahlungen",
+    "growth": "Wertzuwachs",
+    "earnings": "Erträge",
+    "capitalCurve": "Kapitalverlauf"
+  },
+  "fire": {
+    "title": "Eingaben FIRE",
+    "mode": "Berechnungsmodus",
+    "modes": {
+      "when_free": "Wann bin ich frei?",
+      "how_much": "Wieviel muss ich sparen?"
+    },
+    "monthlyNet": "Netto-Wunschbetrag (€ / mtl.)",
+    "monthlyNetTooltip": "Monatlicher Betrag, der dir nach Steuern zur Verfügung stehen soll.",
+    "savingsRate": "Monatliche Sparrate (€)",
+    "targetAge": "Wunsch-Eintrittsalter",
+    "return": "Rendite (% p.a.)",
+    "returnTooltip": "Erwartete Wertentwicklung vor Steuern (z. B. 6% für Aktien-ETF).",
+    "inflation": "Inflation (% p.a.)",
+    "swr": "Entnahmerate (% SWR)",
+    "swrTooltip": "Safe Withdrawal Rate (z. B. 3,5% oder 4%).",
+    "tax": "Steuersatz (%)",
+    "capital": "Vorhandenes Kapital (€)",
+    "personForAge": "Person für Alter",
+    "personDefault": "Profil-Default ({{age}} Jahre)",
+    "teilfreistellung": "Teilfreistellung 30% (Aktien-ETF)",
+    "capitalDepletion": "Mit Kapitalverzehr (bis Alter 100)",
+    "result": {
+      "targetYearAge": "Ziel-Jahr / Alter",
+      "requiredCapital": "Benötigtes Kapital",
+      "requiredSavingsRate": "Nötige Sparrate",
+      "yearAgeValue": "{{year}} ({{age}} J.)",
+      "inYears": "in {{count}} Jahren",
+      "perMonth": "{{amount}} / mtl.",
+      "personYears": "{{years}} Jahre"
+    }
+  },
+  "zins": {
+    "title": "Eingaben Zinseszins",
+    "initial": "Startkapital (€)",
+    "savings": "Sparrate (€ / mtl.)",
+    "stepUp": "Jährliche Dynamik (%)",
+    "stepUpTooltip": "Jährliche Erhöhung der Sparrate, z. B. zum Inflationsausgleich.",
+    "return": "Rendite (% p.a.)",
+    "years": "Laufzeit (Jahre)",
+    "inflation": "Inflation (% p.a.)",
+    "ter": "TER (% p.a.)",
+    "terTooltip": "Total Expense Ratio (z. B. ETF-Gebühren).",
+    "taxActive": "Steuern berücksichtigen",
+    "taxActiveTooltip": "Berücksichtigt Vorabpauschale und Kapitalertragsteuer beim Verkauf/Ausschüttung (mit 30% Teilfreistellung).",
+    "taxRate": "Steuersatz (%)",
+    "payout": "Ausschüttungsart",
+    "payoutThes": "thesaurierend",
+    "payoutAus": "ausschüttend",
+    "result": {
+      "title": "Ergebnis nach {{years}} Jahren",
+      "totalSaved": "Eingezahlt gesamt",
+      "earningsNet": "Ertrag (nach Steuer)",
+      "endCapital": "Endkapital",
+      "endCapitalReal": "Real: {{amount}}"
+    }
+  },
+  "ent": {
+    "title": "Eingaben Entnahmeplan",
+    "initial": "Startkapital (€)",
+    "monthly": "Entnahme (€ / mtl.)",
+    "adjustInf": "Dynamik (Inflationsausgleich)",
+    "adjustInfTooltip": "Erhöht die monatliche Entnahme jährlich um die Inflation.",
+    "horizon": "Entnahmedauer (Jahre)",
+    "return": "Rendite (% p.a.)",
+    "inflation": "Inflation (% p.a.)",
+    "ter": "TER (% p.a.)",
+    "taxActive": "Steuern berücksichtigen",
+    "taxActiveTooltip": "Berücksichtigt FIFO-Prinzip (First-In, First-Out) und 30% Teilfreistellung bei Aktien-ETFs.",
+    "taxRate": "Steuersatz (%)",
+    "result": {
+      "title": "Ergebnis nach {{years}} Jahren",
+      "residualCapital": "Restkapital",
+      "totalWithdrawn": "Entnommen (Nominal)",
+      "capitalUntil": "Kapital reicht bis",
+      "endOfHorizon": "Ende des Horizonts",
+      "ageAt": "Alter {{age}}"
+    }
+  },
+  "scenarios": {
+    "saveTitle": "Aktuelles Szenario speichern",
+    "placeholder": "Name für das Szenario…",
+    "saveButton": "Speichern",
+    "savedTitle": "Gespeicherte Szenarien",
+    "loadAction": "Laden",
+    "deleteAction": "Löschen",
+    "noneSaved": "Keine gespeicherten Szenarien für diesen Typ."
+  }
+}

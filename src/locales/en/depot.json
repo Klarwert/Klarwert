@@ -1,0 +1,40 @@
+{
+  "positions": "Positions ({{count}})",
+  "purchaseValue": "Purchase value: {{purchase}} → Current: {{current}}",
+  "refreshPrices": "Refresh prices",
+  "addPosition": "Position",
+  "empty": "No positions yet. Add your first securities.",
+  "columns": {
+    "security": "Security",
+    "isin": "ISIN",
+    "shares": "Shares",
+    "purchasePrice": "Cost basis",
+    "price": "Price",
+    "value": "Value",
+    "gain": "+/−"
+  },
+  "priceDate": "Prices: {{date}}",
+  "priceUpdating": " · Refreshing…",
+  "deleted": "{{name}} deleted.",
+  "deleteFailed": "Deletion failed: {{error}}",
+  "modal": {
+    "titleEdit": "Edit position",
+    "titleNew": "Add position",
+    "isinLabel": "ISIN *",
+    "isinHint": "ISIN or ticker symbol (e.g. AAPL, ETF500)",
+    "nameLabel": "Name *",
+    "sharesLabel": "Shares/units *",
+    "purchasePriceLabel": "Cost basis * (per share)",
+    "currencyLabel": "Currency",
+    "manualPriceLabel": "Current price (optional, manual)",
+    "manualPriceHint": "Saved as today's price. Leave empty if automatic price data is active.",
+    "cancel": "Cancel",
+    "save": "Save",
+    "add": "Add",
+    "updated": "Position updated.",
+    "added": "Position added.",
+    "saveFailed": "Save failed: {{error}}",
+    "errorRequiredFields": "Please fill in all required fields.",
+    "errorInvalidPrice": "Invalid cost basis."
+  }
+}

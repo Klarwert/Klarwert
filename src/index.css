@@ -1,0 +1,46 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 39 33% 94%; /* paper #f3efe4 */
+    --foreground: 30 6% 14%; /* charcoal #262321 */
+
+    --secondary: 39 20% 90%;
+    --secondary-foreground: 30 6% 14%;
+
+    --muted: 39 20% 90%;
+    --muted-foreground: 200 6% 44%; /* slate */
+
+    --accent: 39 20% 88%;
+    --accent-foreground: 190 45% 15%;
+
+    --popover: 45 60% 99%; /* card #fffdf8 */
+    --popover-foreground: 30 6% 14%;
+
+    --border: 39 15% 82%;
+    --input: 39 15% 82%;
+    --ring: 192 53% 21%; /* petrol-light */
+
+    --radius: 10px;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-paper text-charcoal font-sans antialiased;
+  }
+  .num {
+    @apply font-mono tabular-nums;
+  }
+  /* Sonner setzt auf den Toast-Text standardmäßig keine Textmarkierung zu – bei Fehlermeldungen
+     will man aber genau das (z. B. um sie zu kopieren), bevor der Toast automatisch verschwindet. */
+  [data-sonner-toast],
+  [data-sonner-toast] * {
+    user-select: text;
+  }
+}

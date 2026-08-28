@@ -1,0 +1,266 @@
+{
+  "title": "Profil & Einstellungen",
+  "subtitle": "Verwalte Personen, Einstellungen, Backups und Daten.",
+  "tabs": {
+    "general": "Allgemein",
+    "persons": "Personen & Konten",
+    "import": "Import & Kurse",
+    "system": "Daten & System"
+  },
+  "persons": {
+    "title": "Personen",
+    "role": {
+      "adult": "Erwachsener",
+      "child": "Kind"
+    },
+    "birthYear": "Geburtsjahr",
+    "kirchensteuer": "Kirchensteuerpflichtig",
+    "bundesland": "Bundesland:",
+    "aliases": "Auch bekannt als (für Transfer-Erkennung)",
+    "addAlias": "Alias hinzufügen",
+    "aliasHint": "Wird für die Transfer- und Konto-Erkennung benötigt.",
+    "add": "Person hinzufügen",
+    "remove": "Person entfernt",
+    "lastPersonError": "Die letzte Person kann nicht entfernt werden.",
+    "ownerMatrix": "Person-Konto-Zuordnung",
+    "showHidden": "Auch ausgeblendete anzeigen",
+    "bundeslandPlaceholder": "Bundesland wählen…",
+    "aliasRemove": "Alias {{alias}} entfernen",
+    "aliasPlaceholder": "+ Namensvariante",
+    "namePlaceholder": "Name neuer Person…",
+    "aliasMandatoryPlaceholder": "Wie steht der Name in Bank-Buchungen? (Pflicht)",
+    "addBtn": "Person",
+    "added": "Person hinzugefügt",
+    "addError": "Fehler beim Hinzufügen: {{error}}",
+    "minOwnerError": "Mindestens ein Person-Owner ist erforderlich.",
+    "account": "Konto",
+    "birthYearError": "Geburtsjahr muss zwischen 1900 und {{year}} liegen."
+  },
+  "settings": {
+    "title": "Allgemein",
+    "language": "Sprache",
+    "currency": "Währung",
+    "dateFormat": "Datumsformat",
+    "importReminder": "Import-Erinnerung (Tage)"
+  },
+  "settingsCategories": {
+    "general": "Allgemein",
+    "notifications": "Benachrichtigungen",
+    "quotes": "Kursdaten",
+    "experimental": "Experimentell",
+    "data": "Daten"
+  },
+  "settingsKeys": {
+    "currency": "Währung",
+    "date_display_format": "Datumsformat",
+    "language": "Sprache",
+    "onboarding_done": "Onboarding abgeschlossen",
+    "kirchensteuer_aktiv": "Kirchensteuer aktiv",
+    "kirchensteuer_satz": "Kirchensteuersatz (%)",
+    "use_rule_templates": "Standard-Kategorisierungsregeln verwenden",
+    "rule_templates_migrated_to_merchants": "Regel-Vorlagen migriert",
+    "check_updates_on_startup": "Beim Start auf Updates prüfen",
+    "notification_level": "Benachrichtigungslevel",
+    "notify_transfer_detected": "Bei Transfer-Erkennung benachrichtigen",
+    "import_reminder_days": "Import-Erinnerung (Tage)",
+    "notify_contract_detected": "Bei Vertragserkennung benachrichtigen",
+    "quotes_enabled": "Kursdatenbank aktivieren",
+    "quotes_provider": "Kursdaten-Anbieter",
+    "quotes_privacy_accepted": "Datenschutzerklärung (Kurse) akzeptiert",
+    "db_version": "Datenbank-Version",
+    "last_sync": "Letzte Synchronisation",
+    "enable_experimental_features": "Experimentelle Funktionen aktivieren"
+  },
+  "settingsValues": {
+    "notificationLevel": {
+      "all": "Alle Warnungen & Hinweise",
+      "warning": "Warnungen & Kritisch",
+      "critical": "Nur Kritisch",
+      "none": "Keine Benachrichtigungen"
+    },
+    "currency": {
+      "EUR": "Euro (€)",
+      "USD": "US-Dollar ($)",
+      "CHF": "Schweizer Franken (CHF)"
+    },
+    "dateFormat": {
+      "ddMMyyyy": "dd.MM.yyyy (31.12.2023)",
+      "yyyyMMdd": "yyyy-MM-dd (2023-12-31)"
+    },
+    "language": {
+      "de": "Deutsch",
+      "en": "English"
+    }
+  },
+  "data": {
+    "title": "Daten & Backup",
+    "dbPath": "Datenbank-Speicherort",
+    "dbPathHint": "Die aktive Datenbankdatei. Lösche diese Datei nicht, um Datenverlust zu vermeiden.",
+    "backupDir": "Lokales Backup-Verzeichnis (Automatisch)",
+    "backupDirHint": "Hier legt Klarwert automatische Backups (z. B. vor Updates) ab und speichert CSV-Exporte.",
+    "openFolder": "Ordner öffnen",
+    "exportJson": "Als JSON exportieren",
+    "exportCsv": "Alle Tabellen als CSV",
+    "importJson": "JSON-Backup importieren",
+    "exportSuccess": "Backup erfolgreich heruntergeladen",
+    "exportCsvSuccess": "CSV-Export erfolgreich im Klarwert-Ordner (Dokumente) gespeichert",
+    "importSuccess": "Backup erfolgreich wiederhergestellt",
+    "hint": "Zusätzlich zu automatischen Backups können Daten jederzeit als offene Formate gesichert werden."
+  },
+  "danger": {
+    "title": "Gefahrenzone",
+    "description": "Löscht alle gespeicherten Daten (Konten, Transaktionen, Kategorien, Regeln).",
+    "button": "Alle Daten löschen",
+    "confirmTitle": "Alle Daten unwiderruflich löschen?",
+    "confirmDescription": "Gib 'löschen' ein, um das Zurücksetzen der App zu bestätigen.",
+    "confirmButton": "Endgültig löschen",
+    "confirmInput": "löschen",
+    "success": "Alle Daten wurden gelöscht.",
+    "error": "Fehler beim Löschen: {{error}}"
+  },
+  "about": {
+    "title": "Über Klarwert",
+    "version": "Version {{version}} (Lokale Desktop Finanz-App)",
+    "description": "100 % lokal, private SQLite-Datenbank, kein Login, keine Cloud."
+  },
+  "customFields": "Benutzerdefinierte Felder",
+  "bankTemplates": "Bank-Vorlagen",
+  "communityData": {
+    "title": "Community-Daten",
+    "description": "Händler-Kategorien und Bank-Profile, kuratiert von der Klarwert-Community."
+  },
+  "quotes": {
+    "title": "Kursdaten (Wertpapiere)",
+    "description": "Optionaler Abruf von Schlusskursen für deine Depot-Positionen. Standardmäßig deaktiviert."
+  },
+  "updates": {
+    "title": "App-Updates"
+  },
+  "community": {
+    "check": "Community-Update prüfen",
+    "desc": "Lädt Händler-Kategorien und Bankprofile aus dem Community-Repo. Keine Kontodaten verlassen dein Gerät.",
+    "available": "Verfügbare Updates",
+    "bankProfiles": "Bank-Profile ({{version}})",
+    "merchants": "Händler-Regeln ({{version}})",
+    "applyMerchants": "Regel-Update prüfen",
+    "applyBankProfiles": "Übernehmen",
+    "noDetails": "Keine Details (Formatfehler)",
+    "noAssignment": "Keine Zuordnung",
+    "preview": "Vorschau",
+    "hide": "Ausblenden",
+    "merchantsSuccess": "Händler-Datenbank aktualisiert (Stand {{version}}).",
+    "merchantsError": "Händler-Datenbank Update fehlgeschlagen: {{error}}",
+    "bankProfilesSuccess": "Bank-Profile importiert: {{parts}} (Stand {{version}}).",
+    "bankProfilesError": "Bank-Profile-Update fehlgeschlagen: {{error}}",
+    "parts": {
+      "new": "{{count}} neu",
+      "updated": "{{count}} aktualisiert",
+      "skipped": "{{count}} übersprungen (eigene Anpassung)",
+      "none": "keine Änderung"
+    },
+    "bankProfilesHint": "Bankprofile werden beim nächsten Import automatisch angeboten, wenn der Spalten-Fingerabdruck deiner CSV-Datei übereinstimmt."
+  },
+  "templates": {
+    "removed": "Vorlage entfernt",
+    "removeError": "Löschen fehlgeschlagen",
+    "importDialog": "Bank-Vorlagen importieren",
+    "noTemplatesFound": "Die Datei enthält keine Bank-Vorlagen.",
+    "importError": "Import fehlgeschlagen",
+    "importSuccess": "Vorlagen importiert",
+    "description": "Bank-Vorlagen legen fest, wie Klarwert eine CSV-Datei deiner Bank liest (welche Spalte Datum, Betrag, Empfänger usw. ist). Mitgelieferte Vorlagen sind geschützt – bearbeite sie, um automatisch eine eigene Kopie anzulegen.",
+    "builtin": "Standard",
+    "modified": "angepasst",
+    "columnsMapped": "Spalten gemappt",
+    "copyAndEdit": "Kopieren & Bearbeiten",
+    "noneFound": "Noch keine Vorlagen vorhanden.",
+    "new": "Neue Vorlage",
+    "importFromTitle": "Bank-Vorlagen aus Datei",
+    "importPreviewTitle": "Vorlagen-Import Vorschau",
+    "importPreviewDesc": "Es wurden {{count}} Vorlagen gefunden. Welche sollen gespeichert werden?",
+    "deleteTitle": "Vorlage löschen?",
+    "deleteDesc": "\"{{name}}\" wird nicht mehr zur automatischen Erkennung beim Import verwendet.",
+    "editorModal": {
+      "titleEditCopy": "Vorlage als Kopie bearbeiten",
+      "titleEdit": "Bank-Vorlage bearbeiten",
+      "titleNew": "Neue Bank-Vorlage",
+      "descBuiltin": "Diese Vorlage ist in Klarwert mitgeliefert und kann nicht direkt verändert werden. Deine Änderungen werden als eigene Kopie gespeichert.",
+      "descCustom": "Trage ein, wie die Spalten in der CSV-Datei deiner Bank heißen, und ordne jeder Spalte eine Bedeutung zu.",
+      "copySuffix": "(Kopie)",
+      "nameLabel": "Name der Vorlage",
+      "namePlaceholder": "z. B. Meine Bank Girokonto",
+      "columnsLabel": "Spalten aus der CSV-Datei",
+      "columnsHint": "Öffne deine Export-Datei einmal und schreibe die Spaltenüberschriften genauso ab, wie sie dort stehen.",
+      "headerPlaceholder": "Spaltenname in der Datei",
+      "noRole": "(nicht verwenden)",
+      "addColumn": "Weitere Spalte",
+      "importAllColumns": "Auch nicht zugeordnete Spalten als Zusatzinfo importieren (über das Auge-Symbol einsehbar)",
+      "delimiterLabel": "Trennzeichen",
+      "encodingLabel": "Zeichenkodierung",
+      "dateFormatLabel": "Datumsformat",
+      "decimalFormatLabel": "Zahlenformat",
+      "delimiterSemicolon": "Semikolon ( ; )",
+      "delimiterComma": "Komma ( , )",
+      "delimiterTab": "Tabulator",
+      "encodingUtf8": "UTF-8 (moderne Banken)",
+      "encodingWindows1252": "Windows-1252 (ältere/deutsche Banken)",
+      "decimalDe": "Deutsch (1.234,56)",
+      "decimalEn": "Englisch (1,234.56)",
+      "cancel": "Abbrechen",
+      "save": "Speichern",
+      "saveAsCopy": "Als Kopie speichern",
+      "updated": "Vorlage aktualisiert",
+      "copyCreated": "Kopie erstellt",
+      "created": "Vorlage erstellt",
+      "saveFailed": "Speichern fehlgeschlagen: {{error}}",
+      "errorNameRequired": "Bitte einen Namen für die Vorlage vergeben.",
+      "errorColumnRequired": "Bitte mindestens eine Spalte mit Namen eintragen.",
+      "errorRolesRequired": "Mindestens 'Datum' und 'Betrag' müssen einer Spalte zugeordnet sein."
+    }
+  },
+  "customFieldsManager": {
+    "dataTypes": {
+      "text": "Text",
+      "integer": "Ganzzahl",
+      "decimal": "Dezimalzahl",
+      "boolean": "Ja/Nein",
+      "date": "Datum",
+      "datetime": "Datum + Uhrzeit"
+    },
+    "empty": "Noch keine benutzerdefinierten Felder. Felder werden beim Import von Spalten angelegt, die du als „Als Extra-Feld importieren\" markierst.",
+    "type": "Typ: {{type}}",
+    "hint": "Neue Felder werden automatisch angelegt, wenn du beim Datei-Import Spalten als „Als Extra-Feld importieren\" markierst.",
+    "deleteConfirm": "Feld wirklich löschen? Alle zugehörigen Daten gehen verloren."
+  },
+  "quoteSettings": {
+    "loading": "Lädt…",
+    "privacyTitle": "Datenschutzhinweis – bitte lesen",
+    "privacyNote": "Kursabfragen werden in der lokalen Datenbank gecacht. Der Abruf erfolgt maximal einmal pro Tag pro Wertpapier. Das ist der einzige optionale Netzwerkzugriff dieser App – alle anderen Daten bleiben ausschließlich lokal auf deinem Gerät.",
+    "acceptAndEnable": "Ich habe verstanden – Aktivieren",
+    "cancel": "Abbrechen",
+    "title": "Automatische Kursdaten",
+    "activeStatus": "Aktiv — {{provider}}",
+    "disabledStatus": "Deaktiviert — Kurse werden manuell gepflegt",
+    "disable": "Deaktivieren",
+    "enable": "Aktivieren",
+    "enabledToast": "Kursdaten aktiviert.",
+    "disabledToast": "Kursdaten deaktiviert.",
+    "settingsSavedToast": "Kursdaten-Einstellungen gespeichert.",
+    "providerLabel": "Datenanbieter",
+    "alpacaSignup": "Kostenlosen Alpaca-Account anlegen",
+    "apiKeyLabel": "API Key ID",
+    "apiSecretLabel": "API Secret Key",
+    "apiKeyStorageNote": "API Key und Secret werden ausschließlich lokal (unverschlüsselt) in der App-Datenbank gespeichert.",
+    "saveSettings": "Einstellungen speichern"
+  },
+  "updateChecker": {
+    "autoCheckLabel": "Automatisch beim Start prüfen",
+    "autoCheckHint": "Fragt beim Start einmal GitHub nach einer neueren Version.",
+    "checkButton": "Nach Updates suchen",
+    "checkUnavailable": "Update-Prüfung aktuell nicht möglich (z. B. kein Internet).",
+    "upToDate": "Du hast die neueste Version.",
+    "versionAvailable": "Version {{version}} ist verfügbar.",
+    "installing": "Wird installiert…",
+    "downloadAndInstall": "Herunterladen und installieren",
+    "updateFailed": "Update fehlgeschlagen: {{error}}"
+  }
+}

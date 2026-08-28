@@ -1,0 +1,40 @@
+{
+  "positions": "Positionen ({{count}})",
+  "purchaseValue": "Kaufwert: {{purchase}} → Aktuell: {{current}}",
+  "refreshPrices": "Kurse aktualisieren",
+  "addPosition": "Position",
+  "empty": "Noch keine Positionen. Füge deine ersten Wertpapiere hinzu.",
+  "columns": {
+    "security": "Wertpapier",
+    "isin": "ISIN",
+    "shares": "Stück",
+    "purchasePrice": "Einstand",
+    "price": "Kurs",
+    "value": "Wert",
+    "gain": "+/−"
+  },
+  "priceDate": "Kurse: {{date}}",
+  "priceUpdating": " · Aktualisierung läuft…",
+  "deleted": "{{name}} gelöscht.",
+  "deleteFailed": "Löschen fehlgeschlagen: {{error}}",
+  "modal": {
+    "titleEdit": "Position bearbeiten",
+    "titleNew": "Position hinzufügen",
+    "isinLabel": "ISIN *",
+    "isinHint": "ISIN oder Ticker-Symbol (z. B. AAPL, ETF500)",
+    "nameLabel": "Name *",
+    "sharesLabel": "Stück/Anteile *",
+    "purchasePriceLabel": "Einstandskurs * (pro Stück)",
+    "currencyLabel": "Währung",
+    "manualPriceLabel": "Aktueller Kurs (optional, manuell)",
+    "manualPriceHint": "Wird als heutiger Kurs gespeichert. Leer lassen, wenn automatische Kursdaten aktiv sind.",
+    "cancel": "Abbrechen",
+    "save": "Speichern",
+    "add": "Hinzufügen",
+    "updated": "Position aktualisiert.",
+    "added": "Position hinzugefügt.",
+    "saveFailed": "Speichern fehlgeschlagen: {{error}}",
+    "errorRequiredFields": "Bitte alle Pflichtfelder ausfüllen.",
+    "errorInvalidPrice": "Einstandskurs ungültig."
+  }
+}

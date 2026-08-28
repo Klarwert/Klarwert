@@ -1,0 +1,51 @@
+{
+  "title": "Übersicht",
+  "netWorth": "Nettovermögen",
+  "income": "Einnahmen",
+  "expenses": "Ausgaben",
+  "savings": "Sparquote",
+  "balance": "Bilanz",
+  "period": "Zeitraum",
+  "noData": "Keine Daten für diesen Zeitraum",
+  "toggleWidgets": "Elemente ein-/ausblenden",
+  "totalIncome": "Gesamt Einnahmen",
+  "totalExpenses": "Ausgaben",
+  "netCashflow": "Netto-Cashflow",
+  "noSavings": "Keine Sparbuchungen im Zeitraum.",
+  "noIncome": "Keine Einnahmen im Zeitraum.",
+  "noExpenses": "Keine Ausgaben im Zeitraum.",
+  "noPlanned": "Keine geplanten Buchungen.",
+  "noCategory": "Ohne Kategorie",
+  "transactions": "Buchungen",
+  "open": "Öffnen",
+  "contracts": "Verträge",
+  "categorized": "{{done}} von {{total}} Buchungen kategorisiert",
+  "openTasks": "{{count}} offen",
+  "cleanUp": "aufräumen",
+  "widgets": {
+    "kpis": "Kennzahlen",
+    "money_flow": "Geldfluss",
+    "categorization": "Kategorisierung",
+    "collection_focus": "Sammlung im Fokus",
+    "category_expenses": "Ausgaben nach Kategorie",
+    "cashflow": "Cashflow",
+    "saving_by_purpose": "Sparen nach Zweck",
+    "person_comparison": "Vergleich nach Person",
+    "planned_contracts": "Geplante Buchungen"
+  },
+  "trend": {
+    "vsLastPeriod": "vs. Vorperiode",
+    "vs": "vs. {{label}}: {{change}}",
+    "positive": "besser",
+    "negative": "schlechter"
+  },
+  "period_switcher": {
+    "week": "Woche",
+    "month": "Monat",
+    "quarter": "Quartal",
+    "year": "Jahr",
+    "current": "Aktueller Zeitraum",
+    "prev": "Vorheriger Zeitraum",
+    "next": "Nächster Zeitraum"
+  }
+}

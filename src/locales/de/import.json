@@ -1,0 +1,54 @@
+{
+  "title": "Import",
+  "selectFile": "Datei auswählen",
+  "dragDrop": "Datei hier ablegen oder klicken",
+  "supported": "Unterstützte Formate: CSV",
+  "selectAccount": "Konto auswählen",
+  "selectProfile": "Bank-Profil auswählen",
+  "preview": "Vorschau",
+  "import": "Importieren",
+  "importing": "Importiert…",
+  "success": "{{count}} Buchungen importiert",
+  "duplicate": "{{count}} Duplikate übersprungen",
+  "error": "Import fehlgeschlagen: {{error}}",
+  "noProfile": "Kein passendes Profil gefunden. Bitte manuell zuordnen.",
+  "columnMapping": "Spaltenzuordnung",
+  "dateFormat": "Datumsformat",
+  "encoding": "Zeichensatz",
+  "delimiter": "Trennzeichen",
+  "steps": {
+    "file": "Datei",
+    "profile": "Profil",
+    "preview": "Vorschau",
+    "import": "Import"
+  },
+  "file": {
+    "title": "Datei auswählen",
+    "dragDrop": "Datei hier ablegen oder klicken",
+    "detected": "Erkannt: Zeichensatz {{encoding}}{{delimiter}}, Dezimalformat {{decimal}}, Datumsformat {{date}}",
+    "detectedDelimiter": ", Trennzeichen \"{{delimiter}}\""
+  },
+  "accountMapping": {
+    "title": "Konto auswählen"
+  },
+  "roles": {
+    "date": "Datum",
+    "value_date": "Wertstellung",
+    "amount": "Betrag",
+    "counterparty": "Empfänger / Auftraggeber",
+    "counterparty_incoming": "Auftraggeber (eingehend)",
+    "counterparty_outgoing": "Empfänger (ausgehend)",
+    "purpose": "Verwendungszweck",
+    "external_id": "Externe ID",
+    "transaction_type": "Buchungsart",
+    "card_payment_at": "Kartenzahlung bei",
+    "cash_withdrawal_at": "Barabhebung bei",
+    "recipient_iban": "Empfänger IBAN",
+    "recipient_bic": "Empfänger BIC",
+    "recipient_account_number": "Empfänger Kontonummer",
+    "description": "Beschreibung",
+    "bank_category": "Bank-Kategorie",
+    "bank_subcategory": "Bank-Unterkategorie",
+    "bank_account_label": "Kontobezeichnung"
+  }
+}

@@ -1,0 +1,54 @@
+{
+  "title": "Import",
+  "selectFile": "Select file",
+  "dragDrop": "Drop file here or click",
+  "supported": "Supported formats: CSV",
+  "selectAccount": "Select account",
+  "selectProfile": "Select bank profile",
+  "preview": "Preview",
+  "import": "Import",
+  "importing": "Importing…",
+  "success": "{{count}} transactions imported",
+  "duplicate": "{{count}} duplicates skipped",
+  "error": "Import failed: {{error}}",
+  "noProfile": "No matching profile found. Please assign manually.",
+  "columnMapping": "Column mapping",
+  "dateFormat": "Date format",
+  "encoding": "Encoding",
+  "delimiter": "Delimiter",
+  "steps": {
+    "file": "File",
+    "profile": "Profile",
+    "preview": "Preview",
+    "import": "Import"
+  },
+  "file": {
+    "title": "Select file",
+    "dragDrop": "Drop file here or click",
+    "detected": "Detected: Encoding {{encoding}}{{delimiter}}, decimal format {{decimal}}, date format {{date}}",
+    "detectedDelimiter": ", delimiter \"{{delimiter}}\""
+  },
+  "accountMapping": {
+    "title": "Select account"
+  },
+  "roles": {
+    "date": "Date",
+    "value_date": "Value date",
+    "amount": "Amount",
+    "counterparty": "Payee / Payer",
+    "counterparty_incoming": "Payer (incoming)",
+    "counterparty_outgoing": "Payee (outgoing)",
+    "purpose": "Reference",
+    "external_id": "External ID",
+    "transaction_type": "Transaction type",
+    "card_payment_at": "Card payment at",
+    "cash_withdrawal_at": "Cash withdrawal at",
+    "recipient_iban": "Recipient IBAN",
+    "recipient_bic": "Recipient BIC",
+    "recipient_account_number": "Recipient account number",
+    "description": "Description",
+    "bank_category": "Bank category",
+    "bank_subcategory": "Bank subcategory",
+    "bank_account_label": "Account label"
+  }
+}
