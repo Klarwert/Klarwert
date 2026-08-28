@@ -2,9 +2,11 @@ name: "Build & Release Klarwert"
 
 on:
   push:
-    branches:
-      - main
-      - master
+    # Nur ein Tag-Push löst einen vollen Multi-Plattform-Build + Release aus, nicht jeder Push
+    # nach main - sonst baut jeder normale Commit ungewollt einen (Draft-)Release (siehe Incident
+    # 2026-08-28: ein Push nach main erzeugte einen kaputten Release mit nicht aufgelöstem
+    # "v__VERSION__"-Tag). Ablauf für einen Release: Version bumpen (npm run bump-version -- X.Y.Z),
+    # committen, Tag vX.Y.Z pushen - siehe CONTRIBUTING.md "Release-Prozess".
     tags:
       - 'v*'
   workflow_dispatch:
@@ -31,7 +33,12 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
+
+      - name: Read app version
+        id: app_version
+        shell: bash
+        run: echo "version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
 
       - name: Install Rust stable
         uses: dtolnay/rust-toolchain@stable
@@ -71,6 +78,30 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           files: bom.json
-          tag_name: v__VERSION__
+          # tauri-action löst "v__VERSION__" (oben) selbst intern zur echten Versionsnummer auf -
+          # dieser separate Release-Schritt kennt dieses Platzhalter-Templating aber nicht und würde
+          # sonst einen ZWEITEN, eigenen Release mit dem wörtlichen Tag "v__VERSION__" anlegen (genau
+          # das ist am 2026-08-28 passiert: ein öffentlicher "Latest"-Release, der nur bom.json enthielt,
+          # keine Installer). Deshalb hier explizit dieselbe, echte Versionsnummer verwenden.
+          tag_name: v${{ steps.app_version.outputs.version }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  publish-release:
+    needs: build-tauri
+    if: needs.build-tauri.result == 'success'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Read app version
+        id: app_version
+        run: echo "version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+      - name: Publish the draft release
+        # Alle drei Plattform-Jobs laden ihre Installer in denselben Draft-Release hoch (siehe oben).
+        # Erst wenn ALLE erfolgreich fertig sind, wird der Release veröffentlicht - so sieht kein
+        # Nutzer jemals einen halbfertigen Release mit fehlenden Plattformen.
+        run: gh release edit "v${{ steps.app_version.outputs.version }}" --draft=false --repo "${{ github.repository }}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

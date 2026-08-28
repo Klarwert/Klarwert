@@ -4,3 +4,28 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
+    groups:
+      # React und seine Typen müssen immer zusammen und auf derselben Major-Version bleiben –
+      # ein Bump nur eines Teils (z.B. react-dom auf 19, react auf 18) ist immer kaputt.
+      react-ecosystem:
+        patterns:
+          - "react"
+          - "react-dom"
+          - "@types/react"
+          - "@types/react-dom"
+    ignore:
+      # React 19 ist ein bewusster, separater Umstieg (Breaking Changes), kein automatisierbarer
+      # Dependabot-Bump – siehe geschlossenen PR #6 (react-dom/@types/react-dom-Mismatch).
+      - dependency-name: "react"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "react-dom"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@types/react"
+        update-types: ["version-update:semver-major"]
+      - dependency-name: "@types/react-dom"
+        update-types: ["version-update:semver-major"]
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"

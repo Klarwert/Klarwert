@@ -16,7 +16,8 @@
     "test": "vitest run",
     "lint": "eslint .",
     "generate-sbom": "cyclonedx-npm --output-format JSON --output-file bom.json",
-    "generate-perf-data": "npx tsx src/test/generatePerformanceFixture.ts"
+    "generate-perf-data": "npx tsx src/test/generatePerformanceFixture.ts",
+    "bump-version": "node scripts/bump-version.mjs"
   },
   "dependencies": {
     "@dnd-kit/core": "^6",

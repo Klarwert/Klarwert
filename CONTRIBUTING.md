@@ -86,6 +86,36 @@ Klarwert besteht aus drei GitHub-Repositories:
 
 Prioritäten für künftige KI-Coding-Sitzungen sind in [`NEXT_STEPS.md`](NEXT_STEPS.md) gepflegt.
 
+## Release-Prozess
+
+Ein Release entsteht **ausschließlich über einen Git-Tag** (`v*`), niemals über einen normalen Push
+nach `main` – ein gewöhnlicher Commit soll nie versehentlich einen Multi-Plattform-Build samt
+öffentlichem GitHub-Release auslösen.
+
+1. Version an einer Stelle bumpen, alle drei betroffenen Dateien werden automatisch synchron gehalten:
+   ```bash
+   npm run bump-version -- 0.2.0
+   ```
+2. Änderungen committen und nach `main` pushen:
+   ```bash
+   git add package.json package-lock.json src-tauri/tauri.conf.json src-tauri/Cargo.toml src-tauri/Cargo.lock
+   git commit -m "chore: release v0.2.0"
+   git push
+   ```
+3. Tag setzen und pushen – **das** löst den Release-Workflow aus:
+   ```bash
+   git tag v0.2.0
+   git push origin v0.2.0
+   ```
+4. Der Workflow baut macOS/Linux/Windows parallel, lädt alle Installer in einen Draft-Release hoch
+   und veröffentlicht ihn erst automatisch, wenn alle drei Plattformen erfolgreich fertig sind – so
+   sieht niemand einen halbfertigen Release. Die Website (klarwert.github.io/download) erkennt den
+   neuen Release automatisch über die GitHub-API, ohne dass dort etwas manuell angepasst werden muss.
+
+Nur `vX.Y.Z`-Tags auf semantische Versionen verwenden (kein `v` vergessen, keine Suffixe) – der
+Tag-Name muss exakt `v` + `package.json`-Version sein, sonst findet `tauri-action` den zugehörigen
+Draft-Release nicht wieder.
+
 ## Neue Bankformat-Parser beitragen
 
 Ein neues Bankformat wird als eigenes Parser-Modul beigetragen (kein Laufzeit-Plugin-System – siehe [`context/CLAUDE.md`](context/CLAUDE.md), Abschnitt „Bewusst nicht geplant"). Orientiere dich an den bestehenden Profilen in [`context/klarwert-seed-data.md`](context/klarwert-seed-data.md), Abschnitt 5.

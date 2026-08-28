@@ -23,13 +23,9 @@ Eine private Haushalts-Finanz-App, die **zu 100 % lokal** läuft: keine Cloud, k
 
 ## Download
 
-| Betriebssystem | Download |
-|---|---|
-| Windows | [Releases](../../releases) |
-| macOS | [Releases](../../releases) |
-| Linux | [Releases](../../releases) |
+**[klarwert.github.io/download](https://klarwert.github.io/download/)** – Windows, macOS und Linux, direkter Download ohne GitHub-Konto, inkl. Installationsanleitung (u. a. Hinweis zu Windows-SmartScreen/macOS-Gatekeeper).
 
-Ausführliche Installationsanleitung (inkl. Hinweis zu Windows-SmartScreen/macOS-Gatekeeper): siehe [anselmjo.github.io/Klarwert-Website](https://anselmjo.github.io/Klarwert-Website/).
+Alternativ direkt über [GitHub Releases](../../releases).
 
 ## Tech-Stack
 
