@@ -37,7 +37,8 @@
     "vsLastPeriod": "vs. Vorperiode",
     "vs": "vs. {{label}}: {{change}}",
     "positive": "besser",
-    "negative": "schlechter"
+    "negative": "schlechter",
+    "vsLastYear": "Vorjahr"
   },
   "period_switcher": {
     "week": "Woche",
@@ -47,5 +48,9 @@
     "current": "Aktueller Zeitraum",
     "prev": "Vorheriger Zeitraum",
     "next": "Nächster Zeitraum"
+  },
+  "freshness": {
+    "dataUntil": "Daten aktuell bis {{date}}",
+    "lastImport": "letzter Import {{date}}"
   }
 }

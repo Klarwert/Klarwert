@@ -187,5 +187,8 @@
       "bank_subcategory": "Bank-Unterkategorie",
       "bank_account_label": "Kontoname/Kontonummer (Bank)"
     }
+  },
+  "periods": {
+    "weekLabel": "KW {{week}} · {{year}}"
   }
 }

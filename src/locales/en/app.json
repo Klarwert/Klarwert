@@ -187,5 +187,8 @@
       "bank_subcategory": "Bank subcategory",
       "bank_account_label": "Account name/number (Bank)"
     }
+  },
+  "periods": {
+    "weekLabel": "Week {{week}} · {{year}}"
   }
 }

@@ -13,7 +13,13 @@ import {
   addYears,
   format,
 } from "date-fns";
-import { de } from "date-fns/locale";
+import { de, enUS } from "date-fns/locale";
+import i18n from "@/i18n";
+import { getWeekStartDay } from "@/lib/dates";
+
+function getDateFnsLocale() {
+  return i18n.language === "en" ? enUS : de;
+}
 
 export type PeriodType = "week" | "month" | "quarter" | "year";
 
@@ -30,14 +36,16 @@ function iso(d: Date): string {
 export function getPeriodRange(type: PeriodType, anchor: Date): PeriodRange {
   switch (type) {
     case "week": {
-      const from = startOfWeek(anchor, { weekStartsOn: 1 });
-      const to = endOfWeek(anchor, { weekStartsOn: 1 });
-      return { from: iso(from), to: iso(to), label: `KW ${format(from, "w")} · ${format(from, "yyyy")}` };
+      const weekStartsOn = getWeekStartDay();
+      const from = startOfWeek(anchor, { weekStartsOn });
+      const to = endOfWeek(anchor, { weekStartsOn });
+      const label = i18n.t("app:periods.weekLabel", { week: format(from, "w"), year: format(from, "yyyy") });
+      return { from: iso(from), to: iso(to), label };
     }
     case "month": {
       const from = startOfMonth(anchor);
       const to = endOfMonth(anchor);
-      return { from: iso(from), to: iso(to), label: format(from, "MMMM yyyy", { locale: de }) };
+      return { from: iso(from), to: iso(to), label: format(from, "MMMM yyyy", { locale: getDateFnsLocale() }) };
     }
     case "quarter": {
       const from = startOfQuarter(anchor);

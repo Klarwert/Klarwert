@@ -315,7 +315,7 @@ export function UebersichtPage() {
   );
   const totalNetCashflow = totalCashflowIncome - totalCashflowExpenses;
 
-  const compLabel = comparisonMode === "prev_year" ? "Vorjahr" : t("uebersicht:trend.vsLastPeriod");
+  const compLabel = comparisonMode === "prev_year" ? t("uebersicht:trend.vsLastYear") : t("uebersicht:trend.vsLastPeriod");
 
   function toggleWidget(key: WidgetKey) {
     setVisibleWidgets((current) => {
@@ -337,7 +337,7 @@ export function UebersichtPage() {
               <>
                 <span aria-hidden="true">·</span>
                 <span>
-                  Daten aktuell bis {formatDate(freshness.oldestLastImportAt.slice(0, 10), dateDisplayFormat)}
+                  {t("uebersicht:freshness.dataUntil", { date: formatDate(freshness.oldestLastImportAt.slice(0, 10), dateDisplayFormat) })}
                 </span>
               </>
             )}
@@ -345,7 +345,7 @@ export function UebersichtPage() {
               <>
                 <span aria-hidden="true">·</span>
                 <span>
-                  letzter Import {formatDate(freshness.latestImportAt.slice(0, 10), dateDisplayFormat)}
+                  {t("uebersicht:freshness.lastImport", { date: formatDate(freshness.latestImportAt.slice(0, 10), dateDisplayFormat) })}
                 </span>
               </>
             )}
@@ -370,7 +370,7 @@ export function UebersichtPage() {
                 comparisonMode === "prev_year" ? "bg-petrol text-card" : "text-charcoal hover:bg-accent"
               }`}
             >
-              Vorjahr
+              {t("uebersicht:trend.vsLastYear")}
             </button>
           </div>
           <Button variant="ghost" onClick={() => setSettingsOpen(true)}>
