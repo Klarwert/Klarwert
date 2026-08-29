@@ -3,7 +3,7 @@ import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { CategorySelect } from "@/components/CategorySelect";
-import { useCategories } from "@/hooks/useCategories";
+import { useCategories, translateCategoryName } from "@/hooks/useCategories";
 import { listTransactions, updateTransaction, type TransactionWithTags } from "@/db/repositories/transactions";
 import { createRule } from "@/db/repositories/rules";
 import { formatEur } from "@/lib/money";
@@ -258,7 +258,7 @@ export function AufraeumModus({ open, dateFrom, dateTo, assetId, personId, onOpe
                       onClick={() => void handleCategorize(c.id)}
                       className="rounded-pill border border-border px-3 py-1.5 text-sm hover:bg-accent"
                     >
-                      {c.name}
+                      {translateCategoryName(c)}
                     </button>
                   ))}
                 </div>

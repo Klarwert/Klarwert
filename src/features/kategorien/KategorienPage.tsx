@@ -13,7 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
-import { useCategories } from "@/hooks/useCategories";
+import { useCategories, translateCategoryName } from "@/hooks/useCategories";
 import { useRules } from "@/hooks/useRules";
 import { getCategoryYearSums, countCategoryUsage, deleteCategory, setCategoryHidden, restoreDefaultCategories } from "@/db/repositories/categories";
 import { logSoftDelete } from "@/db/repositories/historyLog";
@@ -79,7 +79,7 @@ export function KategorienPage() {
     // When searching, show all matching categories flat (parent + children)
     const matchingIds = new Set<number>();
     for (const c of visible) {
-      const nameMatch = c.name.toLowerCase().includes(searchLower);
+      const nameMatch = translateCategoryName(c).toLowerCase().includes(searchLower);
       const aliasMatch = (c.aliases ?? []).some((a) => a.toLowerCase().includes(searchLower));
       if (nameMatch || aliasMatch) {
         matchingIds.add(c.id);
@@ -97,7 +97,7 @@ export function KategorienPage() {
     );
     if (!searchLower) return children;
     return children.filter((c) => {
-      const nameMatch = c.name.toLowerCase().includes(searchLower);
+      const nameMatch = translateCategoryName(c).toLowerCase().includes(searchLower);
       const aliasMatch = (c.aliases ?? []).some((a) => a.toLowerCase().includes(searchLower));
       return nameMatch || aliasMatch;
     });
@@ -109,7 +109,7 @@ export function KategorienPage() {
       setDeleteTarget({ category, count });
     } else {
       await setCategoryHidden(category.id, true);
-      toast.info(t("categories.hidden", { name: category.name, count }));
+      toast.info(t("categories.hidden", { name: translateCategoryName(category), count }));
       invalidateCategories();
     }
   }
@@ -117,8 +117,9 @@ export function KategorienPage() {
   async function confirmDelete() {
     if (!deleteTarget) return;
     await deleteCategory(deleteTarget.category.id);
-    await logSoftDelete("categories", deleteTarget.category.id, t("categories.deletedLog", { name: deleteTarget.category.name }));
-    toast.success(t("categories.deleted", { name: deleteTarget.category.name }));
+    const deletedName = translateCategoryName(deleteTarget.category);
+    await logSoftDelete("categories", deleteTarget.category.id, t("categories.deletedLog", { name: deletedName }));
+    toast.success(t("categories.deleted", { name: deletedName }));
     setDeleteTarget(null);
     invalidateCategories();
   }
@@ -138,7 +139,7 @@ export function KategorienPage() {
         >
           {Icon && <Icon className="size-4" style={{ color: category.color }} />}
           <span className="text-sm" style={{ color: isChild ? category.color : undefined }}>
-            {category.name}
+            {translateCategoryName(category)}
           </span>
           {isOwn && <Pencil className="size-3 text-slate" />}
         </button>
@@ -289,8 +290,8 @@ export function KategorienPage() {
         <ConfirmDialog
           open={!!deleteTarget}
           onOpenChange={(o) => !o && setDeleteTarget(null)}
-          title={`"${deleteTarget.category.name}" ${t("app:common.delete")}?`}
-          description={t("categories.deleteConfirm", { name: deleteTarget.category.name })}
+          title={`"${translateCategoryName(deleteTarget.category)}" ${t("app:common.delete")}?`}
+          description={t("categories.deleteConfirm", { name: translateCategoryName(deleteTarget.category) })}
           confirmLabel={t("app:common.delete")}
           onConfirm={() => void confirmDelete()}
         />

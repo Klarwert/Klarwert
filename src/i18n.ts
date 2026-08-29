@@ -30,6 +30,8 @@ import depotDe from "./locales/de/depot.json";
 import depotEn from "./locales/en/depot.json";
 import onboardingDe from "./locales/de/onboarding.json";
 import onboardingEn from "./locales/en/onboarding.json";
+import categoriesDe from "./locales/de/categories.json";
+import categoriesEn from "./locales/en/categories.json";
 
 export const defaultNS = "app";
 export const resources = {
@@ -49,6 +51,7 @@ export const resources = {
     benachrichtigungen: benachrichtigungenDe,
     depot: depotDe,
     onboarding: onboardingDe,
+    categories: categoriesDe,
   },
   en: {
     app: appEn,
@@ -66,6 +69,7 @@ export const resources = {
     benachrichtigungen: benachrichtigungenEn,
     depot: depotEn,
     onboarding: onboardingEn,
+    categories: categoriesEn,
   },
 } as const;
 
@@ -73,7 +77,7 @@ void i18n.use(initReactI18next).init({
   resources,
   lng: "de",
   fallbackLng: "de",
-  ns: ["app", "rechner", "transaktionen", "uebersicht", "vermoegen", "kategorien", "budgets", "profil", "import", "steuer", "vertraege", "sammlungen", "benachrichtigungen", "depot", "onboarding"],
+  ns: ["app", "rechner", "transaktionen", "uebersicht", "vermoegen", "kategorien", "budgets", "profil", "import", "steuer", "vertraege", "sammlungen", "benachrichtigungen", "depot", "onboarding", "categories"],
   defaultNS,
   interpolation: {
     escapeValue: false, // react already safes from xss

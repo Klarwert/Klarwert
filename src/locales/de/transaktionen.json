@@ -206,6 +206,7 @@
   },
   "columnVisibility": {
     "ariaLabel": "Spalten ein-/ausblenden",
-    "noExtraColumns": "Keine Extra-Spalten in dieser Auswahl."
+    "noExtraColumns": "Keine Extra-Spalten in dieser Auswahl.",
+    "sourceAccount": "Quellkonto"
   }
 }

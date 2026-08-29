@@ -9,6 +9,7 @@ import { getRulesForCategory, type RuleWithConditions } from "@/db/repositories/
 import { RuleEditorModal } from "@/features/kategorien/components/RuleEditorModal";
 import type { Category } from "@/db/types";
 import { useTranslation } from "react-i18next";
+import { translateCategoryName } from "@/hooks/useCategories";
 
 interface CategoryDrawerProps {
   category: Category | null;
@@ -44,7 +45,7 @@ export function CategoryDrawer({ category, onOpenChange }: CategoryDrawerProps) 
       <Sheet open={!!category} onOpenChange={onOpenChange}>
         <SheetContent className="w-[430px] overflow-y-auto sm:max-w-[430px]">
           <SheetHeader>
-            <SheetTitle>{category.name}</SheetTitle>
+            <SheetTitle>{translateCategoryName(category)}</SheetTitle>
           </SheetHeader>
           <div className="mt-4 space-y-4 text-sm">
             <div className="flex justify-between">

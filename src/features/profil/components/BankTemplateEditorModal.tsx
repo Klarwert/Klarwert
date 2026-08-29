@@ -240,7 +240,7 @@ export function BankTemplateEditorModal({
                       <SelectItem value="none">{t("templates.editorModal.noRole")}</SelectItem>
                       {ALL_COLUMN_ROLES.map((role) => (
                         <SelectItem key={role} value={role}>
-                          {COLUMN_ROLE_LABELS[role]}
+                          {t(`app:import.roles.${role}`, COLUMN_ROLE_LABELS[role])}
                         </SelectItem>
                       ))}
                     </SelectContent>

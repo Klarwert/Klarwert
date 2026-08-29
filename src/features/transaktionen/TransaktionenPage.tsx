@@ -33,7 +33,7 @@ import { getPeriodRange } from "@/lib/periods";
 import { usePeriodStore } from "@/stores/periodStore";
 import { useGlobalFilterStore } from "@/stores/globalFilterStore";
 import { useAssets } from "@/hooks/useAssets";
-import { useCategories } from "@/hooks/useCategories";
+import { useCategories, translateCategoryName } from "@/hooks/useCategories";
 import { useTags } from "@/hooks/useTags";
 import { useCollections } from "@/hooks/useCollections";
 import { useSparzwecke } from "@/hooks/useSparzwecke";
@@ -236,7 +236,7 @@ export function TransaktionenPage() {
     const cat = categories?.find((c) => c.id === categoryId);
     if (!cat) return "–";
     const parent = cat.parent_id ? categories?.find((c) => c.id === cat.parent_id) : null;
-    return parent ? `${parent.name} · ${cat.name}` : cat.name;
+    return parent ? `${translateCategoryName(parent)} · ${translateCategoryName(cat)}` : translateCategoryName(cat);
   }
 
   function assetName(assetId: number): string {
@@ -520,7 +520,7 @@ export function TransaktionenPage() {
                                 ).then(invalidate)
                               }
                             >
-                              {c.name}
+                              {translateCategoryName(c)}
                             </ContextMenuItem>
                           ))}
                       </ContextMenuSubContent>

@@ -206,6 +206,7 @@
   },
   "columnVisibility": {
     "ariaLabel": "Show/hide columns",
-    "noExtraColumns": "No extra columns in this selection."
+    "noExtraColumns": "No extra columns in this selection.",
+    "sourceAccount": "Source Account"
   }
 }

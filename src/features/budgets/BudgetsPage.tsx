@@ -4,7 +4,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { AlertTriangle, Plus, Target } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useCategories } from "@/hooks/useCategories";
+import { useCategories, translateCategoryName } from "@/hooks/useCategories";
 import { useGlobalFilterStore } from "@/stores/globalFilterStore";
 import { usePeriodStore } from "@/stores/periodStore";
 import { formatEur } from "@/lib/money";
@@ -232,8 +232,8 @@ export function BudgetsPage() {
                 key={category.id}
                 className="rounded-klein bg-paper px-2.5 py-1 text-xs text-slate"
               >
-                {parent ? `${parent.name} · ` : ""}
-                {category.name}
+                {parent ? `${translateCategoryName(parent)} · ` : ""}
+                {translateCategoryName(category)}
               </span>
             );
           })}
