@@ -26,6 +26,17 @@ import {
 
 const PROVIDER_IDS: PriceProviderId[] = ["yahoo", "alpaca", "manual"];
 
+/** Übersetzt Anbieter-Metadaten (label/description/privacyNote); requiresApiKey/apiKeyLabel-Struktur bleibt aus PROVIDER_METADATA. */
+function providerLabel(t: any, id: PriceProviderId): string {
+  return t(`quoteSettings.providers.${id}.label`, PROVIDER_METADATA[id].label);
+}
+function providerDescription(t: any, id: PriceProviderId): string {
+  return t(`quoteSettings.providers.${id}.description`, PROVIDER_METADATA[id].description);
+}
+function providerPrivacyNote(t: any, id: PriceProviderId): string {
+  return t(`quoteSettings.providers.${id}.privacyNote`, PROVIDER_METADATA[id].privacyNote);
+}
+
 export function QuoteSettings() {
   const { t } = useTranslation("profil");
   const [loading, setLoading] = useState(true);
@@ -108,7 +119,7 @@ export function QuoteSettings() {
             <div>
               <p className="text-sm font-medium text-charcoal">{t("quoteSettings.privacyTitle")}</p>
               <p className="mt-1 text-xs text-slate leading-relaxed">
-                {PROVIDER_METADATA[providerId].privacyNote}
+                {providerPrivacyNote(t, providerId)}
               </p>
               <p className="mt-2 text-xs text-slate leading-relaxed">{t("quoteSettings.privacyNote")}</p>
             </div>
@@ -131,7 +142,7 @@ export function QuoteSettings() {
           <p className="text-xs text-slate">
             {enabled ? (
               <span className="flex items-center gap-1 text-sage">
-                <ShieldCheck className="size-3" /> {t("quoteSettings.activeStatus", { provider: meta.label })}
+                <ShieldCheck className="size-3" /> {t("quoteSettings.activeStatus", { provider: providerLabel(t, providerId) })}
               </span>
             ) : (
               t("quoteSettings.disabledStatus")
@@ -164,12 +175,12 @@ export function QuoteSettings() {
               <SelectContent>
                 {PROVIDER_IDS.map((id) => (
                   <SelectItem key={id} value={id}>
-                    {PROVIDER_METADATA[id].label}
+                    {providerLabel(t, id)}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-            <p className="text-xs text-slate">{meta.description}</p>
+            <p className="text-xs text-slate">{providerDescription(t, providerId)}</p>
             {meta.requiresApiKey && (
               <a
                 href="https://app.alpaca.markets/signup"
@@ -214,7 +225,7 @@ export function QuoteSettings() {
           {/* Privacy reminder */}
           <div className="flex items-start gap-2 rounded-klein bg-petrol/5 px-3 py-2">
             <ShieldCheck className="size-3.5 text-petrol mt-0.5 shrink-0" />
-            <p className="text-xs text-slate">{meta.privacyNote}</p>
+            <p className="text-xs text-slate">{providerPrivacyNote(t, providerId)}</p>
           </div>
 
           {isDirty && (

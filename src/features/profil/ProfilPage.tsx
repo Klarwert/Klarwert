@@ -549,9 +549,9 @@ export function ProfilPage() {
           {/* KURSDATEN */}
           <div className="space-y-4 rounded-card border border-border bg-card p-6">
             <div>
-              <h2 className="font-heading text-lg text-charcoal">Kursdaten (Wertpapiere)</h2>
+              <h2 className="font-heading text-lg text-charcoal">{t("quotes.title")}</h2>
               <p className="mt-1 text-sm text-slate">
-                Optionaler Abruf von Schlusskursen für deine Depot-Positionen. Standardmäßig deaktiviert.
+                {t("quotes.description")}
               </p>
             </div>
             <QuoteSettings />
@@ -606,9 +606,9 @@ export function ProfilPage() {
           {/* COMMUNITY-UPDATES */}
           <div className="space-y-4 rounded-card border border-border bg-card p-6">
             <div>
-              <h2 className="font-heading text-lg text-charcoal">Community-Daten</h2>
+              <h2 className="font-heading text-lg text-charcoal">{t("communityData.title")}</h2>
               <p className="mt-1 text-sm text-slate">
-                Händler-Kategorien und Bank-Profile, kuratiert von der Klarwert-Community.
+                {t("communityData.description")}
               </p>
             </div>
             <CommunityUpdateChecker />

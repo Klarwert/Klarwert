@@ -475,9 +475,9 @@ export function RechnerPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="font-heading text-xl text-charcoal">Rechner</h1>
+          <h1 className="font-heading text-xl text-charcoal">{t("title")}</h1>
           <p className="text-sm text-slate">
-            Simuliere FIRE-Ziel, Zinseszins-Effekt und Entnahmepläne.
+            {t("description")}
           </p>
         </div>
       </div>

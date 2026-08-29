@@ -257,7 +257,24 @@
     "apiKeyLabel": "API Key ID",
     "apiSecretLabel": "API Secret Key",
     "apiKeyStorageNote": "API Key und Secret werden ausschließlich lokal (unverschlüsselt) in der App-Datenbank gespeichert.",
-    "saveSettings": "Einstellungen speichern"
+    "saveSettings": "Einstellungen speichern",
+    "providers": {
+      "yahoo": {
+        "label": "Yahoo Finance",
+        "description": "Kostenlos, keine Registrierung. Nutzt den öffentlichen Yahoo Finance Datendienst (dieselben Endpunkte wie das Open-Source yfinance Python-Paket).",
+        "privacyNote": "An Yahoo Finance werden ausschließlich Wertpapier-Kennungen (ISIN/Ticker) übertragen – keine Stückzahlen, keine Kurswerte aus deinem Portfolio, keine Kontoverbindungen."
+      },
+      "alpaca": {
+        "label": "Alpaca Markets",
+        "description": "Echtzeit- und Historische Kursdaten. Erfordert einen kostenlosen Alpaca-Account und API Key/Secret (BYOA – Bring Your Own Account).",
+        "privacyNote": "An Alpaca Markets werden ausschließlich Ticker-Symbole übertragen – keine Stückzahlen, keine Kontodaten. Alpaca speichert API-Nutzungsdaten gemäß ihrer Datenschutzerklärung."
+      },
+      "manual": {
+        "label": "Manuelle Eingabe",
+        "description": "Kein Netzwerkzugriff. Kurse werden ausschließlich manuell gepflegt.",
+        "privacyNote": "Kein Netzwerkzugriff. Keine Daten verlassen das Gerät."
+      }
+    }
   },
   "updateChecker": {
     "autoCheckLabel": "Automatisch beim Start prüfen",

@@ -257,7 +257,24 @@
     "apiKeyLabel": "API Key ID",
     "apiSecretLabel": "API Secret Key",
     "apiKeyStorageNote": "API key and secret are stored exclusively locally (unencrypted) in the app database.",
-    "saveSettings": "Save settings"
+    "saveSettings": "Save settings",
+    "providers": {
+      "yahoo": {
+        "label": "Yahoo Finance",
+        "description": "Free, no registration required. Uses the public Yahoo Finance data service (the same endpoints as the open-source yfinance Python package).",
+        "privacyNote": "Only security identifiers (ISIN/ticker) are sent to Yahoo Finance - no quantities, no portfolio values, no account details."
+      },
+      "alpaca": {
+        "label": "Alpaca Markets",
+        "description": "Real-time and historical price data. Requires a free Alpaca account and API key/secret (BYOA - Bring Your Own Account).",
+        "privacyNote": "Only ticker symbols are sent to Alpaca Markets - no quantities, no account data. Alpaca stores API usage data per its own privacy policy."
+      },
+      "manual": {
+        "label": "Manual entry",
+        "description": "No network access. Prices are maintained entirely manually.",
+        "privacyNote": "No network access. No data leaves the device."
+      }
+    }
   },
   "updateChecker": {
     "autoCheckLabel": "Check automatically on startup",
