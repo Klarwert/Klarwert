@@ -35,7 +35,7 @@ import {
   updateTransaction,
   type TransactionWithTags,
 } from "@/db/repositories/transactions";
-import { formatEur, parseAmountToCents } from "@/lib/money";
+import { formatEur, parseAmountToCents, useCurrencySymbol } from "@/lib/money";
 import { todayIso, formatDate } from "@/lib/dates";
 import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -88,6 +88,7 @@ interface TransactionDrawerProps {
 
 export function TransactionDrawer({ transaction, onOpenChange, onSaved }: TransactionDrawerProps) {
   const { t } = useTranslation(["transaktionen", "app", "kategorien"]);
+  const currency = useCurrencySymbol();
   const queryClient = useQueryClient();
   const dateDisplayFormat = useSettingsStore((s) => s.dateDisplayFormat);
   const { data: tags } = useTags();
@@ -335,7 +336,7 @@ export function TransactionDrawer({ transaction, onOpenChange, onSaved }: Transa
                       className="pr-6 text-right"
                     />
                     <span className="absolute right-2.5 top-1/2 -translate-y-1/2 text-sm text-slate">
-                      €
+                      {currency}
                     </span>
                   </div>
                 </div>

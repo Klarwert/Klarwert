@@ -108,5 +108,6 @@
     "deleteLog": "Sparzweck \"{{name}}\" gelöscht",
     "deleteConfirmTitle": "\"{{name}}\" löschen?",
     "deleteConfirmDesc": "Buchungen verlieren diese Zuordnung, bleiben aber erhalten."
-  }
+  },
+  "netWorthChartSummary": "Vermögensentwicklung von {{from}} bis {{to}}"
 }

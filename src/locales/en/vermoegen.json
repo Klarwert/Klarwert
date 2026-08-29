@@ -109,5 +109,6 @@
     "deleteLog": "Savings goal \"{{name}}\" deleted",
     "deleteConfirmTitle": "Delete \"{{name}}\"?",
     "deleteConfirmDesc": "Transactions will lose this assignment but will be kept."
-  }
+  },
+  "netWorthChartSummary": "Net worth development from {{from}} to {{to}}"
 }

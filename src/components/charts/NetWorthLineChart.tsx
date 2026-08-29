@@ -1,7 +1,8 @@
 import ReactECharts from "echarts-for-react";
 import { createLineChartOption } from "@/lib/charts/theme";
-import { formatEur } from "@/lib/money";
+import { formatEur, getCurrencySymbol } from "@/lib/money";
 import type { NetWorthPoint } from "@/db/repositories/networth";
+import i18n from "@/i18n";
 
 interface NetWorthLineChartProps {
   data: NetWorthPoint[];
@@ -27,7 +28,10 @@ export function NetWorthLineChart({ data }: NetWorthLineChartProps) {
   const values = data.map((d) => d.cents);
   const min = Math.min(...values);
   const max = Math.max(...values);
-  const summary = `Vermögensentwicklung von ${formatEur(values[0] ?? 0)} bis ${formatEur(values[values.length - 1] ?? 0)}`;
+  const summary = i18n.t("vermoegen:netWorthChartSummary", {
+    from: formatEur(values[0] ?? 0),
+    to: formatEur(values[values.length - 1] ?? 0),
+  });
 
   const yMin = niceRound(min * 0.97, false);
   const yMax = niceRound(max * 1.03, true);
@@ -44,7 +48,7 @@ export function NetWorthLineChart({ data }: NetWorthLineChartProps) {
         color: "#6b7a80",
         fontSize: 11,
         formatter: (v: number) => {
-          if (Math.abs(v) >= 100000) return `${(v / 100000).toFixed(0)}k€`;
+          if (Math.abs(v) >= 100000) return `${(v / 100000).toFixed(0)}k${getCurrencySymbol()}`;
           return formatEur(v);
         },
       },
