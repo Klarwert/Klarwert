@@ -12,6 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { formatDate, type DisplayDateFormat } from "@/lib/dates";
+import { translateSteuerThemaName } from "@/lib/steuerThemen";
 import { formatEur } from "@/lib/money";
 import { cn } from "@/lib/utils";
 import { toCsv, downloadCsv } from "@/lib/csv";
@@ -67,6 +68,7 @@ function TopicBlock({
   t: any;
 }) {
   const sum = transactions.reduce((total, tx) => total + tx.amount_cents, 0);
+  const themaName = translateSteuerThemaName(thema);
 
   return (
     <section className="rounded-standard border border-border bg-card">
@@ -74,7 +76,7 @@ function TopicBlock({
         <button type="button" className="flex min-w-0 flex-1 items-center gap-2 text-left" onClick={onToggle}>
           <ChevronDown className={cn("size-4 shrink-0 text-slate transition-transform", !expanded && "-rotate-90")} />
           <div className="min-w-0">
-            <h2 className="truncate text-sm font-semibold text-charcoal">{thema.name}</h2>
+            <h2 className="truncate text-sm font-semibold text-charcoal">{themaName}</h2>
             <p className="text-xs text-slate">
               {t("summary", { count: transactions.length, sum: formatEur(sum) })}
             </p>
@@ -84,12 +86,12 @@ function TopicBlock({
           <Button
             variant="ghost"
             size="icon"
-            aria-label={t("export", { name: thema.name })}
-            onClick={() => exportTransactions(`steuer-${thema.name.toLowerCase().replace(/\s+/g, "-")}.csv`, transactions, [t("headers.date"), t("headers.account"), t("headers.counterparty"), t("headers.purpose"), t("headers.amount"), t("headers.category"), t("headers.contract"), t("headers.contractYearSum")], t)}
+            aria-label={t("export", { name: themaName })}
+            onClick={() => exportTransactions(`steuer-${themaName.toLowerCase().replace(/\s+/g, "-")}.csv`, transactions, [t("headers.date"), t("headers.account"), t("headers.counterparty"), t("headers.purpose"), t("headers.amount"), t("headers.category"), t("headers.contract"), t("headers.contractYearSum")], t)}
           >
             <Download className="size-4" />
           </Button>
-          <Button variant="ghost" size="icon" aria-label={t("edit", { name: thema.name })} onClick={onEdit}>
+          <Button variant="ghost" size="icon" aria-label={t("edit", { name: themaName })} onClick={onEdit}>
             <Pencil className="size-4" />
           </Button>
         </div>

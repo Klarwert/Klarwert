@@ -6,6 +6,7 @@ export interface SteuerThema {
   name: string;
   sort_order: number;
   is_deleted: 0 | 1;
+  template_key: string | null;
   categoryIds: number[];
   keywords: string[];
 }
@@ -21,31 +22,37 @@ export interface SteuerTransaction extends Transaction {
 
 const DEFAULT_THEMEN = [
   {
+    key: "versicherung_vorsorge",
     name: "Versicherungen & Vorsorge",
     categories: ["Versicherung"],
     keywords: [],
   },
   {
+    key: "handwerker_dienstleistungen",
     name: "Handwerker & haushaltsnahe Dienstleistungen",
     categories: ["Haushaltsdienstleistungen", "Heimwerken und Garten"],
     keywords: ["handwerker", "hausmeister", "gartenpflege", "schornstein", "wartung"],
   },
   {
+    key: "spenden_kirche",
     name: "Spenden & Kirche",
     categories: ["Kirche / Spende"],
     keywords: ["spende"],
   },
   {
+    key: "gesundheitskosten",
     name: "Gesundheitskosten",
     categories: ["Gesundheit und Wellness"],
     keywords: ["zuzahlung", "apotheke", "brille", "zahnarzt"],
   },
   {
+    key: "kinderbetreuung",
     name: "Kinderbetreuung",
     categories: ["Kinderbetreuung und -gruppen"],
     keywords: ["kita", "kindergarten", "tagesmutter", "hort"],
   },
   {
+    key: "kapitalertraege",
     name: "Kapitalerträge",
     categories: ["Kapitaleinkommen"],
     keywords: ["dividende", "zinsen", "ausschüttung"],
@@ -72,8 +79,8 @@ export async function ensureDefaultSteuerThemen(): Promise<void> {
 
   for (const [idx, thema] of DEFAULT_THEMEN.entries()) {
     const result = await db.execute(
-      "insert into steuer_themen (name, sort_order) values ($1, $2)",
-      [thema.name, idx + 1],
+      "insert into steuer_themen (name, sort_order, template_key) values ($1, $2, $3)",
+      [thema.name, idx + 1, thema.key],
     );
     const id = result.lastInsertId as number;
     const categoryIds = await categoryIdsByNames(thema.categories);

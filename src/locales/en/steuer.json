@@ -48,5 +48,13 @@
     "deleteSuccess": "Tax topic deleted",
     "deleteConfirmTitle": "Delete tax topic?",
     "deleteConfirmDesc": "The saved filter topic will be removed. Transactions remain unchanged."
+  },
+  "themen": {
+    "versicherung_vorsorge": "Insurance & Provisions",
+    "handwerker_dienstleistungen": "Tradesmen & Household-related Services",
+    "spenden_kirche": "Donations & Church",
+    "gesundheitskosten": "Health Costs",
+    "kinderbetreuung": "Childcare",
+    "kapitalertraege": "Capital Gains"
   }
 }

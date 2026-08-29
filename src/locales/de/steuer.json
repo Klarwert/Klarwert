@@ -48,5 +48,13 @@
     "deleteSuccess": "Steuer-Thema gelöscht",
     "deleteConfirmTitle": "Steuer-Thema löschen?",
     "deleteConfirmDesc": "Das gespeicherte Filter-Thema wird entfernt. Transaktionen bleiben unverändert."
+  },
+  "themen": {
+    "versicherung_vorsorge": "Versicherungen & Vorsorge",
+    "handwerker_dienstleistungen": "Handwerker & haushaltsnahe Dienstleistungen",
+    "spenden_kirche": "Spenden & Kirche",
+    "gesundheitskosten": "Gesundheitskosten",
+    "kinderbetreuung": "Kinderbetreuung",
+    "kapitalertraege": "Kapitalerträge"
   }
 }

@@ -31,6 +31,7 @@ import cleanupEmptyRules028 from "@/db/migrations/028_cleanup_empty_rules.sql?ra
 import rulesPriorityUnique029 from "@/db/migrations/029_rules_priority_unique.sql?raw";
 import budgetPeriodsUnique030 from "@/db/migrations/030_budget_periods_unique.sql?raw";
 import merchantSource031 from "@/db/migrations/031_merchant_source.sql?raw";
+import steuerThemenTemplateKey032 from "@/db/migrations/032_steuer_themen_template_key.sql?raw";
 
 interface MigrationDef {
   version: number;
@@ -70,6 +71,7 @@ const MIGRATIONS: MigrationDef[] = [
   { version: 29, name: "rules_priority_unique", sql: rulesPriorityUnique029 },
   { version: 30, name: "budget_periods_unique", sql: budgetPeriodsUnique030 },
   { version: 31, name: "merchant_source", sql: merchantSource031 },
+  { version: 32, name: "steuer_themen_template_key", sql: steuerThemenTemplateKey032 },
 ];
 
 /**
