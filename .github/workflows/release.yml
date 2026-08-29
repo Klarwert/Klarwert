@@ -12,7 +12,40 @@ on:
   workflow_dispatch:
 
 jobs:
+  create-release:
+    # Ein einzelner, nicht-parallelisierter Job legt den Release EINMAL an, bevor die drei
+    # Plattform-Jobs starten. Ohne das versuchen alle drei gleichzeitig, "einen Draft-Release mit
+    # diesem Tag finden, sonst anlegen" auszuführen - ein klassisches Race: findet keiner von ihnen
+    # einen bestehenden Release (weil noch keiner existiert), legen zwei von ihnen JEWEILS einen
+    # eigenen an. Genau das ist beim v0.1.0-Release am 2026-08-29 passiert: die Windows-Installer
+    # landeten auf einem zweiten, nie veröffentlichten Duplikat-Release, während macOS/Linux + SBOM
+    # auf dem tatsächlich veröffentlichten landeten.
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      version: ${{ steps.app_version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Read app version
+        id: app_version
+        run: echo "version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+      - name: Create the draft release if it doesn't already exist
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          if gh release view "v${{ steps.app_version.outputs.version }}" --repo "${{ github.repository }}" >/dev/null 2>&1; then
+            echo "Release already exists, reusing it."
+          else
+            gh release create "v${{ steps.app_version.outputs.version }}" \
+              --repo "${{ github.repository }}" \
+              --title "Klarwert v${{ steps.app_version.outputs.version }}" \
+              --notes "Klarwert Multi-Platform Desktop Release (macOS, Windows, Linux)" \
+              --draft
+          fi
+
   build-tauri:
+    needs: create-release
     permissions:
       contents: write
     strategy:
@@ -34,11 +67,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 24
-
-      - name: Read app version
-        id: app_version
-        shell: bash
-        run: echo "version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
 
       - name: Install Rust stable
         uses: dtolnay/rust-toolchain@stable
@@ -83,25 +111,21 @@ jobs:
           # sonst einen ZWEITEN, eigenen Release mit dem wörtlichen Tag "v__VERSION__" anlegen (genau
           # das ist am 2026-08-28 passiert: ein öffentlicher "Latest"-Release, der nur bom.json enthielt,
           # keine Installer). Deshalb hier explizit dieselbe, echte Versionsnummer verwenden.
-          tag_name: v${{ steps.app_version.outputs.version }}
+          tag_name: v${{ needs.create-release.outputs.version }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   publish-release:
-    needs: build-tauri
+    needs: [create-release, build-tauri]
     if: needs.build-tauri.result == 'success'
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
-      - name: Read app version
-        id: app_version
-        run: echo "version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
       - name: Publish the draft release
-        # Alle drei Plattform-Jobs laden ihre Installer in denselben Draft-Release hoch (siehe oben).
-        # Erst wenn ALLE erfolgreich fertig sind, wird der Release veröffentlicht - so sieht kein
-        # Nutzer jemals einen halbfertigen Release mit fehlenden Plattformen.
-        run: gh release edit "v${{ steps.app_version.outputs.version }}" --draft=false --repo "${{ github.repository }}"
+        # Alle drei Plattform-Jobs laden ihre Installer in denselben (von create-release einmalig
+        # angelegten) Draft-Release hoch. Erst wenn ALLE erfolgreich fertig sind, wird er
+        # veröffentlicht - so sieht kein Nutzer jemals einen halbfertigen Release.
+        run: gh release edit "v${{ needs.create-release.outputs.version }}" --draft=false --repo "${{ github.repository }}"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
