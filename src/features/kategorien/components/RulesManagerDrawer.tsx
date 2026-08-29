@@ -20,7 +20,7 @@ import { Badge } from "@/components/ui/badge";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { GripVertical, ChevronUp, ChevronDown, Pencil, Trash2, Plus } from "lucide-react";
 import { useRules } from "@/hooks/useRules";
-import { useCategories } from "@/hooks/useCategories";
+import { useCategories, translateCategoryName } from "@/hooks/useCategories";
 import { useTags } from "@/hooks/useTags";
 import { deleteRule, reorderRules, swapRulePriority, type RuleWithConditions } from "@/db/repositories/rules";
 import { addHistoryEntry, logSoftDelete } from "@/db/repositories/historyLog";
@@ -123,7 +123,8 @@ export function RulesManagerDrawer({ open, onOpenChange }: RulesManagerDrawerPro
   const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 4 } }));
 
   function categoryName(id: number | null): string | null {
-    return id ? categories?.find((c) => c.id === id)?.name ?? null : null;
+    const category = id ? categories?.find((c) => c.id === id) : null;
+    return category ? translateCategoryName(category) : null;
   }
   function tagName(id: number | null): string | null {
     return id ? tags?.find((t) => t.id === id)?.name ?? null : null;

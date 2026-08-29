@@ -57,6 +57,7 @@ export interface PlannedContractPoint {
   id: number;
   name: string;
   categoryName: string | null;
+  categoryTemplateKey: string | null;
   amountCents: number;
   interval: "monthly" | "quarterly" | "yearly" | "irregular";
   lastPaymentDate: string | null;
@@ -317,6 +318,7 @@ export async function getPlannedContracts(limit = 6): Promise<PlannedContractPoi
        c.id,
        c.name,
        cat.name as categoryName,
+       cat.template_key as categoryTemplateKey,
        c.current_amount_cents as amountCents,
        c.interval,
        max(t.booking_date) as lastPaymentDate
@@ -324,7 +326,7 @@ export async function getPlannedContracts(limit = 6): Promise<PlannedContractPoi
      left join categories cat on cat.id = c.category_id
      left join transactions t on t.contract_id = c.id and t.is_deleted = 0
      where c.is_deleted = 0 and c.current_amount_cents != 0 and c.status in ('confirmed', 'price_changed')
-     group by c.id, c.name, cat.name, c.current_amount_cents
+     group by c.id, c.name, cat.name, cat.template_key, c.current_amount_cents
      order by lastPaymentDate asc
      limit ${limit}`,
   );

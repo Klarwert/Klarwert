@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/select";
 import { formatDate, type DisplayDateFormat } from "@/lib/dates";
 import { translateSteuerThemaName } from "@/lib/steuerThemen";
+import { translateCategoryName } from "@/hooks/useCategories";
 import { formatEur } from "@/lib/money";
 import { cn } from "@/lib/utils";
 import { toCsv, downloadCsv } from "@/lib/csv";
@@ -29,7 +30,10 @@ import { TransactionDrawer } from "@/features/transaktionen/components/Transacti
 
 function categoryLabel(tx: SteuerTransaction, t: any): string {
   if (!tx.categoryName) return t("uncategorized");
-  return tx.parentCategoryName ? `${tx.parentCategoryName} · ${tx.categoryName}` : tx.categoryName;
+  const name = translateCategoryName({ name: tx.categoryName, template_key: tx.categoryTemplateKey });
+  if (!tx.parentCategoryName) return name;
+  const parentName = translateCategoryName({ name: tx.parentCategoryName, template_key: tx.parentCategoryTemplateKey });
+  return `${parentName} · ${name}`;
 }
 
 function exportTransactions(filename: string, transactions: SteuerTransaction[], headers: string[], t: any) {

@@ -30,6 +30,7 @@ import { usePeriodStore } from "@/stores/periodStore";
 import { useSettingsStore } from "@/stores/settingsStore";
 import { getPeriodRange, shiftPeriod, type PeriodType } from "@/lib/periods";
 import { formatDate } from "@/lib/dates";
+import { translateCategoryName } from "@/hooks/useCategories";
 import { formatEur } from "@/lib/money";
 import {
   createCashflowBarOption,
@@ -641,7 +642,9 @@ export function UebersichtPage() {
                       <div className="min-w-0">
                         <div className="truncate text-sm font-medium text-charcoal">{contract.name}</div>
                         <div className="truncate text-xs text-slate">
-                          {contract.categoryName ?? "Ohne Kategorie"}
+                          {contract.categoryName
+                            ? translateCategoryName({ name: contract.categoryName, template_key: contract.categoryTemplateKey })
+                            : t("uebersicht:noCategory")}
                           {dueDate ? ` · ${formatDate(dueDate, dateDisplayFormat)}` : ""}
                         </div>
                       </div>

@@ -18,7 +18,9 @@ export interface BudgetHistoryPoint {
 
 export interface BudgetSummary extends Budget {
   categoryName: string;
+  categoryTemplateKey: string | null;
   parentName: string | null;
+  parentTemplateKey: string | null;
   categoryColor: string;
   spentCents: number;
   remainingCents: number;
@@ -194,14 +196,18 @@ export async function listBudgets(
   const budgets = await db.select<
     (Budget & {
       categoryName: string;
+      categoryTemplateKey: string | null;
       parentName: string | null;
+      parentTemplateKey: string | null;
       categoryColor: string;
     })[]
   >(
     `select
        b.*,
        c.name as categoryName,
+       c.template_key as categoryTemplateKey,
        parent.name as parentName,
+       parent.template_key as parentTemplateKey,
        coalesce(parent.color, c.color) as categoryColor
      from budgets b
      join categories c on c.id = b.category_id

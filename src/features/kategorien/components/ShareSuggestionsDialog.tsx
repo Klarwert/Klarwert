@@ -24,6 +24,7 @@ import type { Category, Merchant } from "@/db/types";
 import { toast } from "sonner";
 import { showErrorToast } from "@/lib/errorToast";
 import { useTranslation } from "react-i18next";
+import { translateCategoryName } from "@/hooks/useCategories";
 
 interface ShareSuggestionsDialogProps {
   open: boolean;
@@ -49,10 +50,13 @@ export function ShareSuggestionsDialog({ open: isOpen, onOpenChange, ownMerchant
     () =>
       ownMerchants
         .filter((m) => m.default_category_id !== null)
-        .map((m) => ({
-          merchant: m,
-          categoryName: categories.find((c) => c.id === m.default_category_id)?.name ?? "?",
-        })),
+        .map((m) => {
+          const category = categories.find((c) => c.id === m.default_category_id);
+          return {
+            merchant: m,
+            categoryName: category ? translateCategoryName(category) : "?",
+          };
+        }),
     [ownMerchants, categories],
   );
   const [selected, setSelected] = useState<Set<number>>(() => new Set(rows.map((r) => r.merchant.id)));

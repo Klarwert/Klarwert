@@ -14,7 +14,9 @@ export interface SteuerThema {
 export interface SteuerTransaction extends Transaction {
   tag_ids: number[];
   categoryName: string | null;
+  categoryTemplateKey: string | null;
   parentCategoryName: string | null;
+  parentCategoryTemplateKey: string | null;
   assetName: string;
   contractName: string | null;
   contractYearSumCents: number | null;
@@ -240,7 +242,9 @@ export async function getSteuerTransactions(
     `select
        t.*,
        c.name as categoryName,
+       c.template_key as categoryTemplateKey,
        parent.name as parentCategoryName,
+       parent.template_key as parentCategoryTemplateKey,
        a.name as assetName,
        co.name as contractName,
        (

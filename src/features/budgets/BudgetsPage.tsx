@@ -47,8 +47,8 @@ function BudgetCard({ budget, onClick }: { budget: BudgetSummary; onClick: () =>
               style={{ backgroundColor: budget.categoryColor }}
             />
             <h2 className="truncate text-sm font-semibold text-charcoal">
-              {budget.parentName ? `${budget.parentName} · ` : ""}
-              {budget.categoryName}
+              {budget.parentName ? `${translateCategoryName({ name: budget.parentName, template_key: budget.parentTemplateKey })} · ` : ""}
+              {translateCategoryName({ name: budget.categoryName, template_key: budget.categoryTemplateKey })}
             </h2>
           </div>
           <p className="mt-1 text-xs text-slate">

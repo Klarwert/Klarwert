@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { Plus, Pencil, Trash2, Store, Search, Share2, RefreshCw } from "lucide-react";
-import { useCategories } from "@/hooks/useCategories";
+import { useCategories, translateCategoryName } from "@/hooks/useCategories";
 import {
   listAllMerchants,
   listMerchantAliases,
@@ -52,7 +52,8 @@ export function HaendlerSection() {
 
   function categoryName(id: number | null): string {
     if (!id) return t("merchants.noParent");
-    return categories?.find((c) => c.id === id)?.name ?? "?";
+    const category = categories?.find((c) => c.id === id);
+    return category ? translateCategoryName(category) : "?";
   }
 
   function originLabel(m: Merchant): string {

@@ -28,6 +28,7 @@ import {
   type BudgetSummary,
 } from "@/db/repositories/budgets";
 import { parseAmountToCents, formatEur } from "@/lib/money";
+import { translateCategoryName } from "@/hooks/useCategories";
 import type { PeriodType } from "@/lib/periods";
 import { toast } from "sonner";
 import { showErrorToast } from "@/lib/errorToast";
@@ -87,7 +88,7 @@ export function BudgetEditorModal({
     const conflictingBudgetId = budgetedIds.find((id) => id !== budget?.category_id && selectedLineage.has(id));
     if (!conflictingBudgetId) return null;
     const conflict = categories?.find((c) => c.id === conflictingBudgetId);
-    return conflict?.name ?? t("editor.categoryConflictFallback");
+    return conflict ? translateCategoryName(conflict) : t("editor.categoryConflictFallback");
   }, [budget?.category_id, budgetedIds, categories, categoryId, t]);
 
   async function handleSubmit() {
@@ -121,8 +122,10 @@ export function BudgetEditorModal({
   async function handleDelete() {
     if (!budget) return;
     await deleteBudget(budget.id);
+    const categoryName = translateCategoryName({ name: budget.categoryName, template_key: budget.categoryTemplateKey });
+    const parentName = budget.parentName ? translateCategoryName({ name: budget.parentName, template_key: budget.parentTemplateKey }) : null;
     toast.success(t("editor.deleted"), {
-      description: `${budget.parentName ? `${budget.parentName} · ` : ""}${budget.categoryName}`,
+      description: `${parentName ? `${parentName} · ` : ""}${categoryName}`,
     });
     setConfirmDelete(false);
     onSaved();
@@ -142,8 +145,8 @@ export function BudgetEditorModal({
               <Label>{t("editor.category")}</Label>
               {budget ? (
                 <div className="rounded-klein border border-border bg-paper px-3 py-2 text-sm text-charcoal">
-                  {budget.parentName ? `${budget.parentName} · ` : ""}
-                  {budget.categoryName}
+                  {budget.parentName ? `${translateCategoryName({ name: budget.parentName, template_key: budget.parentTemplateKey })} · ` : ""}
+                  {translateCategoryName({ name: budget.categoryName, template_key: budget.categoryTemplateKey })}
                 </div>
               ) : (
                 <CategorySelect
