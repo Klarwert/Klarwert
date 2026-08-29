@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatDate } from "@/lib/dates";
+import { parseAmountToCentsOrZero } from "@/lib/money";
 import { useSettingsStore } from "@/stores/settingsStore";
 import { usePersons } from "@/hooks/usePersons";
 import { calculateFire } from "@/lib/rechner/fire";
@@ -189,16 +190,14 @@ export function RechnerPage() {
   const fireResult = useMemo(() => {
     return calculateFire({
       mode: fireMode,
-      monthlyNetIncomeCents: Math.round((parseFloat(fireMonthlyNet.replace(/\./g, "")) || 0) * 100),
+      monthlyNetIncomeCents: parseAmountToCentsOrZero(fireMonthlyNet),
       expectedReturnPercent: parseFloat(fireReturn) || 0,
       inflationPercent: parseFloat(fireInflation) || 0,
       swrPercent: parseFloat(fireSwr) || 0,
       taxRatePercent: parseFloat(fireTax) || 0,
       teilfreistellung: fireTeilfreistellung,
-      currentCapitalCents: Math.round((parseFloat(fireCapital.replace(/\./g, "")) || 0) * 100),
-      monthlySavingsRateCents: Math.round(
-        (parseFloat(fireSavingsRate.replace(/\./g, "")) || 0) * 100,
-      ),
+      currentCapitalCents: parseAmountToCentsOrZero(fireCapital),
+      monthlySavingsRateCents: parseAmountToCentsOrZero(fireSavingsRate),
       targetAge: parseInt(fireTargetAge, 10) || 60,
       capitalDepletion: fireCapitalDepletion,
       currentAge: fireCurrentAge,
@@ -254,8 +253,8 @@ export function RechnerPage() {
 
   const zinResult = useMemo(() => {
     return calculateZinseszins({
-      initialCapitalCents: Math.round((parseFloat(zinInitial.replace(/\./g, "")) || 0) * 100),
-      monthlySavingsRateCents: Math.round((parseFloat(zinSavings.replace(/\./g, "")) || 0) * 100),
+      initialCapitalCents: parseAmountToCentsOrZero(zinInitial),
+      monthlySavingsRateCents: parseAmountToCentsOrZero(zinSavings),
       annualSavingsIncreasePercent: parseFloat(zinStepUp) || 0,
       interestRatePercent: parseFloat(zinReturn) || 0,
       years: parseInt(zinYears, 10) || 10,
@@ -314,8 +313,8 @@ export function RechnerPage() {
 
   const entResult = useMemo(() => {
     return calculateEntnahme({
-      initialCapitalCents: Math.round((parseFloat(entInitial.replace(/\./g, "")) || 0) * 100),
-      monthlyWithdrawalCents: Math.round((parseFloat(entMonthly.replace(/\./g, "")) || 0) * 100),
+      initialCapitalCents: parseAmountToCentsOrZero(entInitial),
+      monthlyWithdrawalCents: parseAmountToCentsOrZero(entMonthly),
       adjustForInflation: entAdjustInf,
       horizonYears: parseInt(entHorizon, 10) || 30,
       interestRatePercent: parseFloat(entReturn) || 0,

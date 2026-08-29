@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { formatEur, formatEurCompact, formatAxisAmount, parseAmountToCents, addCents, parseAmountInput } from "@/lib/money";
+import { formatEur, formatEurCompact, formatAxisAmount, parseAmountToCents, parseAmountToCentsOrZero, addCents, parseAmountInput } from "@/lib/money";
 import i18n from "@/i18n";
 
 describe("formatEur", () => {
@@ -63,6 +63,22 @@ describe("parseAmountToCents", () => {
 
   it("wirft bei ungültigem Betrag", () => {
     expect(() => parseAmountToCents("abc")).toThrow();
+  });
+});
+
+describe("parseAmountToCentsOrZero", () => {
+  it("parst wie parseAmountToCents bei gültiger Eingabe", () => {
+    // Regression: die Rechner-Seite baute früher ihren eigenen Parser über
+    // `parseFloat(input.replace(/\./g, ""))`, der jeden Punkt als Tausendertrenner behandelte -
+    // eine englische Dezimaleingabe wie "1234.56" wurde dadurch stillschweigend zu 123456 statt
+    // 1234,56, und Tausenderpunkte gingen bei jedem Format verloren, das nicht exakt DE-Format war.
+    expect(parseAmountToCentsOrZero("1.234,56")).toBe(123456);
+    expect(parseAmountToCentsOrZero("1234.56")).toBe(123456);
+  });
+
+  it("gibt 0 zurück statt zu werfen, wenn die Eingabe leer oder unvollständig ist", () => {
+    expect(parseAmountToCentsOrZero("")).toBe(0);
+    expect(parseAmountToCentsOrZero("abc")).toBe(0);
   });
 });
 

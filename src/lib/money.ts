@@ -188,6 +188,19 @@ export function parseAmountToCents(input: string): number {
   return Math.round(parseDecimalString(input) * 100);
 }
 
+/**
+ * Wie `parseAmountToCents`, aber gibt 0 statt zu werfen zurück, wenn die Eingabe (noch) leer oder
+ * ungültig ist - für Formularfelder während der Eingabe (z. B. Rechner-Eingaben), wo ein leeres
+ * oder unvollständiges Feld einfach als "0" behandelt werden soll statt einen Fehler auszulösen.
+ */
+export function parseAmountToCentsOrZero(input: string): number {
+  try {
+    return parseAmountToCents(input);
+  } catch {
+    return 0;
+  }
+}
+
 export function addCents(...values: number[]): number {
   return values.reduce((sum, v) => sum + v, 0);
 }
