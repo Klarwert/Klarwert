@@ -1,0 +1,17 @@
+name: "Diagnostic: token release permission test"
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Try creating a release via gh CLI
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create diagnostic-token-test-delete-me --title "diagnostic" --notes "temporary, safe to delete" --draft
