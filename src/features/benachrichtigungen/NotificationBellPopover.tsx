@@ -15,6 +15,8 @@ import {
 } from "@/db/repositories/notifications";
 import type { NotificationItem, NotificationPriority } from "@/db/types";
 import { useTranslation } from "react-i18next";
+import { formatDate } from "@/lib/dates";
+import { useSettingsStore } from "@/stores/settingsStore";
 
 function PriorityIcon({ priority }: { priority: NotificationPriority }) {
   if (priority === "critical") return <AlertCircle className="size-4 shrink-0 text-brick" />;
@@ -48,6 +50,7 @@ function getNavigationPage(type: string): "vermoegen" | "vertraege" | "transakti
 
 export function NotificationBellPopover() {
   const { t } = useTranslation("benachrichtigungen");
+  const dateDisplayFormat = useSettingsStore((s) => s.dateDisplayFormat);
   const queryClient = useQueryClient();
   const navigate = useNavigationStore((s) => s.navigate);
   const requestOpenCreateAsset = useUiStore((s) => s.requestOpenCreateAsset);
@@ -157,7 +160,9 @@ export function NotificationBellPopover() {
                     {item.message}
                   </p>
                   <span className="mt-1 block text-[10px] text-slate/70">
-                    {item.created_at ? item.created_at.substring(0, 16).replace("T", " ") : ""}
+                    {item.created_at
+                      ? `${formatDate(item.created_at.slice(0, 10), dateDisplayFormat)} ${item.created_at.slice(11, 16)}`
+                      : ""}
                   </span>
                 </div>
                 <button

@@ -2,5 +2,19 @@
   "title": "Benachrichtigungen",
   "markAllRead": "Alle gelesen",
   "none": "Keine Benachrichtigungen.",
-  "archive": "Archivieren"
+  "archive": "Archivieren",
+  "messages": {
+    "importReminder": "Konto {{name}}: Letzter Import liegt {{days}} Tage zurück.",
+    "budgetExceeded": "Budget überschritten: {{category}} ({{percent}}%)",
+    "budget80": "Budget zu 80% erreicht: {{category}} ({{percent}}%)",
+    "balanceMismatch": "Saldo-Abweichung bei {{name}}: berechnet {{calculated}} vs. zuletzt bestätigt {{confirmed}}.",
+    "importFailed": "Import fehlgeschlagen ({{asset}}, {{filename}}): {{error}}",
+    "importFailedUnknownError": "unbekannter Fehler",
+    "contractDetected": "Neuer Vertrag erkannt: {{name}}",
+    "priceChange": "Preisänderung bei {{name}}: {{from}} → {{to}}",
+    "contractEnded": "Vertrag beendet: {{name}}",
+    "transferDetected": "Transfer erkannt, unbestätigt: {{counterparty}} ({{amount}})",
+    "sparzweckReached": "Sparzweck erreicht: {{name}} ({{amount}} von {{target}})"
+  },
+  "osNotificationTitle": "Klarwert Hinweis"
 }

@@ -1,5 +1,11 @@
 import { getDb } from "@/db/client";
 import type { NotificationItem, NotificationPriority, NotificationType } from "@/db/types";
+import i18n from "@/i18n";
+import { formatEur } from "@/lib/money";
+import { translateCategoryName } from "@/hooks/useCategories";
+
+const t = (key: string, options?: Record<string, unknown>): string =>
+  (i18n.t as any)(`benachrichtigungen:messages.${key}`, options);
 
 export async function listNotifications(limit = 50): Promise<NotificationItem[]> {
   const db = await getDb();
@@ -97,7 +103,7 @@ async function triggerOsNotification(type: NotificationType, message: string, pr
     }
 
     if (permissionGranted) {
-      sendNotification({ title: "Klarwert Hinweis", body: message });
+      sendNotification({ title: i18n.t("benachrichtigungen:osNotificationTitle"), body: message });
     }
   } catch (e) {
     console.warn("Failed to send OS notification", e);
@@ -171,7 +177,7 @@ export async function checkSystemNotifications(): Promise<void> {
           type: "import_reminder",
           ref_table: "assets",
           ref_id: asset.id,
-          message: `Konto ${asset.name}: Letzter Import liegt ${diffDays} Tage zurück.`,
+          message: t("importReminder", { name: asset.name, days: diffDays }),
           priority: "warning",
         });
         markValid("import_reminder", "assets", asset.id);
@@ -187,8 +193,9 @@ export async function checkSystemNotifications(): Promise<void> {
     category_id: number;
     limit_cents: number;
     category_name: string;
+    category_template_key: string | null;
   }[]>(
-    `select b.id, b.category_id, b.limit_cents, c.name as category_name
+    `select b.id, b.category_id, b.limit_cents, c.name as category_name, c.template_key as category_template_key
      from budgets b
      join categories c on c.id = b.category_id
      where b.is_deleted = 0 and c.is_deleted = 0`,
@@ -215,13 +222,14 @@ export async function checkSystemNotifications(): Promise<void> {
 
     const spentCents = Math.abs(txRows[0]?.sum_cents ?? 0);
     const ratio = b.limit_cents > 0 ? spentCents / b.limit_cents : 0;
+    const categoryName = translateCategoryName({ name: b.category_name, template_key: b.category_template_key });
 
     if (ratio >= 1.0) {
       await createOrUpdateNotification({
         type: "budget_exceeded",
         ref_table: "budgets",
         ref_id: b.id,
-        message: `Budget überschritten: ${b.category_name} (${(ratio * 100).toFixed(0)}%)`,
+        message: t("budgetExceeded", { category: categoryName, percent: (ratio * 100).toFixed(0) }),
         priority: "critical",
       });
       markValid("budget_exceeded", "budgets", b.id);
@@ -230,7 +238,7 @@ export async function checkSystemNotifications(): Promise<void> {
         type: "budget_80",
         ref_table: "budgets",
         ref_id: b.id,
-        message: `Budget zu 80% erreicht: ${b.category_name} (${(ratio * 100).toFixed(0)}%)`,
+        message: t("budget80", { category: categoryName, percent: (ratio * 100).toFixed(0) }),
         priority: "warning",
       });
       markValid("budget_80", "budgets", b.id);
@@ -260,7 +268,7 @@ export async function checkSystemNotifications(): Promise<void> {
         type: "balance_mismatch",
         ref_table: "assets",
         ref_id: acc.id,
-        message: `Saldo-Abweichung bei ${acc.name}: berechnet ${(calculated / 100).toFixed(2)} € vs. zuletzt bestätigt ${(acc.last_confirmed_balance_cents / 100).toFixed(2)} €.`,
+        message: t("balanceMismatch", { name: acc.name, calculated: formatEur(calculated), confirmed: formatEur(acc.last_confirmed_balance_cents) }),
         priority: "warning",
       });
       markValid("balance_mismatch", "assets", acc.id);
@@ -280,7 +288,7 @@ export async function checkSystemNotifications(): Promise<void> {
       type: "import_failed",
       ref_table: "imports",
       ref_id: imp.id,
-      message: `Import fehlgeschlagen (${imp.asset_name}, ${imp.filename}): ${imp.error_message ?? "unbekannter Fehler"}`,
+      message: t("importFailed", { asset: imp.asset_name, filename: imp.filename, error: imp.error_message ?? t("importFailedUnknownError") }),
       priority: "critical",
     });
   }
@@ -303,18 +311,18 @@ export async function checkSystemNotifications(): Promise<void> {
         type: "contract_detected",
         ref_table: "contracts",
         ref_id: c.id,
-        message: `Neuer Vertrag erkannt: ${c.name}`,
+        message: t("contractDetected", { name: c.name }),
         priority: "info",
       });
       markValid("contract_detected", "contracts", c.id);
     } else if (c.status === "price_changed") {
-      const from = c.previous_amount_cents !== null ? `${(c.previous_amount_cents / 100).toFixed(2)} €` : "?";
-      const to = `${(c.current_amount_cents / 100).toFixed(2)} €`;
+      const from = c.previous_amount_cents !== null ? formatEur(c.previous_amount_cents) : "?";
+      const to = formatEur(c.current_amount_cents);
       await createOrUpdateNotification({
         type: "price_change",
         ref_table: "contracts",
         ref_id: c.id,
-        message: `Preisänderung bei ${c.name}: ${from} → ${to}`,
+        message: t("priceChange", { name: c.name, from, to }),
         priority: "warning",
       });
       markValid("price_change", "contracts", c.id);
@@ -323,7 +331,7 @@ export async function checkSystemNotifications(): Promise<void> {
         type: "contract_ended",
         ref_table: "contracts",
         ref_id: c.id,
-        message: `Vertrag beendet: ${c.name}`,
+        message: t("contractEnded", { name: c.name }),
         priority: "info",
       });
     }
@@ -333,15 +341,15 @@ export async function checkSystemNotifications(): Promise<void> {
   const suggestedTransfers = await db.select<{ id: number; counterparty: string; amount_cents: number }[]>(
     "select id, counterparty, amount_cents from transactions where is_deleted = 0 and is_transfer = 1 and transfer_status = 'suggested'",
   );
-  for (const t of suggestedTransfers) {
+  for (const tx of suggestedTransfers) {
     await createOrUpdateNotification({
       type: "transfer_detected",
       ref_table: "transactions",
-      ref_id: t.id,
-      message: `Transfer erkannt, unbestätigt: ${t.counterparty} (${(Math.abs(t.amount_cents) / 100).toFixed(2)} €)`,
+      ref_id: tx.id,
+      message: t("transferDetected", { counterparty: tx.counterparty, amount: formatEur(Math.abs(tx.amount_cents)) }),
       priority: "info",
     });
-    markValid("transfer_detected", "transactions", t.id);
+    markValid("transfer_detected", "transactions", tx.id);
   }
 
   // 7. Sparzweck-Ziel erreicht
@@ -360,7 +368,7 @@ export async function checkSystemNotifications(): Promise<void> {
         type: "sparzweck_reached",
         ref_table: "sparzwecke",
         ref_id: s.id,
-        message: `Sparzweck erreicht: ${s.name} (${(cumulative / 100).toFixed(2)} € von ${(s.target_cents / 100).toFixed(2)} €)`,
+        message: t("sparzweckReached", { name: s.name, amount: formatEur(cumulative), target: formatEur(s.target_cents) }),
         priority: "info",
       });
       markValid("sparzweck_reached", "sparzwecke", s.id);

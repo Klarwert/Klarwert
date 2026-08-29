@@ -8,7 +8,7 @@ import i18n from "@/i18n";
  * (siehe categories.ts, TEMPLATE_CATEGORIES) - nutzerangelegte Kategorien haben keinen
  * template_key und behalten immer ihren eigenen, unübersetzten Namen.
  */
-export function translateCategoryName(category: Category): string {
+export function translateCategoryName(category: Pick<Category, "name" | "template_key">): string {
   if (!category.template_key) return category.name;
   return i18n.t(`categories:${category.template_key}`, { defaultValue: category.name });
 }

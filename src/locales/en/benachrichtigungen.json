@@ -2,5 +2,19 @@
   "title": "Notifications",
   "markAllRead": "Mark all read",
   "none": "No notifications.",
-  "archive": "Archive"
+  "archive": "Archive",
+  "messages": {
+    "importReminder": "Account {{name}}: last import was {{days}} days ago.",
+    "budgetExceeded": "Budget exceeded: {{category}} ({{percent}}%)",
+    "budget80": "Budget reached 80%: {{category}} ({{percent}}%)",
+    "balanceMismatch": "Balance mismatch for {{name}}: calculated {{calculated}} vs. last confirmed {{confirmed}}.",
+    "importFailed": "Import failed ({{asset}}, {{filename}}): {{error}}",
+    "importFailedUnknownError": "unknown error",
+    "contractDetected": "New contract detected: {{name}}",
+    "priceChange": "Price change for {{name}}: {{from}} → {{to}}",
+    "contractEnded": "Contract ended: {{name}}",
+    "transferDetected": "Transfer detected, unconfirmed: {{counterparty}} ({{amount}})",
+    "sparzweckReached": "Savings goal reached: {{name}} ({{amount}} of {{target}})"
+  },
+  "osNotificationTitle": "Klarwert Notice"
 }
