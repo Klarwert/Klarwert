@@ -129,8 +129,11 @@ export function DynamicSettings() {
                           <Select value={value} onValueChange={(v) => void updateSetting(key, v as any)}>
                             <SelectTrigger id={`setting-${key}`}><SelectValue /></SelectTrigger>
                             <SelectContent>
-                              <SelectItem value="dd.MM.yyyy">dd.MM.yyyy (31.12.2023)</SelectItem>
-                              <SelectItem value="yyyy-MM-dd">yyyy-MM-dd (2023-12-31)</SelectItem>
+                              <SelectItem value="dd.MM.yyyy">{t("settingsValues.dateFormat.ddMMyyyy")}</SelectItem>
+                              <SelectItem value="dd.MM.yy">{t("settingsValues.dateFormat.ddMMyy")}</SelectItem>
+                              <SelectItem value="dd/MM/yyyy">{t("settingsValues.dateFormat.ddSlashMMSlashyyyy")}</SelectItem>
+                              <SelectItem value="MM/dd/yyyy">{t("settingsValues.dateFormat.MMSlashddSlashyyyy")}</SelectItem>
+                              <SelectItem value="yyyy-MM-dd">{t("settingsValues.dateFormat.yyyyMMdd")}</SelectItem>
                             </SelectContent>
                           </Select>
                         )}

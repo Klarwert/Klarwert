@@ -69,7 +69,11 @@
     "quotes_privacy_accepted": "Datenschutzerklärung (Kurse) akzeptiert",
     "db_version": "Datenbank-Version",
     "last_sync": "Letzte Synchronisation",
-    "enable_experimental_features": "Experimentelle Funktionen aktivieren"
+    "enable_experimental_features": "Experimentelle Funktionen aktivieren",
+    "dev_mode": "Entwicklermodus"
+  },
+  "settingsDescriptions": {
+    "dev_mode": "Zeigt experimentelle Funktionen und Debug-Informationen an."
   },
   "settingsValues": {
     "notificationLevel": {
@@ -85,6 +89,9 @@
     },
     "dateFormat": {
       "ddMMyyyy": "dd.MM.yyyy (31.12.2023)",
+      "ddMMyy": "dd.MM.yy (31.12.23)",
+      "ddSlashMMSlashyyyy": "dd/MM/yyyy (31/12/2023)",
+      "MMSlashddSlashyyyy": "MM/dd/yyyy (12/31/2023)",
       "yyyyMMdd": "yyyy-MM-dd (2023-12-31)"
     },
     "language": {

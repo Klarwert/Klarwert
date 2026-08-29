@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { FormattedEuroInput } from "./FormattedEuroInput";
 import ReactECharts from "echarts-for-react";
-import { formatEur } from "@/lib/money";
+import { formatEur, useCurrencySymbol } from "@/lib/money";
 
 export interface EntnahmeTabProps {
   t: any;
@@ -54,16 +54,17 @@ export function EntnahmeTab({
   entChartOption,
   entChartContainerRef,
 }: EntnahmeTabProps) {
+  const currency = useCurrencySymbol();
   return (
     <div className="grid gap-6 lg:grid-cols-[340px_1fr]">
       <div className="space-y-4 rounded-standard border border-border bg-card p-5">
         <h2 className="text-sm font-semibold text-charcoal">{t("ent.title")}</h2>
         <div className="space-y-1.5">
-          <Label>{t("ent.initial")}</Label>
+          <Label>{t("ent.initial", { currency })}</Label>
           <FormattedEuroInput value={entInitial} onChange={setEntInitial} />
         </div>
         <div className="space-y-1.5">
-          <Label>{t("ent.monthly")}</Label>
+          <Label>{t("ent.monthly", { currency })}</Label>
           <FormattedEuroInput value={entMonthly} onChange={setEntMonthly} />
         </div>
         <div className="grid grid-cols-2 gap-3">

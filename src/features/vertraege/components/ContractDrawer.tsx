@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { CategorySelect } from "@/components/CategorySelect";
-import { formatEur } from "@/lib/money";
+import { formatEur, useCurrencySymbol } from "@/lib/money";
 import { formatDate } from "@/lib/dates";
 import { getRecentTransactionsForContract, updateContract, createManualContract, deleteContract, generateRuleForContract } from "@/db/repositories/contracts";
 import { addHistoryEntry } from "@/db/repositories/historyLog";
@@ -24,6 +24,7 @@ import { Trash2 } from "lucide-react";
 import { TransactionDrawer } from "@/features/transaktionen/components/TransactionDrawer";
 import { showErrorToast } from "@/lib/errorToast";
 import { useTranslation } from "react-i18next";
+import { useSettingsStore } from "@/stores/settingsStore";
 
 interface ContractDrawerProps {
   contract: Contract | "new" | null;
@@ -51,6 +52,8 @@ const INTERVAL_KEYS = [
 export function ContractDrawer({ contract, onOpenChange, onChanged }: ContractDrawerProps) {
   const queryClient = useQueryClient();
   const { t } = useTranslation("vertraege");
+  const dateDisplayFormat = useSettingsStore((s) => s.dateDisplayFormat);
+  const currency = useCurrencySymbol();
   const isNew = contract === "new";
   const contractId = isNew || !contract ? null : contract.id;
 
@@ -142,7 +145,7 @@ export function ContractDrawer({ contract, onOpenChange, onChanged }: ContractDr
           </div>
 
           <div className="space-y-1.5">
-            <Label>{t("drawer.amount")}</Label>
+            <Label>{t("drawer.amount", { currency })}</Label>
             <Input value={amountStr} onChange={(e) => setAmountStr(e.target.value)} type="number" step="0.01" />
           </div>
 
@@ -193,7 +196,7 @@ export function ContractDrawer({ contract, onOpenChange, onChanged }: ContractDr
                     onClick={() => void getTransaction(tx.id).then(full => full && setSelectedTx(full))}
                     className="flex w-full items-center justify-between rounded px-2 py-1.5 text-xs hover:bg-accent"
                   >
-                    <span className="text-slate">{formatDate(tx.booking_date)}</span>
+                    <span className="text-slate">{formatDate(tx.booking_date, dateDisplayFormat)}</span>
                     <span className="num text-charcoal">{formatEur(tx.amount_cents)}</span>
                   </button>
                 ))}

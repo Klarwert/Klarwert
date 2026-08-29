@@ -21,7 +21,7 @@ export const SETTINGS_REGISTRY = {
   },
   date_display_format: {
     key: "date_display_format",
-    schema: z.enum(["dd.MM.yyyy", "yyyy-MM-dd"]),
+    schema: z.enum(["dd.MM.yyyy", "dd.MM.yy", "dd/MM/yyyy", "MM/dd/yyyy", "yyyy-MM-dd"]),
     default: "dd.MM.yyyy",
     category: "general",
   },
@@ -136,8 +136,8 @@ export const SETTINGS_REGISTRY = {
     schema: z.enum(["0", "1"]),
     default: "0",
     category: "experimental",
-    label: "Entwicklermodus",
-    description: "Zeigt experimentelle Funktionen und Debug-Informationen an.",
+    label: "profil:settingsKeys.dev_mode",
+    description: "profil:settingsDescriptions.dev_mode",
   },
 } as const satisfies Record<string, SettingDefinition<any>>;
 

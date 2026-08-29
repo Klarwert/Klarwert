@@ -69,7 +69,11 @@
     "quotes_privacy_accepted": "Privacy policy (Quotes) accepted",
     "db_version": "Database version",
     "last_sync": "Last synchronization",
-    "enable_experimental_features": "Enable experimental features"
+    "enable_experimental_features": "Enable experimental features",
+    "dev_mode": "Developer mode"
+  },
+  "settingsDescriptions": {
+    "dev_mode": "Shows experimental features and debug information."
   },
   "settingsValues": {
     "notificationLevel": {
@@ -85,6 +89,9 @@
     },
     "dateFormat": {
       "ddMMyyyy": "dd.MM.yyyy (31.12.2023)",
+      "ddMMyy": "dd.MM.yy (31.12.23)",
+      "ddSlashMMSlashyyyy": "dd/MM/yyyy (31/12/2023)",
+      "MMSlashddSlashyyyy": "MM/dd/yyyy (12/31/2023)",
       "yyyyMMdd": "yyyy-MM-dd (2023-12-31)"
     },
     "language": {

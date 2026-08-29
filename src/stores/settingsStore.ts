@@ -9,7 +9,7 @@ interface SettingsState {
   kirchensteuerAktiv: boolean;
   kirchensteuerSatz: 8 | 9;
   onboardingDone: boolean;
-  dateDisplayFormat: "dd.MM.yyyy" | "yyyy-MM-dd";
+  dateDisplayFormat: "dd.MM.yyyy" | "dd.MM.yy" | "dd/MM/yyyy" | "MM/dd/yyyy" | "yyyy-MM-dd";
   useRuleTemplates: boolean;
   language: string;
   load: () => Promise<void>;
@@ -17,7 +17,7 @@ interface SettingsState {
   setImportReminderDays: (days: number) => Promise<void>;
   setKirchensteuer: (aktiv: boolean, satz: 8 | 9) => Promise<void>;
   completeOnboarding: () => Promise<void>;
-  setDateDisplayFormat: (format: "dd.MM.yyyy" | "yyyy-MM-dd") => Promise<void>;
+  setDateDisplayFormat: (format: SettingsState["dateDisplayFormat"]) => Promise<void>;
   setUseRuleTemplates: (enabled: boolean) => Promise<void>;
   setLanguage: (lang: string) => Promise<void>;
 }

@@ -43,7 +43,7 @@
   "upgraded": "Upgraded to contract",
   "drawer": {
     "name": "Name",
-    "amount": "Amount (€)",
+    "amount": "Amount ({{currency}})",
     "interval": "Interval",
     "status": "Status",
     "category": "Category",

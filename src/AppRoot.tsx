@@ -19,6 +19,7 @@ export function AppRoot() {
   const load = useSettingsStore((s) => s.load);
   const loaded = useSettingsStore((s) => s.loaded);
   const onboardingDone = useSettingsStore((s) => s.onboardingDone);
+  const currency = useSettingsStore((s) => s.currency);
 
   const initApp = async () => {
     try {
@@ -158,6 +159,10 @@ export function AppRoot() {
     return <Onboarding />;
   }
 
-  return <AppShell />;
+  // key=currency: formatEur/formatAmount (money.ts) read the currency setting via a non-reactive
+  // store snapshot, so most components displaying a monetary value never re-render on their own
+  // when it changes. Remounting the whole shell on a currency change is the simplest fix that
+  // doesn't require threading a currency subscription through every component that shows an amount.
+  return <AppShell key={currency} />;
 }
 

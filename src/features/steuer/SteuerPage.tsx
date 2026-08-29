@@ -11,7 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { formatDate } from "@/lib/dates";
+import { formatDate, type DisplayDateFormat } from "@/lib/dates";
 import { formatEur } from "@/lib/money";
 import { cn } from "@/lib/utils";
 import { toCsv, downloadCsv } from "@/lib/csv";
@@ -63,7 +63,7 @@ function TopicBlock({
   onToggle: () => void;
   onEdit: () => void;
   onSelectTransaction: (tx: SteuerTransaction) => void;
-  dateDisplayFormat: "dd.MM.yyyy" | "yyyy-MM-dd";
+  dateDisplayFormat: DisplayDateFormat;
   t: any;
 }) {
   const sum = transactions.reduce((total, tx) => total + tx.amount_cents, 0);

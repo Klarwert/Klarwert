@@ -41,26 +41,31 @@ export function isoDayBefore(iso: string): string {
   return d.toISOString().slice(0, 10);
 }
 
-export type DisplayDateFormat = "dd.MM.yyyy" | "yyyy-MM-dd";
+export type DisplayDateFormat = "dd.MM.yyyy" | "dd.MM.yy" | "dd/MM/yyyy" | "MM/dd/yyyy" | "yyyy-MM-dd";
 
 import i18n from "@/i18n";
 
 /**
- * Formats an ISO date (yyyy-MM-dd) for display according to the user's preference and locale.
- * Falls back to localized format if format is unset or "dd.MM.yyyy" (which we treat as "local").
+ * Formats an ISO date (yyyy-MM-dd) for display using an explicit format token, independent of the
+ * UI language - the date-format setting and the language setting are orthogonal (a German-speaking
+ * user might still prefer yyyy-MM-dd, an English-speaking one dd.MM.yyyy).
  */
 export function formatDate(iso: string, format: DisplayDateFormat = "dd.MM.yyyy"): string {
   if (!iso || iso.length < 10) return iso;
-  if (format === "yyyy-MM-dd") return iso;
-
-  const locale = i18n.language === "en" ? "en-US" : "de-DE";
-  const date = new Date(`${iso}T00:00:00Z`); // parse as UTC so the day doesn't shift
-  return new Intl.DateTimeFormat(locale, {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    timeZone: "UTC"
-  }).format(date);
+  const [year, month, day] = iso.slice(0, 10).split("-");
+  switch (format) {
+    case "yyyy-MM-dd":
+      return `${year}-${month}-${day}`;
+    case "dd.MM.yy":
+      return `${day}.${month}.${year.slice(2)}`;
+    case "dd/MM/yyyy":
+      return `${day}/${month}/${year}`;
+    case "MM/dd/yyyy":
+      return `${month}/${day}/${year}`;
+    case "dd.MM.yyyy":
+    default:
+      return `${day}.${month}.${year}`;
+  }
 }
 /**
  * Locale-abhängiger Wochenstart: Montag (DE, ISO-Standard) oder Sonntag (US).

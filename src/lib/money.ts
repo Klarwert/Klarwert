@@ -46,6 +46,31 @@ export function formatEur(cents: number): string {
 }
 
 /**
+ * Liefert das Symbol der aktuell eingestellten Währung (z. B. "€", "$", "CHF") - für Beschriftungen
+ * wie "Sparrate ({{currency}})", die sonst ein fest verdrahtetes "€" zeigen würden, egal welche
+ * Währung eingestellt ist. Optional eine andere Währung übergeben (z. B. für einen konkreten Datensatz).
+ */
+export function getCurrencySymbol(currency?: string | null): string {
+  const resolvedCurrency = currency || useSettingsStore.getState().currency || "EUR";
+  try {
+    const parts = new Intl.NumberFormat(getLocale(), { style: "currency", currency: resolvedCurrency }).formatToParts(0);
+    return parts.find((p) => p.type === "currency")?.value ?? resolvedCurrency;
+  } catch {
+    return resolvedCurrency;
+  }
+}
+
+/**
+ * React-Hook-Variante von `getCurrencySymbol()`: abonniert die Währungs-Einstellung reaktiv, damit
+ * Komponenten neu rendern, sobald sie in den Einstellungen geändert wird (ein reiner Funktionsaufruf
+ * ohne Subscription würde nur beim nächsten ohnehin stattfindenden Rerender aktualisieren).
+ */
+export function useCurrencySymbol(): string {
+  const currency = useSettingsStore((s) => s.currency);
+  return getCurrencySymbol(currency);
+}
+
+/**
  * Formatiert einen Betrag in Cents für eine beliebige Währung.
  * Fallback auf `formatEur` wenn `currency === 'EUR'` oder keine Währung angegeben.
  */

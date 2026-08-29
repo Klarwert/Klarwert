@@ -43,7 +43,7 @@
   "upgraded": "Zu Vertrag hochgestuft",
   "drawer": {
     "name": "Name",
-    "amount": "Betrag (€)",
+    "amount": "Betrag ({{currency}})",
     "interval": "Turnus",
     "status": "Status",
     "category": "Kategorie",

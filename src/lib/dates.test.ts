@@ -51,18 +51,26 @@ describe("formatDate", () => {
     await i18n.changeLanguage("de");
   });
 
-  it("formatiert nach de-Anzeigeformat (Default)", () => {
+  it("formatiert nach dd.MM.yyyy (Default)", () => {
     expect(formatDate("2023-12-31")).toBe("31.12.2023");
   });
 
-  it("formatiert nach en-Anzeigeformat", async () => {
-    await i18n.changeLanguage("en");
-    expect(formatDate("2023-12-31")).toBe("12/31/2023");
+  it("formatiert nach dd.MM.yy", () => {
+    expect(formatDate("2023-12-31", "dd.MM.yy")).toBe("31.12.23");
   });
 
-  it("formatiert nach iso-Anzeigeformat (unabhängig von Sprache)", async () => {
-    expect(formatDate("2023-12-31", "yyyy-MM-dd")).toBe("2023-12-31");
+  it("formatiert nach dd/MM/yyyy", () => {
+    expect(formatDate("2023-12-31", "dd/MM/yyyy")).toBe("31/12/2023");
+  });
+
+  it("formatiert nach MM/dd/yyyy", () => {
+    expect(formatDate("2023-12-31", "MM/dd/yyyy")).toBe("12/31/2023");
+  });
+
+  it("Datumsformat ist unabhängig von der Sprach-Einstellung", async () => {
+    expect(formatDate("2023-12-31", "dd.MM.yyyy")).toBe("31.12.2023");
     await i18n.changeLanguage("en");
+    expect(formatDate("2023-12-31", "dd.MM.yyyy")).toBe("31.12.2023");
     expect(formatDate("2023-12-31", "yyyy-MM-dd")).toBe("2023-12-31");
   });
 

@@ -5,7 +5,7 @@ import { Switch } from "@/components/ui/switch";
 import { TooltipHelp } from "@/components/TooltipHelp";
 import { FormattedEuroInput } from "./FormattedEuroInput";
 import EChartsReact from "echarts-for-react";
-import { formatEur } from "@/lib/money";
+import { formatEur, useCurrencySymbol } from "@/lib/money";
 import type { Person } from "@/db/types";
 
 export interface FireTabProps {
@@ -71,6 +71,7 @@ export function FireTab({
   fireResult,
   fireChartOption,
 }: FireTabProps) {
+  const currency = useCurrencySymbol();
   return (
     <div className="grid gap-6 lg:grid-cols-[340px_1fr]">
       <div className="space-y-4 rounded-standard border border-border bg-card p-5">
@@ -91,7 +92,7 @@ export function FireTab({
 
         <div className="space-y-1.5">
           <div className="flex items-center gap-1.5">
-            <Label>{t("fire.monthlyNet")}</Label>
+            <Label>{t("fire.monthlyNet", { currency })}</Label>
             <TooltipHelp text={t("fire.monthlyNetTooltip")} />
           </div>
           <FormattedEuroInput value={fireMonthlyNet} onChange={setFireMonthlyNet} />
@@ -99,7 +100,7 @@ export function FireTab({
 
         {fireMode === "when_free" ? (
           <div className="space-y-1.5">
-            <Label>{t("fire.savingsRate")}</Label>
+            <Label>{t("fire.savingsRate", { currency })}</Label>
             <FormattedEuroInput value={fireSavingsRate} onChange={setFireSavingsRate} />
           </div>
         ) : (
@@ -110,7 +111,7 @@ export function FireTab({
         )}
 
         <div className="space-y-1.5">
-          <Label>{t("fire.capital")}</Label>
+          <Label>{t("fire.capital", { currency })}</Label>
           <FormattedEuroInput value={fireCapital} onChange={setFireCapital} />
         </div>
 

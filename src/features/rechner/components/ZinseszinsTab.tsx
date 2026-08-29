@@ -4,7 +4,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { FormattedEuroInput } from "./FormattedEuroInput";
 import ReactECharts from "echarts-for-react";
-import { formatEur } from "@/lib/money";
+import { formatEur, useCurrencySymbol } from "@/lib/money";
 
 export interface ZinseszinsTabProps {
   t: any;
@@ -59,17 +59,18 @@ export function ZinseszinsTab({
   zinChartOption,
   zinChartContainerRef,
 }: ZinseszinsTabProps) {
+  const currency = useCurrencySymbol();
   return (
     <div className="grid gap-6 lg:grid-cols-[340px_1fr]">
       <div className="space-y-4 rounded-standard border border-border bg-card p-5">
         <h2 className="text-sm font-semibold text-charcoal">{t("zins.title")}</h2>
         <div className="space-y-1.5">
-          <Label>{t("zins.initial")}</Label>
+          <Label>{t("zins.initial", { currency })}</Label>
           <FormattedEuroInput value={zinInitial} onChange={setZinInitial} />
         </div>
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1.5">
-            <Label>{t("zins.savings")}</Label>
+            <Label>{t("zins.savings", { currency })}</Label>
             <FormattedEuroInput value={zinSavings} onChange={setZinSavings} />
           </div>
           <div className="space-y-1.5">
