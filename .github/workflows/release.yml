@@ -75,7 +75,7 @@ jobs:
 
       - name: Upload SBOM to release
         if: matrix.platform == 'ubuntu-22.04'
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: bom.json
           # tauri-action löst "v__VERSION__" (oben) selbst intern zur echten Versionsnummer auf -
