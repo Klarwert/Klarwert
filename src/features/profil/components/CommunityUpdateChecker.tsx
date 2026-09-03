@@ -13,10 +13,8 @@ import { toast } from "sonner";
 import { showErrorToast } from "@/lib/errorToast";
 import { applyMerchantDataRelease, type MerchantDataRelease } from "@/db/repositories/merchants";
 import { parseBankProfileRelease, applyBankProfileRelease } from "@/lib/import/bankProfileRelease";
+import { COMMUNITY_MERCHANTS_URL, COMMUNITY_BANK_PROFILES_URL } from "@/lib/communityRules";
 import { useTranslation } from "react-i18next";
-
-const COMMUNITY_BASE =
-  "https://raw.githubusercontent.com/Klarwert/Klarwert-Community-Rules/main/dist";
 
 export interface CommunityReleaseSummary {
   merchants: {
@@ -44,8 +42,8 @@ export function CommunityUpdateChecker() {
     setSummary(null);
     try {
       const [merchantsRes, bankRes] = await Promise.allSettled([
-        fetch(`${COMMUNITY_BASE}/haendler.json`, { cache: "no-cache" }),
-        fetch(`${COMMUNITY_BASE}/bankprofile.json`, { cache: "no-cache" }),
+        fetch(COMMUNITY_MERCHANTS_URL, { cache: "no-cache" }),
+        fetch(COMMUNITY_BANK_PROFILES_URL, { cache: "no-cache" }),
       ]);
 
       let merchantsSummary: CommunityReleaseSummary["merchants"] = null;

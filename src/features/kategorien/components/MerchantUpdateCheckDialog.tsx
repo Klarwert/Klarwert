@@ -15,6 +15,7 @@ import type { Category, Merchant } from "@/db/types";
 import { toast } from "sonner";
 import { showErrorToast } from "@/lib/errorToast";
 import { computeMerchantReleaseDiff, type DiffRow } from "@/lib/merchantReleaseDiff";
+import { COMMUNITY_MERCHANTS_URL } from "@/lib/communityRules";
 import { useTranslation } from "react-i18next";
 
 interface MerchantUpdateCheckDialogProps {
@@ -24,14 +25,6 @@ interface MerchantUpdateCheckDialogProps {
   categories: Category[];
   onApplied: () => void;
 }
-
-/**
- * Statische, von Klarwert-Community-Rules per CI generierte Distributionsdatei (siehe dort
- * scripts/build.mjs) - liegt auf `main` unter `dist/`, weil raw.githubusercontent.com nur Dateien
- * ausliefern kann, die tatsächlich im Branch committed sind (kein Server, kein Release-Upload).
- */
-const COMMUNITY_DATA_URL =
-  "https://raw.githubusercontent.com/Klarwert/Klarwert-Community-Rules/main/dist/haendler.json";
 
 /** B15 "update"-Variante: Diff der kuratierten Community-Datei vor der Übernahme (Alles-oder-Nichts). */
 export function MerchantUpdateCheckDialog({
@@ -57,7 +50,7 @@ export function MerchantUpdateCheckDialog({
     setLoading(true);
     void (async () => {
       try {
-        const res = await fetch(COMMUNITY_DATA_URL);
+        const res = await fetch(COMMUNITY_MERCHANTS_URL);
         if (res.status === 404) {
           throw new Error(t("merchants.updateCheck.dbPending"));
         }

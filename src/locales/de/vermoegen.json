@@ -10,6 +10,7 @@
   "importReminder": "Kein Import seit {{days}} Tagen",
   "balance": "Kontostand",
   "confirmedBalance": "Bestätigter Stand",
+  "deleteAccount": "Konto löschen",
   "deleteConfirm": "Konto \"{{name}}\" wirklich löschen? Alle zugehörigen Transaktionen werden ebenfalls gelöscht.",
   "deletedAccount": "Konto \"{{name}}\" gelöscht ({{count}} Transaktionen)",
   "deleted": "\"{{name}}\" gelöscht",

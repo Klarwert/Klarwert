@@ -1,4 +1,4 @@
-# ADR-007: ECharts Advisory GHSA-pj4x-2xr3-cq3v – nicht anwendbar
+# ADR-008: ECharts Advisory GHSA-pj4x-2xr3-cq3v – nicht anwendbar
 
 **Datum:** 2026-09-03  
 **Status:** Entschieden
