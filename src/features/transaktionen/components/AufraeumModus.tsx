@@ -14,6 +14,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
 import { showErrorToast } from "@/lib/errorToast";
 import { useTranslation } from "react-i18next";
+import { normalizeString } from "@/lib/stringNormalization";
 
 interface AufraeumModusProps {
   open: boolean;
@@ -25,9 +26,7 @@ interface AufraeumModusProps {
   onDone: () => void;
 }
 
-function normalize(text: string): string {
-  return text.trim().toLowerCase();
-}
+
 
 export function AufraeumModus({ open, dateFrom, dateTo, assetId, personId, onOpenChange, onDone }: AufraeumModusProps) {
   const { data: categories } = useCategories();
@@ -73,7 +72,7 @@ export function AufraeumModus({ open, dateFrom, dateTo, assetId, personId, onOpe
       
       const groupsMap = new Map<string, TransactionWithTags[]>();
       for (const item of rows) {
-        const key = normalize(item.counterparty);
+        const key = normalizeString(item.counterparty);
         if (!groupsMap.has(key)) groupsMap.set(key, []);
         groupsMap.get(key)!.push(item);
       }
