@@ -5,7 +5,7 @@
  * cleanRuleGroups) und die wichtigsten Zustandsübergänge des Editors isoliert.
  * DB-Zugriffe sind gemockt.
  */
-import { describe, it, expect, vi } from "vitest";
+import { describe, it, expect } from "vitest";
 import {
   newRuleCondition,
   ruleGroupsToDraft,
@@ -26,8 +26,7 @@ describe("ruleGroupsToDraft", () => {
   it("bildet eine Regel mit Gruppen auf den Draft-State ab", () => {
     const rule: RuleWithConditions = {
       id: 1,
-      name: "Test",
-      enabled: 1,
+      created_from: "manual",
       is_deleted: 0,
       category_id: null,
       tag_id: null,
@@ -35,15 +34,15 @@ describe("ruleGroupsToDraft", () => {
       mark_as_saving: 0,
       sparzweck_id: null,
       merchant_id: null,
+      source_contract_id: null,
       priority: 1,
       created_at: "",
       groups: [
         {
           id: 1,
-          rule_id: 1,
-          group_index: 0,
+          group_order: 0,
           conditions: [
-            { id: 1, group_id: 1, field: "counterparty", operator: "contains", value: "REWE", value_to: null, extra_field_key: null },
+            { id: 1, group_id: 1, field: "counterparty", operator: "contains", value: "REWE", value_to: null, extra_field_key: null, custom_field_id: null },
           ],
         },
       ],
@@ -59,8 +58,7 @@ describe("ruleGroupsToDraft", () => {
   it("gibt eine leere Gruppe zurück wenn die Regel keine Gruppen hat", () => {
     const rule: RuleWithConditions = {
       id: 2,
-      name: "Leer",
-      enabled: 1,
+      created_from: "manual",
       is_deleted: 0,
       category_id: null,
       tag_id: null,
@@ -68,6 +66,7 @@ describe("ruleGroupsToDraft", () => {
       mark_as_saving: 0,
       sparzweck_id: null,
       merchant_id: null,
+      source_contract_id: null,
       priority: 1,
       created_at: "",
       groups: [],

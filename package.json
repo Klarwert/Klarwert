@@ -1,7 +1,7 @@
 {
   "name": "klarwert",
   "private": true,
-  "version": "0.1.1",
+  "version": "0.1.2",
   "type": "module",
   "engines": {
     "node": ">=24"
@@ -17,7 +17,8 @@
     "lint": "eslint .",
     "generate-sbom": "cyclonedx-npm --output-format JSON --output-file bom.json",
     "generate-perf-data": "npx tsx src/test/generatePerformanceFixture.ts",
-    "bump-version": "node scripts/bump-version.mjs"
+    "bump-version": "node scripts/bump-version.mjs",
+    "verify": "tsc --noEmit && npm run lint && npm run test && vite build"
   },
   "dependencies": {
     "@dnd-kit/core": "^6",

@@ -3,6 +3,13 @@
 Alle relevanten Änderungen an Klarwert werden in dieser Datei dokumentiert.
 Format nach [Keep a Changelog](https://keepachangelog.com/de/1.0.0/), Versionsschema nach [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.2] – 2026-09-03
+
+### Behoben
+- **Release-Korrektur:** Release 0.1.1 enthielt aufgrund eines Build-Fehlers keine Installer. Dieser Fehler (doppelter Import in RechnerPage) wurde behoben.
+- **CI/CD:** Der Release-Build wird nun durch ein `verify`-Skript (tsc, lint, test, vite build) strikter vorab geprüft.
+- **CI/CD:** OpenSSF Scorecard und Node-Action-Versionen aktualisiert.
+
 ## [0.1.1] – 2026-09-03
 
 ### Hinzugefügt

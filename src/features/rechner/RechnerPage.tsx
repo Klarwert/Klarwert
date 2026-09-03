@@ -9,7 +9,6 @@ import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatDate } from "@/lib/dates";
 import { parseAmountToCentsOrZero } from "@/lib/money";
-import { useSettingsStore } from "@/stores/settingsStore";
 import { usePersons } from "@/hooks/usePersons";
 import { calculateFire } from "@/lib/rechner/fire";
 import { calculateZinseszins } from "@/lib/rechner/zinseszins";

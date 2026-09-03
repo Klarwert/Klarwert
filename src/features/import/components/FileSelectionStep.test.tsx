@@ -7,7 +7,7 @@
  * DB-Zugriffe sind nicht direkt involviert (nur Props).
  */
 import { describe, it, expect, vi } from "vitest";
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { FileSelectionStep } from "@/features/import/components/FileSelectionStep";
 import type { Asset } from "@/db/types";
 
@@ -19,8 +19,8 @@ vi.mock("react-i18next", () => ({
 }));
 
 const MOCK_ASSETS: Asset[] = [
-  { id: 1, name: "Girokonto", type: "account", currency: "EUR", iban: null, person_id: null, created_at: "", updated_at: "" },
-  { id: 2, name: "Sparkonto", type: "account", currency: "EUR", iban: null, person_id: null, created_at: "", updated_at: "" },
+  { id: 1, name: "Girokonto", currency: "EUR", iban: null, created_at: "", updated_at: "" } as unknown as Asset,
+  { id: 2, name: "Sparkonto", currency: "EUR", iban: null, created_at: "", updated_at: "" } as unknown as Asset,
 ];
 
 function renderFileSelectionStep(overrides: Partial<{
@@ -50,18 +50,18 @@ function renderFileSelectionStep(overrides: Partial<{
 describe("FileSelectionStep", () => {
   it("rendert Konto-Dropdown mit verfügbaren Assets", () => {
     renderFileSelectionStep();
-    expect(screen.getByRole("combobox")).toBeInTheDocument();
+    expect(screen.getByRole("combobox")).not.toBeNull();
   });
 
   it("zeigt den Datei-Namen nach Auswahl (via file-Prop)", () => {
     const file = new File(["col1,col2\nval1,val2"], "test.csv", { type: "text/csv" });
     renderFileSelectionStep({ file });
-    expect(screen.getByText(/test\.csv/)).toBeInTheDocument();
+    expect(screen.getByText(/test\.csv/)).not.toBeNull();
   });
 
   it("zeigt Fehler-Text bei fileError", () => {
     renderFileSelectionStep({ fileError: "Datei konnte nicht gelesen werden" });
-    expect(screen.getByText(/Datei konnte nicht gelesen werden/)).toBeInTheDocument();
+    expect(screen.getByText(/Datei konnte nicht gelesen werden/)).not.toBeNull();
   });
 
   it("zeigt Drag-Drop-Hinweis wenn keine Datei ausgewählt", () => {
@@ -89,6 +89,6 @@ describe("FileSelectionStep", () => {
     );
     expect(dragDiv).toBeTruthy();
     // Das div existiert und ist bereit Drag-Events zu empfangen
-    expect(dragDiv).toBeInTheDocument();
+    expect(dragDiv).not.toBeNull();
   });
 });

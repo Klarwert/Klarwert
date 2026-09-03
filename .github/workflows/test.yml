@@ -11,8 +11,8 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           # 24+ für node:sqlite ohne --experimental-sqlite-Flag (In-Memory-Integrationstests,
           # siehe src/test/sqliteTestDb.ts) – Node 20/22 kennen das Built-in-Modul noch nicht
@@ -21,3 +21,4 @@ jobs:
       - run: npm ci
       - run: npm audit --audit-level=high
       - run: npm test
+      - run: npm run verify
