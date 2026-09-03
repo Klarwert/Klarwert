@@ -25,12 +25,14 @@ export function normalizeCounterparty(text: string | null | undefined): string {
     .replace(/ü/g, "ue")
     .replace(/ß/g, "ss");
 
+  // Entferne bekannte Präfixe wie "sumup *", "square *", "zettle *", "payleven *" - VOR der
+  // Sonderzeichen-Ersetzung unten, die sonst das "*" selbst zu einem Leerzeichen macht und diese
+  // Regex dadurch nie mehr treffen lässt (Regression, per Charakterisierungstest gefunden).
+  s = s.replace(/^(sumup|square|zettle|payleven|gopay)\s*\*\s*/i, "");
+
   // Ersetze Sonderzeichen-Separatoren durch Leerzeichen
   s = s.replace(/[/_\\+*]/g, " ");
   s = s.replace(/\s+/g, " ").trim();
-
-  // Entferne bekannte Präfixe wie "sumup *", "square *", "zettle *", "payleven *"
-  s = s.replace(/^(sumup|square|zettle|payleven|gopay)\s*\*\s*/i, "");
 
   // Entferne gängige Rechtsform-Suffixe (gmbh & co. kg, gmbh, mbh, ag, kg, ohg, ug, e.k., e.v.)
   s = s.replace(/\b(gmbh\s*&\s*co\s*\.?\s*kg|gmbh|mbh|ag|kg|ohg|ug|e\s*\.?\s*k\s*\.?|e\s*\.?\s*v\s*\.?)\b\.?/gi, "");
