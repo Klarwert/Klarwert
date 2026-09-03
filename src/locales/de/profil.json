@@ -57,8 +57,6 @@
     "onboarding_done": "Onboarding abgeschlossen",
     "kirchensteuer_aktiv": "Kirchensteuer aktiv",
     "kirchensteuer_satz": "Kirchensteuersatz (%)",
-    "use_rule_templates": "Standard-Kategorisierungsregeln verwenden",
-    "rule_templates_migrated_to_merchants": "Regel-Vorlagen migriert",
     "check_updates_on_startup": "Beim Start auf Updates prüfen",
     "notification_level": "Benachrichtigungslevel",
     "notify_transfer_detected": "Bei Transfer-Erkennung benachrichtigen",
@@ -256,7 +254,7 @@
     "alpacaSignup": "Kostenlosen Alpaca-Account anlegen",
     "apiKeyLabel": "API Key ID",
     "apiSecretLabel": "API Secret Key",
-    "apiKeyStorageNote": "API Key und Secret werden ausschließlich lokal (unverschlüsselt) in der App-Datenbank gespeichert.",
+    "apiKeyStorageNote": "API Key und Secret werden im macOS-Schlüsselbund (Keychain) gespeichert – nicht in der App-Datenbank.",
     "saveSettings": "Einstellungen speichern",
     "providers": {
       "yahoo": {

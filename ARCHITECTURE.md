@@ -17,7 +17,7 @@
 ├─────────────────────────────────────────────┤
 │  Datenbankschicht  (src/db/)                 │
 │  migrate.ts · client.ts                     │
-│  migrations/001…031_*.sql                   │
+│  migrations/, fortlaufend numeriert         │
 ├─────────────────────────────────────────────┤
 │  SQLite (Tauri plugin-sql, lokale Datei)     │
 └─────────────────────────────────────────────┘
@@ -90,7 +90,7 @@ Vollständiges Muster: `context/CLAUDE.md` → Abschnitt „i18n-Muster"
 
 ## Schema-Freeze (ab Phase A)
 
-Das Datenbankschema gilt nach Migration 031 als **stabil**.
+Das Datenbankschema gilt durch die Migrationen unter `src/db/migrations/`, fortlaufend numeriert, als **stabil**.
 
 Erlaubt:
 - `ALTER TABLE … ADD COLUMN … DEFAULT …` (neue Spalten mit Default)

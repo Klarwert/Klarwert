@@ -50,7 +50,7 @@ export function DynamicSettings() {
 
   for (const [key, def] of Object.entries(SETTINGS_REGISTRY)) {
     // skip internal / complex settings that are handled custom in ProfilPage
-    if (["quotes_provider", "quotes_alpaca_key", "quotes_alpaca_secret", "quotes_privacy_accepted"].includes(key)) {
+    if (["quotes_provider", "quotes_privacy_accepted"].includes(key)) {
       continue; 
     }
     grouped[def.category].push(key as SettingsKeys);

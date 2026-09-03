@@ -11,6 +11,7 @@
 
 import { getAllSettings, setSetting } from "@/db/repositories/settings";
 import { upsertDepotPrice, listPricesForIsin } from "@/db/repositories/depot";
+import { invoke } from "@tauri-apps/api/core";
 import { YahooFinanceProvider } from "./YahooFinanceProvider";
 import { AlpacaProvider } from "./AlpacaProvider";
 import { ManualPriceProvider } from "./ManualProvider";
@@ -33,11 +34,44 @@ export async function getQuoteSettings(): Promise<{
   privacyAccepted: boolean;
 }> {
   const all = await getAllSettings();
+  let alpacaKey = "";
+  let alpacaSecret = "";
+
+  try {
+    const creds = await invoke<[string, string]>("get_api_credential");
+    alpacaKey = creds[0];
+    alpacaSecret = creds[1];
+  } catch (e) {
+    console.warn("Failed to get credentials from keyring", e);
+  }
+
+  // Migration from old settings table to keyring
+  const { getDb } = await import("@/db/client");
+  const db = await getDb();
+  const oldKeys = await db.select<{key: string, value: string}[]>("SELECT key, value FROM settings WHERE key IN ('quotes_alpaca_key', 'quotes_alpaca_secret')");
+  
+  if (oldKeys.length > 0) {
+    const oldKey = oldKeys.find(k => k.key === "quotes_alpaca_key")?.value ?? "";
+    const oldSecret = oldKeys.find(k => k.key === "quotes_alpaca_secret")?.value ?? "";
+    if (oldKey || oldSecret) {
+      alpacaKey = oldKey || alpacaKey;
+      alpacaSecret = oldSecret || alpacaSecret;
+      try {
+        await invoke("set_api_credential", { key: alpacaKey, secret: alpacaSecret });
+        await db.execute("DELETE FROM settings WHERE key IN ('quotes_alpaca_key', 'quotes_alpaca_secret')");
+      } catch (e) {
+        console.warn("Failed to migrate credentials", e);
+      }
+    } else {
+      await db.execute("DELETE FROM settings WHERE key IN ('quotes_alpaca_key', 'quotes_alpaca_secret')");
+    }
+  }
+
   return {
     enabled: all.quotes_enabled === "1",
     providerId: (all.quotes_provider as PriceProviderId | undefined) ?? "yahoo",
-    alpacaKey: all.quotes_alpaca_key ?? "",
-    alpacaSecret: all.quotes_alpaca_secret ?? "",
+    alpacaKey,
+    alpacaSecret,
     privacyAccepted: all.quotes_privacy_accepted === "1",
   };
 }
@@ -51,9 +85,13 @@ export async function saveQuoteSettings(
 ): Promise<void> {
   await setSetting("quotes_enabled", enabled ? "1" : "0");
   await setSetting("quotes_provider", providerId);
-  await setSetting("quotes_alpaca_key", alpacaKey);
-  await setSetting("quotes_alpaca_secret", alpacaSecret);
   await setSetting("quotes_privacy_accepted", privacyAccepted ? "1" : "0");
+
+  try {
+    await invoke("set_api_credential", { key: alpacaKey, secret: alpacaSecret });
+  } catch (e) {
+    console.warn("Failed to save credentials to keyring", e);
+  }
 }
 
 // --- Provider factory ----------------------------------------------------------

@@ -32,6 +32,7 @@ import rulesPriorityUnique029 from "@/db/migrations/029_rules_priority_unique.sq
 import budgetPeriodsUnique030 from "@/db/migrations/030_budget_periods_unique.sql?raw";
 import merchantSource031 from "@/db/migrations/031_merchant_source.sql?raw";
 import steuerThemenTemplateKey032 from "@/db/migrations/032_steuer_themen_template_key.sql?raw";
+import dropRuleTemplates033 from "@/db/migrations/033_drop_rule_templates.sql?raw";
 
 interface MigrationDef {
   version: number;
@@ -72,6 +73,7 @@ const MIGRATIONS: MigrationDef[] = [
   { version: 30, name: "budget_periods_unique", sql: budgetPeriodsUnique030 },
   { version: 31, name: "merchant_source", sql: merchantSource031 },
   { version: 32, name: "steuer_themen_template_key", sql: steuerThemenTemplateKey032 },
+  { version: 33, name: "drop_rule_templates", sql: dropRuleTemplates033 },
 ];
 
 /**
@@ -328,6 +330,16 @@ async function applyMigrations(): Promise<void> {
     );
   }
 
+  try {
+    // Führe die einmalige TS-Migration aus, BEVOR neue SQL-Migrationen laufen.
+    // So kann sie auf Tabellen (wie rule_templates) zugreifen, bevor diese ggf. in neuen Migrationen gedroppt werden.
+    const { migrateRuleTemplatesToMerchants } = await import("@/db/repositories/migrateRuleTemplates");
+    await migrateRuleTemplatesToMerchants();
+  } catch (e) {
+    // Wenn die Tabelle z.B. schon gedroppt wurde oder ein anderer Fehler auftritt.
+    console.warn("Rule-template -> merchant migration notice:", e);
+  }
+
   const pending = MIGRATIONS.filter((m) => !appliedVersions.has(m.version)).sort(
     (a, b) => a.version - b.version,
   );
@@ -400,18 +412,6 @@ async function applyMigrations(): Promise<void> {
     await seedDefaultMerchants();
   } catch (e) {
     console.warn("Merchant seed notice:", e);
-  }
-  try {
-    const { seedBuiltinRuleTemplates } = await import("@/db/repositories/ruleTemplates");
-    await seedBuiltinRuleTemplates();
-  } catch (e) {
-    console.warn("Rule-template seed notice:", e);
-  }
-  try {
-    const { migrateRuleTemplatesToMerchants } = await import("@/db/repositories/migrateRuleTemplates");
-    await migrateRuleTemplatesToMerchants();
-  } catch (e) {
-    console.warn("Rule-template -> merchant migration notice:", e);
   }
 
   // B3: Migrations-Integritätsprüfung beim Start

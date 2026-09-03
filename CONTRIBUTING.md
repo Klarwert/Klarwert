@@ -8,7 +8,7 @@ Danke für dein Interesse! Es gibt mehrere Wege, ohne dass alle davon Programmie
 
 | Tool | Mindestversion | Installationshinweis |
 |------|---------------|----------------------|
-| Node.js | ≥24 | <https://nodejs.org> |
+| Node.js | siehe `engines.node` in `package.json` | <https://nodejs.org> |
 | Rust | stabil (≥ 1.77) | `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh` |
 | Tauri CLI | (via npm) | wird automatisch installiert |
 

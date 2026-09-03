@@ -5,7 +5,8 @@
  * Supports stocks, ETFs. No crypto in free tier.
  * Uses the Alpaca Data API v2.
  *
- * Requires: ALPACA_API_KEY + ALPACA_API_SECRET (stored locally unencrypted in app settings).
+ * Requires: ALPACA_API_KEY + ALPACA_API_SECRET (stored locally in plain text in app settings).
+ * WARNING: These secrets are currently stored unencrypted. High risk of exposure via JSON exports, backups, or logs.
  * Privacy: Only ticker symbols are sent. No amounts, no portfolio data.
  */
 

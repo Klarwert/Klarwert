@@ -33,7 +33,6 @@ const BACKUP_TABLES = [
   "merchants",
   "merchant_aliases",
   "merchant_suppressions",
-  "rule_templates",
   "assets",
   "asset_owners",
   "value_history",

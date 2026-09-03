@@ -51,18 +51,6 @@ export const SETTINGS_REGISTRY = {
     default: "8",
     category: "general",
   },
-  use_rule_templates: {
-    key: "use_rule_templates",
-    schema: z.enum(["0", "1"]),
-    default: "1",
-    category: "general",
-  },
-  rule_templates_migrated_to_merchants: {
-    key: "rule_templates_migrated_to_merchants",
-    schema: z.enum(["0", "1"]),
-    default: "0",
-    category: "general",
-  },
 
   // Updates
   check_updates_on_startup: {
@@ -109,18 +97,6 @@ export const SETTINGS_REGISTRY = {
     key: "quotes_provider",
     schema: z.string(),
     default: "yahoo",
-    category: "quotes",
-  },
-  quotes_alpaca_key: {
-    key: "quotes_alpaca_key",
-    schema: z.string(),
-    default: "",
-    category: "quotes",
-  },
-  quotes_alpaca_secret: {
-    key: "quotes_alpaca_secret",
-    schema: z.string(),
-    default: "",
     category: "quotes",
   },
   quotes_privacy_accepted: {

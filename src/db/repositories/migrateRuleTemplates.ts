@@ -1,5 +1,5 @@
 import { getDb } from "@/db/client";
-import { getSetting, setSetting } from "@/db/repositories/settings";
+
 
 /**
  * Einmalige Datenmigration (Bugfix-Runde 3, "Händler & Regel-Vorlagen zusammenführen"): jede
@@ -11,10 +11,17 @@ import { getSetting, setSetting } from "@/db/repositories/settings";
  * `rule_templates`-Tabelle bleibt unangetastet erhalten, nur die separate Pipeline-Stufe entfällt.
  */
 export async function migrateRuleTemplatesToMerchants(): Promise<void> {
-  const done = await getSetting("rule_templates_migrated_to_merchants");
-  if (done === "1") return;
-
   const db = await getDb();
+  
+  const settingRows = await db.select<{ value: string }[]>("SELECT value FROM settings WHERE key='rule_templates_migrated_to_merchants'");
+  if (settingRows.length > 0 && settingRows[0].value === "1") return;
+  
+  const tableCheck = await db.select<{ name: string }[]>("SELECT name FROM sqlite_master WHERE type='table' AND name='rule_templates'");
+  if (tableCheck.length === 0) {
+    await db.execute("INSERT OR REPLACE INTO settings (key, value) VALUES ('rule_templates_migrated_to_merchants', '1')");
+    return;
+  }
+
   const templates = await db.select<
     { id: number; label: string; category_template_key: string; field: string; value: string }[]
   >("select id, label, category_template_key, field, value from rule_templates where is_deleted = 0");
@@ -73,5 +80,5 @@ export async function migrateRuleTemplatesToMerchants(): Promise<void> {
     );
   }
 
-  await setSetting("rule_templates_migrated_to_merchants", "1");
+  await db.execute("INSERT OR REPLACE INTO settings (key, value) VALUES ('rule_templates_migrated_to_merchants', '1')");
 }
