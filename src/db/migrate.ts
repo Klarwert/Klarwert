@@ -33,6 +33,7 @@ import budgetPeriodsUnique030 from "@/db/migrations/030_budget_periods_unique.sq
 import merchantSource031 from "@/db/migrations/031_merchant_source.sql?raw";
 import steuerThemenTemplateKey032 from "@/db/migrations/032_steuer_themen_template_key.sql?raw";
 import dropRuleTemplates033 from "@/db/migrations/033_drop_rule_templates.sql?raw";
+import depotPricesSource034 from "@/db/migrations/034_depot_prices_source.sql?raw";
 
 interface MigrationDef {
   version: number;
@@ -74,6 +75,7 @@ const MIGRATIONS: MigrationDef[] = [
   { version: 31, name: "merchant_source", sql: merchantSource031 },
   { version: 32, name: "steuer_themen_template_key", sql: steuerThemenTemplateKey032 },
   { version: 33, name: "drop_rule_templates", sql: dropRuleTemplates033 },
+  { version: 34, name: "depot_prices_source", sql: depotPricesSource034 },
 ];
 
 /**

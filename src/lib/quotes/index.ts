@@ -168,7 +168,7 @@ export async function fetchLatestPrices(
   const quotes: Quote[] = await provider.fetchLatest(needsFetch);
 
   for (const q of quotes) {
-    await upsertDepotPrice(q.identifier, q.date, q.priceCents, q.currency);
+    await upsertDepotPrice(q.identifier, q.date, q.priceCents, q.currency, "auto");
     result.set(q.identifier, {
       priceCents: q.priceCents,
       currency: q.currency,
@@ -207,7 +207,7 @@ export async function fetchHistoricalPrices(
   const provider = buildProvider(settings.providerId, settings.alpacaKey, settings.alpacaSecret);
   const quotes = await provider.fetchHistory(identifier, from, to);
   for (const q of quotes) {
-    await upsertDepotPrice(q.identifier, q.date, q.priceCents, q.currency);
+    await upsertDepotPrice(q.identifier, q.date, q.priceCents, q.currency, "auto");
   }
   return quotes;
 }

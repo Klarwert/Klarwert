@@ -61,20 +61,21 @@ export async function upsertDepotPrice(
   isin: string,
   dateStr: string,
   priceCents: number,
-  currency = "EUR"
+  currency = "EUR",
+  source: "manual" | "auto" = "manual"
 ): Promise<void> {
   await runInTransaction(async (db) => {
     // Vorherigen Preis für den Audit-Trail laden (falls vorhanden)
-    const existing = await db.select<{ price_cents: number; currency: string }[]>(
-      `SELECT price_cents, currency FROM depot_prices WHERE isin = $1 AND date_str = $2 LIMIT 1`,
+    const existing = await db.select<{ price_cents: number; currency: string; source: string }[]>(
+      `SELECT price_cents, currency, source FROM depot_prices WHERE isin = $1 AND date_str = $2 LIMIT 1`,
       [isin, dateStr]
     );
 
     const res = await db.execute(
-      `INSERT INTO depot_prices (isin, date_str, price_cents, currency)
-       VALUES ($1, $2, $3, $4)
-       ON CONFLICT(isin, date_str) DO UPDATE SET price_cents = excluded.price_cents, currency = excluded.currency`,
-      [isin, dateStr, priceCents, currency]
+      `INSERT INTO depot_prices (isin, date_str, price_cents, currency, source)
+       VALUES ($1, $2, $3, $4, $5)
+       ON CONFLICT(isin, date_str) DO UPDATE SET price_cents = excluded.price_cents, currency = excluded.currency, source = excluded.source`,
+      [isin, dateStr, priceCents, currency, source]
     );
 
     // Audit-Trail nur bei tatsächlicher Änderung (neuer Eintrag oder Kursänderung)
@@ -87,8 +88,8 @@ export async function upsertDepotPrice(
         isNew ? "insert" : "update",
         "depot_prices",
         entityId,
-        { isin, date_str: dateStr, price_cents: priceCents, currency },
-        isNew ? null : { isin, date_str: dateStr, price_cents: existing[0].price_cents, currency: existing[0].currency }
+        { isin, date_str: dateStr, price_cents: priceCents, currency, source },
+        isNew ? null : { isin, date_str: dateStr, price_cents: existing[0].price_cents, currency: existing[0].currency, source: existing[0].source }
       );
     }
   });

@@ -155,6 +155,7 @@ export interface DepotPrice {
   date_str: string;
   price_cents: number;
   currency: string;
+  source: "manual" | "auto";
 }
 
 export interface AssetOwner {
