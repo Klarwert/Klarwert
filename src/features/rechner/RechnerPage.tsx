@@ -8,28 +8,26 @@ import { useSettingsStore } from "@/stores/settingsStore";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatDate } from "@/lib/dates";
-import { parseAmountToCentsOrZero } from "@/lib/money";
 import { usePersons } from "@/hooks/usePersons";
-import { calculateFire } from "@/lib/rechner/fire";
-import { calculateZinseszins } from "@/lib/rechner/zinseszins";
-import { calculateEntnahme } from "@/lib/rechner/entnahme";
 import {
   deleteScenario,
   listSavedScenarios,
   saveScenario,
   type SavedScenario,
 } from "@/db/repositories/rechner";
-import { amountAxisLabel } from "@/lib/charts/theme";
 import { useElementWidth } from "@/hooks/useElementWidth";
 import { toast } from "sonner";
 import { showErrorToast } from "@/lib/errorToast";
 
-const NARROW_CHART_BREAKPOINT = 500;
-
-const RECHNER_STATE_KEY = "klarwert_rechner_persistent_inputs";
 import { FireTab } from "./components/FireTab";
 import { ZinseszinsTab } from "./components/ZinseszinsTab";
 import { EntnahmeTab } from "./components/EntnahmeTab";
+
+import { useFireRechner } from "./hooks/useFireRechner";
+import { useZinseszinsRechner } from "./hooks/useZinseszinsRechner";
+import { useEntnahmeRechner } from "./hooks/useEntnahmeRechner";
+
+const RECHNER_STATE_KEY = "klarwert_rechner_persistent_inputs";
 
 function getStoredState<T>(key: string, fallback: T): T {
   try {
@@ -56,95 +54,20 @@ export function RechnerPage() {
   const zinChartContainer = useElementWidth<HTMLDivElement>();
   const entChartContainer = useElementWidth<HTMLDivElement>();
 
-  // --- FIRE State ---
-  const [fireMode, setFireMode] = useState<"when_free" | "how_much">(() =>
-    getStoredState("fireMode", "when_free"),
-  );
-  const [fireMonthlyNet, setFireMonthlyNet] = useState(() =>
-    getStoredState("fireMonthlyNet", "2500"),
-  );
-  const [fireReturn, setFireReturn] = useState(() => getStoredState("fireReturn", "6.0"));
-  const [fireInflation, setFireInflation] = useState(() => getStoredState("fireInflation", "2.0"));
-  const [fireSwr, setFireSwr] = useState(() => getStoredState("fireSwr", "3.5"));
   const { kirchensteuerAktiv, kirchensteuerSatz } = useSettingsStore();
   const defaultTaxRate = getEffectiveCapitalTaxRate(kirchensteuerAktiv, kirchensteuerSatz).toString();
-  
-  const [fireTax, setFireTax] = useState(() => getStoredState("fireTax", defaultTaxRate));
-  const [fireTeilfreistellung, setFireTeilfreistellung] = useState(() =>
-    getStoredState("fireTeilfreistellung", true),
-  );
-  const [fireCapital, setFireCapital] = useState(() => getStoredState("fireCapital", "50000"));
-  const [fireSavingsRate, setFireSavingsRate] = useState(() =>
-    getStoredState("fireSavingsRate", "800"),
-  );
-  const [fireTargetAge, setFireTargetAge] = useState(() => getStoredState("fireTargetAge", "60"));
-  const [fireCapitalDepletion, setFireCapitalDepletion] = useState(() =>
-    getStoredState("fireCapitalDepletion", false),
-  );
-  const [firePersonId, setFirePersonId] = useState<string>(() =>
-    getStoredState("firePersonId", "all"),
-  );
 
-  // --- Zinseszins State ---
-  const [zinInitial, setZinInitial] = useState(() => getStoredState("zinInitial", "10000"));
-  const [zinSavings, setZinSavings] = useState(() => getStoredState("zinSavings", "300"));
-  const [zinStepUp, setZinStepUp] = useState(() => getStoredState("zinStepUp", "2.0"));
-  const [zinReturn, setZinReturn] = useState(() => getStoredState("zinReturn", "6.0"));
-  const [zinYears, setZinYears] = useState(() => getStoredState("zinYears", "20"));
-  const [zinInflation, setZinInflation] = useState(() => getStoredState("zinInflation", "2.0"));
-  const [zinTer, setZinTer] = useState(() => getStoredState("zinTer", "0.2"));
-  const [zinTaxActive, setZinTaxActive] = useState(() => getStoredState("zinTaxActive", true));
-  const [zinTaxRate, setZinTaxRate] = useState(() => getStoredState("zinTaxRate", defaultTaxRate));
-  const [zinPayout, setZinPayout] = useState<"ausschüttend" | "thesaurierend">(() =>
-    getStoredState("zinPayout", "thesaurierend"),
-  );
-
-  // --- Entnahme State ---
-  const [entInitial, setEntInitial] = useState(() => getStoredState("entInitial", "300000"));
-  const [entMonthly, setEntMonthly] = useState(() => getStoredState("entMonthly", "1200"));
-  const [entAdjustInf, setEntAdjustInf] = useState(() => getStoredState("entAdjustInf", true));
-  const [entHorizon, setEntHorizon] = useState(() => getStoredState("entHorizon", "30"));
-  const [entReturn, setEntReturn] = useState(() => getStoredState("entReturn", "5.0"));
-  const [entInflation, setEntInflation] = useState(() => getStoredState("entInflation", "2.0"));
-  const [entTer, setEntTer] = useState(() => getStoredState("entTer", "0.2"));
-  const [entTaxActive, setEntTaxActive] = useState(() => getStoredState("entTaxActive", true));
-  const [entTaxRate, setEntTaxRate] = useState(() => getStoredState("entTaxRate", defaultTaxRate));
+  const fireRechner = useFireRechner(getStoredState, defaultTaxRate, persons, fireChartContainer.width);
+  const zinRechner = useZinseszinsRechner(getStoredState, defaultTaxRate, zinChartContainer.width);
+  const entRechner = useEntnahmeRechner(getStoredState, defaultTaxRate, entChartContainer.width, fireRechner.computed.fireCurrentAge);
 
   // Store persistent state on every change
   useEffect(() => {
     const currentState = {
       activeTab,
-      fireMode,
-      fireMonthlyNet,
-      fireReturn,
-      fireInflation,
-      fireSwr,
-      fireTax,
-      fireTeilfreistellung,
-      fireCapital,
-      fireSavingsRate,
-      fireTargetAge,
-      fireCapitalDepletion,
-      firePersonId,
-      zinInitial,
-      zinSavings,
-      zinStepUp,
-      zinReturn,
-      zinYears,
-      zinInflation,
-      zinTer,
-      zinTaxActive,
-      zinTaxRate,
-      zinPayout,
-      entInitial,
-      entMonthly,
-      entAdjustInf,
-      entHorizon,
-      entReturn,
-      entInflation,
-      entTer,
-      entTaxActive,
-      entTaxRate,
+      ...fireRechner.state,
+      ...zinRechner.state,
+      ...entRechner.state,
     };
     try {
       localStorage.setItem(RECHNER_STATE_KEY, JSON.stringify(currentState));
@@ -153,262 +76,20 @@ export function RechnerPage() {
     }
   }, [
     activeTab,
-    fireMode,
-    fireMonthlyNet,
-    fireReturn,
-    fireInflation,
-    fireSwr,
-    fireTax,
-    fireTeilfreistellung,
-    fireCapital,
-    fireSavingsRate,
-    fireTargetAge,
-    fireCapitalDepletion,
-    firePersonId,
-    zinInitial,
-    zinSavings,
-    zinStepUp,
-    zinReturn,
-    zinYears,
-    zinInflation,
-    zinTer,
-    zinTaxActive,
-    zinTaxRate,
-    zinPayout,
-    entInitial,
-    entMonthly,
-    entAdjustInf,
-    entHorizon,
-    entReturn,
-    entInflation,
-    entTer,
-    entTaxActive,
-    entTaxRate,
+    fireRechner.state,
+    zinRechner.state,
+    entRechner.state,
   ]);
-
-  const selectedPerson = persons?.find((p) => String(p.id) === firePersonId);
-  const fireCurrentAge = selectedPerson?.birth_year
-    ? new Date().getFullYear() - selectedPerson.birth_year
-    : 35;
-
-  const fireResult = useMemo(() => {
-    return calculateFire({
-      mode: fireMode,
-      monthlyNetIncomeCents: parseAmountToCentsOrZero(fireMonthlyNet),
-      expectedReturnPercent: parseFloat(fireReturn) || 0,
-      inflationPercent: parseFloat(fireInflation) || 0,
-      swrPercent: parseFloat(fireSwr) || 0,
-      taxRatePercent: parseFloat(fireTax) || 0,
-      teilfreistellung: fireTeilfreistellung,
-      currentCapitalCents: parseAmountToCentsOrZero(fireCapital),
-      monthlySavingsRateCents: parseAmountToCentsOrZero(fireSavingsRate),
-      targetAge: parseInt(fireTargetAge, 10) || 60,
-      capitalDepletion: fireCapitalDepletion,
-      currentAge: fireCurrentAge,
-    });
-  }, [
-    fireMode,
-    fireMonthlyNet,
-    fireReturn,
-    fireInflation,
-    fireSwr,
-    fireTax,
-    fireTeilfreistellung,
-    fireCapital,
-    fireSavingsRate,
-    fireTargetAge,
-    fireCapitalDepletion,
-    fireCurrentAge,
-  ]);
-
-  const fireChartOption = useMemo(() => {
-    const years = fireResult.yearlyPoints.map((p) => p.year);
-    const contrib = fireResult.yearlyPoints.map((p) => Math.round(p.contributionsCents / 100));
-    const growth = fireResult.yearlyPoints.map((p) => Math.round(p.growthCents / 100));
-
-    return {
-      tooltip: { trigger: "axis" },
-      legend: { data: ["Einzahlungen", "Wertzuwachs"], bottom: 0 },
-      xAxis: { type: "category", data: years },
-      yAxis: {
-        type: "value",
-        axisLabel: amountAxisLabel(
-          fireChartContainer.width > 0 && fireChartContainer.width < NARROW_CHART_BREAKPOINT,
-        ),
-      },
-      series: [
-        {
-          name: "Einzahlungen",
-          type: "bar",
-          stack: "total",
-          data: contrib,
-          itemStyle: { color: "#4a6fa5" },
-        },
-        {
-          name: "Wertzuwachs",
-          type: "bar",
-          stack: "total",
-          data: growth,
-          itemStyle: { color: "#6f9a6d" },
-        },
-      ],
-    };
-  }, [fireResult, fireChartContainer.width]);
-
-  const zinResult = useMemo(() => {
-    return calculateZinseszins({
-      initialCapitalCents: parseAmountToCentsOrZero(zinInitial),
-      monthlySavingsRateCents: parseAmountToCentsOrZero(zinSavings),
-      annualSavingsIncreasePercent: parseFloat(zinStepUp) || 0,
-      interestRatePercent: parseFloat(zinReturn) || 0,
-      years: parseInt(zinYears, 10) || 10,
-      inflationPercent: parseFloat(zinInflation) || 0,
-      terPercent: parseFloat(zinTer) || 0,
-      taxActive: zinTaxActive,
-      taxRatePercent: parseFloat(zinTaxRate) || 0,
-      payoutType: zinPayout,
-    });
-  }, [
-    zinInitial,
-    zinSavings,
-    zinStepUp,
-    zinReturn,
-    zinYears,
-    zinInflation,
-    zinTer,
-    zinTaxActive,
-    zinTaxRate,
-    zinPayout,
-  ]);
-
-  const zinChartOption = useMemo(() => {
-    const years = zinResult.yearlyPoints.map((p) => p.year);
-    const contrib = zinResult.yearlyPoints.map((p) => Math.round(p.contributionsCents / 100));
-    const earnings = zinResult.yearlyPoints.map((p) => Math.round(p.earningsCents / 100));
-
-    return {
-      tooltip: { trigger: "axis" },
-      legend: { data: ["Einzahlungen", "Erträge"], bottom: 0 },
-      xAxis: { type: "category", data: years },
-      yAxis: {
-        type: "value",
-        axisLabel: amountAxisLabel(
-          zinChartContainer.width > 0 && zinChartContainer.width < NARROW_CHART_BREAKPOINT,
-        ),
-      },
-      series: [
-        {
-          name: "Einzahlungen",
-          type: "bar",
-          stack: "total",
-          data: contrib,
-          itemStyle: { color: "#4a6fa5" },
-        },
-        {
-          name: "Erträge",
-          type: "bar",
-          stack: "total",
-          data: earnings,
-          itemStyle: { color: "#b79a5b" },
-        },
-      ],
-    };
-  }, [zinResult, zinChartContainer.width]);
-
-  const entResult = useMemo(() => {
-    return calculateEntnahme({
-      initialCapitalCents: parseAmountToCentsOrZero(entInitial),
-      monthlyWithdrawalCents: parseAmountToCentsOrZero(entMonthly),
-      adjustForInflation: entAdjustInf,
-      horizonYears: parseInt(entHorizon, 10) || 30,
-      interestRatePercent: parseFloat(entReturn) || 0,
-      inflationPercent: parseFloat(entInflation) || 0,
-      terPercent: parseFloat(entTer) || 0,
-      taxActive: entTaxActive,
-      taxRatePercent: parseFloat(entTaxRate) || 0,
-      userAge: fireCurrentAge,
-    });
-  }, [
-    entInitial,
-    entMonthly,
-    entAdjustInf,
-    entHorizon,
-    entReturn,
-    entInflation,
-    entTer,
-    entTaxActive,
-    entTaxRate,
-    fireCurrentAge,
-  ]);
-
-  const entChartOption = useMemo(() => {
-    const years = entResult.yearlyPoints.map((p) => p.year);
-    const cap = entResult.yearlyPoints.map((p) => Math.round(p.capitalRemainingCents / 100));
-
-    return {
-      tooltip: { trigger: "axis" },
-      xAxis: { type: "category", data: years },
-      yAxis: {
-        type: "value",
-        axisLabel: amountAxisLabel(
-          entChartContainer.width > 0 && entChartContainer.width < NARROW_CHART_BREAKPOINT,
-        ),
-      },
-      series: [
-        {
-          name: "Kapitalverlauf",
-          type: "line",
-          areaStyle: { color: "rgba(74, 111, 165, 0.2)" },
-          data: cap,
-          itemStyle: { color: "#4a6fa5" },
-        },
-      ],
-    };
-  }, [entResult, entChartContainer.width]);
 
   function handleSaveScenario() {
     if (!scenarioName.trim()) return;
     let payload: unknown;
     if (activeTab === "fire") {
-      payload = {
-        fireMode,
-        fireMonthlyNet,
-        fireReturn,
-        fireInflation,
-        fireSwr,
-        fireTax,
-        fireTeilfreistellung,
-        fireCapital,
-        fireSavingsRate,
-        fireTargetAge,
-        fireCapitalDepletion,
-        firePersonId,
-      };
+      payload = { ...fireRechner.state };
     } else if (activeTab === "zinseszins") {
-      payload = {
-        zinInitial,
-        zinSavings,
-        zinStepUp,
-        zinReturn,
-        zinYears,
-        zinInflation,
-        zinTer,
-        zinTaxActive,
-        zinTaxRate,
-        zinPayout,
-      };
+      payload = { ...zinRechner.state };
     } else {
-      payload = {
-        entInitial,
-        entMonthly,
-        entAdjustInf,
-        entHorizon,
-        entReturn,
-        entInflation,
-        entTer,
-        entTaxActive,
-        entTaxRate,
-      };
+      payload = { ...entRechner.state };
     }
 
     saveScenario(activeTab, scenarioName.trim(), payload);
@@ -421,42 +102,42 @@ export function RechnerPage() {
     try {
       const inputs = JSON.parse(scen.inputsJson) as Record<string, any>;
       if (scen.type === "fire") {
-        if (inputs.fireMode !== undefined) setFireMode(inputs.fireMode);
-        if (inputs.fireMonthlyNet !== undefined) setFireMonthlyNet(String(inputs.fireMonthlyNet));
-        if (inputs.fireReturn !== undefined) setFireReturn(String(inputs.fireReturn));
-        if (inputs.fireInflation !== undefined) setFireInflation(String(inputs.fireInflation));
-        if (inputs.fireSwr !== undefined) setFireSwr(String(inputs.fireSwr));
-        if (inputs.fireTax !== undefined) setFireTax(String(inputs.fireTax));
+        if (inputs.fireMode !== undefined) fireRechner.actions.setFireMode(inputs.fireMode);
+        if (inputs.fireMonthlyNet !== undefined) fireRechner.actions.setFireMonthlyNet(String(inputs.fireMonthlyNet));
+        if (inputs.fireReturn !== undefined) fireRechner.actions.setFireReturn(String(inputs.fireReturn));
+        if (inputs.fireInflation !== undefined) fireRechner.actions.setFireInflation(String(inputs.fireInflation));
+        if (inputs.fireSwr !== undefined) fireRechner.actions.setFireSwr(String(inputs.fireSwr));
+        if (inputs.fireTax !== undefined) fireRechner.actions.setFireTax(String(inputs.fireTax));
         if (inputs.fireTeilfreistellung !== undefined)
-          setFireTeilfreistellung(Boolean(inputs.fireTeilfreistellung));
-        if (inputs.fireCapital !== undefined) setFireCapital(String(inputs.fireCapital));
+          fireRechner.actions.setFireTeilfreistellung(Boolean(inputs.fireTeilfreistellung));
+        if (inputs.fireCapital !== undefined) fireRechner.actions.setFireCapital(String(inputs.fireCapital));
         if (inputs.fireSavingsRate !== undefined)
-          setFireSavingsRate(String(inputs.fireSavingsRate));
-        if (inputs.fireTargetAge !== undefined) setFireTargetAge(String(inputs.fireTargetAge));
+          fireRechner.actions.setFireSavingsRate(String(inputs.fireSavingsRate));
+        if (inputs.fireTargetAge !== undefined) fireRechner.actions.setFireTargetAge(String(inputs.fireTargetAge));
         if (inputs.fireCapitalDepletion !== undefined)
-          setFireCapitalDepletion(Boolean(inputs.fireCapitalDepletion));
-        if (inputs.firePersonId !== undefined) setFirePersonId(String(inputs.firePersonId));
+          fireRechner.actions.setFireCapitalDepletion(Boolean(inputs.fireCapitalDepletion));
+        if (inputs.firePersonId !== undefined) fireRechner.actions.setFirePersonId(String(inputs.firePersonId));
       } else if (scen.type === "zinseszins") {
-        if (inputs.zinInitial !== undefined) setZinInitial(String(inputs.zinInitial));
-        if (inputs.zinSavings !== undefined) setZinSavings(String(inputs.zinSavings));
-        if (inputs.zinStepUp !== undefined) setZinStepUp(String(inputs.zinStepUp));
-        if (inputs.zinReturn !== undefined) setZinReturn(String(inputs.zinReturn));
-        if (inputs.zinYears !== undefined) setZinYears(String(inputs.zinYears));
-        if (inputs.zinInflation !== undefined) setZinInflation(String(inputs.zinInflation));
-        if (inputs.zinTer !== undefined) setZinTer(String(inputs.zinTer));
-        if (inputs.zinTaxActive !== undefined) setZinTaxActive(Boolean(inputs.zinTaxActive));
-        if (inputs.zinTaxRate !== undefined) setZinTaxRate(String(inputs.zinTaxRate));
-        if (inputs.zinPayout !== undefined) setZinPayout(inputs.zinPayout);
+        if (inputs.zinInitial !== undefined) zinRechner.actions.setZinInitial(String(inputs.zinInitial));
+        if (inputs.zinSavings !== undefined) zinRechner.actions.setZinSavings(String(inputs.zinSavings));
+        if (inputs.zinStepUp !== undefined) zinRechner.actions.setZinStepUp(String(inputs.zinStepUp));
+        if (inputs.zinReturn !== undefined) zinRechner.actions.setZinReturn(String(inputs.zinReturn));
+        if (inputs.zinYears !== undefined) zinRechner.actions.setZinYears(String(inputs.zinYears));
+        if (inputs.zinInflation !== undefined) zinRechner.actions.setZinInflation(String(inputs.zinInflation));
+        if (inputs.zinTer !== undefined) zinRechner.actions.setZinTer(String(inputs.zinTer));
+        if (inputs.zinTaxActive !== undefined) zinRechner.actions.setZinTaxActive(Boolean(inputs.zinTaxActive));
+        if (inputs.zinTaxRate !== undefined) zinRechner.actions.setZinTaxRate(String(inputs.zinTaxRate));
+        if (inputs.zinPayout !== undefined) zinRechner.actions.setZinPayout(inputs.zinPayout);
       } else if (scen.type === "entnahme") {
-        if (inputs.entInitial !== undefined) setEntInitial(String(inputs.entInitial));
-        if (inputs.entMonthly !== undefined) setEntMonthly(String(inputs.entMonthly));
-        if (inputs.entAdjustInf !== undefined) setEntAdjustInf(Boolean(inputs.entAdjustInf));
-        if (inputs.entHorizon !== undefined) setEntHorizon(String(inputs.entHorizon));
-        if (inputs.entReturn !== undefined) setEntReturn(String(inputs.entReturn));
-        if (inputs.entInflation !== undefined) setEntInflation(String(inputs.entInflation));
-        if (inputs.entTer !== undefined) setEntTer(String(inputs.entTer));
-        if (inputs.entTaxActive !== undefined) setEntTaxActive(Boolean(inputs.entTaxActive));
-        if (inputs.entTaxRate !== undefined) setEntTaxRate(String(inputs.entTaxRate));
+        if (inputs.entInitial !== undefined) entRechner.actions.setEntInitial(String(inputs.entInitial));
+        if (inputs.entMonthly !== undefined) entRechner.actions.setEntMonthly(String(inputs.entMonthly));
+        if (inputs.entAdjustInf !== undefined) entRechner.actions.setEntAdjustInf(Boolean(inputs.entAdjustInf));
+        if (inputs.entHorizon !== undefined) entRechner.actions.setEntHorizon(String(inputs.entHorizon));
+        if (inputs.entReturn !== undefined) entRechner.actions.setEntReturn(String(inputs.entReturn));
+        if (inputs.entInflation !== undefined) entRechner.actions.setEntInflation(String(inputs.entInflation));
+        if (inputs.entTer !== undefined) entRechner.actions.setEntTer(String(inputs.entTer));
+        if (inputs.entTaxActive !== undefined) entRechner.actions.setEntTaxActive(Boolean(inputs.entTaxActive));
+        if (inputs.entTaxRate !== undefined) entRechner.actions.setEntTaxRate(String(inputs.entTaxRate));
       }
       toast.success(t("common.loadScenario", { name: scen.name }));
     } catch {
@@ -505,32 +186,32 @@ export function RechnerPage() {
             t={t}
             persons={persons}
 
-            fireMode={fireMode}
-            setFireMode={setFireMode}
-            fireMonthlyNet={fireMonthlyNet}
-            setFireMonthlyNet={setFireMonthlyNet}
-            fireSavingsRate={fireSavingsRate}
-            setFireSavingsRate={setFireSavingsRate}
-            fireTargetAge={fireTargetAge}
-            setFireTargetAge={setFireTargetAge}
-            fireCapital={fireCapital}
-            setFireCapital={setFireCapital}
-            fireReturn={fireReturn}
-            setFireReturn={setFireReturn}
-            fireInflation={fireInflation}
-            setFireInflation={setFireInflation}
-            fireSwr={fireSwr}
-            setFireSwr={setFireSwr}
-            fireTax={fireTax}
-            setFireTax={setFireTax}
-            fireTeilfreistellung={fireTeilfreistellung}
-            setFireTeilfreistellung={setFireTeilfreistellung}
-            fireCapitalDepletion={fireCapitalDepletion}
-            setFireCapitalDepletion={setFireCapitalDepletion}
-            firePersonId={firePersonId}
-            setFirePersonId={setFirePersonId}
-            fireResult={fireResult}
-            fireChartOption={fireChartOption}
+            fireMode={fireRechner.state.fireMode}
+            setFireMode={fireRechner.actions.setFireMode}
+            fireMonthlyNet={fireRechner.state.fireMonthlyNet}
+            setFireMonthlyNet={fireRechner.actions.setFireMonthlyNet}
+            fireSavingsRate={fireRechner.state.fireSavingsRate}
+            setFireSavingsRate={fireRechner.actions.setFireSavingsRate}
+            fireTargetAge={fireRechner.state.fireTargetAge}
+            setFireTargetAge={fireRechner.actions.setFireTargetAge}
+            fireCapital={fireRechner.state.fireCapital}
+            setFireCapital={fireRechner.actions.setFireCapital}
+            fireReturn={fireRechner.state.fireReturn}
+            setFireReturn={fireRechner.actions.setFireReturn}
+            fireInflation={fireRechner.state.fireInflation}
+            setFireInflation={fireRechner.actions.setFireInflation}
+            fireSwr={fireRechner.state.fireSwr}
+            setFireSwr={fireRechner.actions.setFireSwr}
+            fireTax={fireRechner.state.fireTax}
+            setFireTax={fireRechner.actions.setFireTax}
+            fireTeilfreistellung={fireRechner.state.fireTeilfreistellung}
+            setFireTeilfreistellung={fireRechner.actions.setFireTeilfreistellung}
+            fireCapitalDepletion={fireRechner.state.fireCapitalDepletion}
+            setFireCapitalDepletion={fireRechner.actions.setFireCapitalDepletion}
+            firePersonId={fireRechner.state.firePersonId}
+            setFirePersonId={fireRechner.actions.setFirePersonId}
+            fireResult={fireRechner.computed.result}
+            fireChartOption={fireRechner.computed.chartOption}
           />
         </TabsContent>
 
@@ -538,28 +219,28 @@ export function RechnerPage() {
         <TabsContent value="zinseszins" className="mt-6 space-y-6">
           <ZinseszinsTab
             t={t}
-            zinInitial={zinInitial}
-            setZinInitial={setZinInitial}
-            zinSavings={zinSavings}
-            setZinSavings={setZinSavings}
-            zinStepUp={zinStepUp}
-            setZinStepUp={setZinStepUp}
-            zinReturn={zinReturn}
-            setZinReturn={setZinReturn}
-            zinYears={zinYears}
-            setZinYears={setZinYears}
-            zinInflation={zinInflation}
-            setZinInflation={setZinInflation}
-            zinTer={zinTer}
-            setZinTer={setZinTer}
-            zinTaxActive={zinTaxActive}
-            setZinTaxActive={setZinTaxActive}
-            zinTaxRate={zinTaxRate}
-            setZinTaxRate={setZinTaxRate}
-            zinPayout={zinPayout}
-            setZinPayout={setZinPayout}
-            zinResult={zinResult}
-            zinChartOption={zinChartOption}
+            zinInitial={zinRechner.state.zinInitial}
+            setZinInitial={zinRechner.actions.setZinInitial}
+            zinSavings={zinRechner.state.zinSavings}
+            setZinSavings={zinRechner.actions.setZinSavings}
+            zinStepUp={zinRechner.state.zinStepUp}
+            setZinStepUp={zinRechner.actions.setZinStepUp}
+            zinReturn={zinRechner.state.zinReturn}
+            setZinReturn={zinRechner.actions.setZinReturn}
+            zinYears={zinRechner.state.zinYears}
+            setZinYears={zinRechner.actions.setZinYears}
+            zinInflation={zinRechner.state.zinInflation}
+            setZinInflation={zinRechner.actions.setZinInflation}
+            zinTer={zinRechner.state.zinTer}
+            setZinTer={zinRechner.actions.setZinTer}
+            zinTaxActive={zinRechner.state.zinTaxActive}
+            setZinTaxActive={zinRechner.actions.setZinTaxActive}
+            zinTaxRate={zinRechner.state.zinTaxRate}
+            setZinTaxRate={zinRechner.actions.setZinTaxRate}
+            zinPayout={zinRechner.state.zinPayout}
+            setZinPayout={zinRechner.actions.setZinPayout}
+            zinResult={zinRechner.computed.result}
+            zinChartOption={zinRechner.computed.chartOption}
             zinChartContainerRef={zinChartContainer.ref}
           />
         </TabsContent>
@@ -568,26 +249,26 @@ export function RechnerPage() {
         <TabsContent value="entnahme" className="mt-6 space-y-6">
           <EntnahmeTab
             t={t}
-            entInitial={entInitial}
-            setEntInitial={setEntInitial}
-            entMonthly={entMonthly}
-            setEntMonthly={setEntMonthly}
-            entAdjustInf={entAdjustInf}
-            setEntAdjustInf={setEntAdjustInf}
-            entHorizon={entHorizon}
-            setEntHorizon={setEntHorizon}
-            entReturn={entReturn}
-            setEntReturn={setEntReturn}
-            entInflation={entInflation}
-            setEntInflation={setEntInflation}
-            entTer={entTer}
-            setEntTer={setEntTer}
-            entTaxActive={entTaxActive}
-            setEntTaxActive={setEntTaxActive}
-            entTaxRate={entTaxRate}
-            setEntTaxRate={setEntTaxRate}
-            entResult={entResult}
-            entChartOption={entChartOption}
+            entInitial={entRechner.state.entInitial}
+            setEntInitial={entRechner.actions.setEntInitial}
+            entMonthly={entRechner.state.entMonthly}
+            setEntMonthly={entRechner.actions.setEntMonthly}
+            entAdjustInf={entRechner.state.entAdjustInf}
+            setEntAdjustInf={entRechner.actions.setEntAdjustInf}
+            entHorizon={entRechner.state.entHorizon}
+            setEntHorizon={entRechner.actions.setEntHorizon}
+            entReturn={entRechner.state.entReturn}
+            setEntReturn={entRechner.actions.setEntReturn}
+            entInflation={entRechner.state.entInflation}
+            setEntInflation={entRechner.actions.setEntInflation}
+            entTer={entRechner.state.entTer}
+            setEntTer={entRechner.actions.setEntTer}
+            entTaxActive={entRechner.state.entTaxActive}
+            setEntTaxActive={entRechner.actions.setEntTaxActive}
+            entTaxRate={entRechner.state.entTaxRate}
+            setEntTaxRate={entRechner.actions.setEntTaxRate}
+            entResult={entRechner.computed.result}
+            entChartOption={entRechner.computed.chartOption}
             entChartContainerRef={entChartContainer.ref}
           />
         </TabsContent>
@@ -597,7 +278,7 @@ export function RechnerPage() {
       <section className="rounded-standard border border-border bg-card p-5 space-y-4">
         <h2 className="text-sm font-semibold text-charcoal flex items-center gap-2">
           <Save className="size-4 text-petrol" /> {t("scenarios.savedTitle")} (
-          {activeTab.toUpperCase()})
+          {t(`tabs.${activeTab}`)})
         </h2>
         <div className="flex gap-2 max-w-md">
           <Input
@@ -606,7 +287,7 @@ export function RechnerPage() {
             onChange={(e) => setScenarioName(e.target.value)}
           />
           <Button onClick={handleSaveScenario} disabled={!scenarioName.trim()}>
-            Speichern
+            {t("scenarios.saveButton")}
           </Button>
         </div>
 
@@ -619,7 +300,7 @@ export function RechnerPage() {
               <div>
                 <span className="font-semibold text-charcoal">{scen.name}</span>
                 <span className="ml-2 text-slate">
-                  ({scen.type.toUpperCase()}) ·{" "}
+                  ({t(`tabs.${scen.type}`)}) ·{" "}
                   {formatDate(scen.createdAt.slice(0, 10), dateDisplayFormat)}
                 </span>
               </div>

@@ -84,8 +84,8 @@ export function RuleConditionGroupsEditor({ groups, onChange, showPreview = true
     }
     const timeout = setTimeout(() => {
       void previewRuleMatches(input).then((res) => {
-        setMatchCount(res.count);
-        setMatchSample(res.sample);
+        setMatchCount(res?.count ?? 0);
+        setMatchSample(res?.sample ?? []);
       });
     }, 300);
     return () => clearTimeout(timeout);
