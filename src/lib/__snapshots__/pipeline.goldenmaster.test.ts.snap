@@ -1,0 +1,90 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Kategorisierungs-Pipeline – Golden-Master-Korpus > kategorisiert einen breiten, realistischen Buchungskorpus stabil über alle Pipeline-Zweige 1`] = `
+[
+  {
+    "amount": -4523,
+    "category": "Lebensmittel",
+    "hasMerchant": true,
+    "input": "TESTMARKT GM",
+    "source": "merchant",
+  },
+  {
+    "amount": -1899,
+    "category": "Lebensmittel",
+    "hasMerchant": true,
+    "input": "TESTMARKT GM",
+    "source": "merchant",
+  },
+  {
+    "amount": -1299,
+    "category": "Drogerie",
+    "hasMerchant": true,
+    "input": "testdrogerie-markt filiale 42",
+    "source": "merchant",
+  },
+  {
+    "amount": -1299,
+    "category": "Streaming",
+    "hasMerchant": true,
+    "input": "TESTSTREAMINGDIENST.COM",
+    "source": "merchant",
+  },
+  {
+    "amount": -5000,
+    "category": "Versicherung",
+    "hasMerchant": true,
+    "input": "Testversicherer GM AG",
+    "source": "merchant",
+  },
+  {
+    "amount": -25000,
+    "category": "Bürobedarf Sonderfall",
+    "hasMerchant": false,
+    "input": "Testversicherer GM AG",
+    "source": "rule",
+  },
+  {
+    "amount": -1550,
+    "category": "Restaurant",
+    "hasMerchant": true,
+    "input": "Testfoodtruck Mitte",
+    "source": "merchant",
+  },
+  {
+    "amount": -450,
+    "category": "Restaurant",
+    "hasMerchant": true,
+    "input": "SumUp *Testkaffeebar Mitte",
+    "source": "merchant",
+  },
+  {
+    "amount": -34000,
+    "category": null,
+    "hasMerchant": false,
+    "input": "Finanzamt Berlin Mitte",
+    "source": "none",
+  },
+  {
+    "amount": 320000,
+    "category": "Gehalt",
+    "hasMerchant": false,
+    "input": "Arbeitgeber XY GmbH",
+    "source": "rule",
+  },
+  {
+    "amount": -8900,
+    "category": "Büromaterial",
+    "hasMerchant": false,
+    "input": "Unbekannt",
+    "source": "rule",
+  },
+  {
+    "amount": -777,
+    "category": null,
+    "hasMerchant": false,
+    "input": "Voellig Unbekannter Zahlungsempfaenger XJ",
+    "source": "none",
+  },
+]
+`;
