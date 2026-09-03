@@ -77,7 +77,7 @@ interface PersonRowProps {
 }
 
 function PersonRow({ person: p, onUpdate, onRemove }: PersonRowProps) {
-  const { t } = useTranslation("profil");
+  const { t, i18n } = useTranslation("profil");
   const queryClient = useQueryClient();
   const [birthYearStr, setBirthYearStr] = useState(p.birth_year ? String(p.birth_year) : "");
   const [newAlias, setNewAlias] = useState("");
@@ -170,44 +170,46 @@ function PersonRow({ person: p, onUpdate, onRemove }: PersonRowProps) {
         </Button>
       </div>
 
-      {/* Kirchensteuer pro Person */}
-      <div className="flex flex-wrap items-center gap-4 pt-2 text-xs border-t border-border/40">
-        <div className="flex items-center gap-2">
-          <Switch
-            id={`ks-${p.id}`}
-            checked={p.kirchensteuer_aktiv === 1}
-            onCheckedChange={(checked) =>
-              void onUpdate(p.id, { kirchensteuer_aktiv: checked ? 1 : 0 })
-            }
-          />
-          <Label htmlFor={`ks-${p.id}`} className="text-xs cursor-pointer text-charcoal">
-            {t("persons.kirchensteuer")}
-          </Label>
-          {/* WIP: wird gespeichert, aber noch nicht in den Steuer-/Entnahmeplan-Berechnungen berücksichtigt */}
-          <span className="text-[10px] text-gold border border-gold/30 rounded-pill px-1.5 py-0.5 leading-none">
-            kommt bald
-          </span>
-        </div>
-
-        {p.kirchensteuer_aktiv === 1 && (
+      {/* Kirchensteuer pro Person (nur in DE) */}
+      {i18n.language === "de" && (
+        <div className="flex flex-wrap items-center gap-4 pt-2 text-xs border-t border-border/40">
           <div className="flex items-center gap-2">
-            <Label className="text-xs text-slate">{t("persons.bundesland")}</Label>
-            <Select
-              value={p.bundesland ?? ""}
-              onValueChange={(val) => void onUpdate(p.id, { bundesland: val })}
-            >
-              <SelectTrigger className="w-[210px] h-8 text-xs"><SelectValue placeholder={t("persons.bundeslandPlaceholder")} /></SelectTrigger>
-              <SelectContent>
-                {BUNDESLAENDER.map((b) => (
-                  <SelectItem key={b.value} value={b.value}>
-                    {b.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Switch
+              id={`ks-${p.id}`}
+              checked={p.kirchensteuer_aktiv === 1}
+              onCheckedChange={(checked) =>
+                void onUpdate(p.id, { kirchensteuer_aktiv: checked ? 1 : 0 })
+              }
+            />
+            <Label htmlFor={`ks-${p.id}`} className="text-xs cursor-pointer text-charcoal">
+              {t("persons.kirchensteuer")}
+            </Label>
+            {/* WIP: wird gespeichert, aber noch nicht in den Steuer-/Entnahmeplan-Berechnungen berücksichtigt */}
+            <span className="text-[10px] text-gold border border-gold/30 rounded-pill px-1.5 py-0.5 leading-none">
+              kommt bald
+            </span>
           </div>
-        )}
-      </div>
+
+          {p.kirchensteuer_aktiv === 1 && (
+            <div className="flex items-center gap-2">
+              <Label className="text-xs text-slate">{t("persons.bundesland")}</Label>
+              <Select
+                value={p.bundesland ?? ""}
+                onValueChange={(val) => void onUpdate(p.id, { bundesland: val })}
+              >
+                <SelectTrigger className="w-[210px] h-8 text-xs"><SelectValue placeholder={t("persons.bundeslandPlaceholder")} /></SelectTrigger>
+                <SelectContent>
+                  {BUNDESLAENDER.map((b) => (
+                    <SelectItem key={b.value} value={b.value}>
+                      {b.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Namensvarianten für die Transfer-Erkennung (Stufe 3, Namensabgleich) */}
       <div className="space-y-1.5 pt-2 border-t border-border/40">

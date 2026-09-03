@@ -3,6 +3,8 @@ import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Download, Flame, Save, Trash2, TrendingUp, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { getEffectiveCapitalTaxRate } from "@/lib/rechner/tax";
+import { useSettingsStore } from "@/stores/settingsStore";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { formatDate } from "@/lib/dates";
@@ -65,7 +67,10 @@ export function RechnerPage() {
   const [fireReturn, setFireReturn] = useState(() => getStoredState("fireReturn", "6.0"));
   const [fireInflation, setFireInflation] = useState(() => getStoredState("fireInflation", "2.0"));
   const [fireSwr, setFireSwr] = useState(() => getStoredState("fireSwr", "3.5"));
-  const [fireTax, setFireTax] = useState(() => getStoredState("fireTax", "26.375"));
+  const { kirchensteuerAktiv, kirchensteuerSatz } = useSettingsStore();
+  const defaultTaxRate = getEffectiveCapitalTaxRate(kirchensteuerAktiv, kirchensteuerSatz).toString();
+  
+  const [fireTax, setFireTax] = useState(() => getStoredState("fireTax", defaultTaxRate));
   const [fireTeilfreistellung, setFireTeilfreistellung] = useState(() =>
     getStoredState("fireTeilfreistellung", true),
   );
@@ -90,7 +95,7 @@ export function RechnerPage() {
   const [zinInflation, setZinInflation] = useState(() => getStoredState("zinInflation", "2.0"));
   const [zinTer, setZinTer] = useState(() => getStoredState("zinTer", "0.2"));
   const [zinTaxActive, setZinTaxActive] = useState(() => getStoredState("zinTaxActive", true));
-  const [zinTaxRate, setZinTaxRate] = useState(() => getStoredState("zinTaxRate", "26.375"));
+  const [zinTaxRate, setZinTaxRate] = useState(() => getStoredState("zinTaxRate", defaultTaxRate));
   const [zinPayout, setZinPayout] = useState<"ausschüttend" | "thesaurierend">(() =>
     getStoredState("zinPayout", "thesaurierend"),
   );
@@ -104,7 +109,7 @@ export function RechnerPage() {
   const [entInflation, setEntInflation] = useState(() => getStoredState("entInflation", "2.0"));
   const [entTer, setEntTer] = useState(() => getStoredState("entTer", "0.2"));
   const [entTaxActive, setEntTaxActive] = useState(() => getStoredState("entTaxActive", true));
-  const [entTaxRate, setEntTaxRate] = useState(() => getStoredState("entTaxRate", "26.375"));
+  const [entTaxRate, setEntTaxRate] = useState(() => getStoredState("entTaxRate", defaultTaxRate));
 
   // Store persistent state on every change
   useEffect(() => {

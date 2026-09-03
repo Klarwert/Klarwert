@@ -53,6 +53,12 @@ export function DynamicSettings() {
     if (["quotes_provider", "quotes_privacy_accepted"].includes(key)) {
       continue; 
     }
+    
+    // Kirchensteuer nur bei deutscher Sprache (DE) anzeigen
+    if (["kirchensteuer_aktiv", "kirchensteuer_satz"].includes(key) && settings.language !== "de") {
+      continue;
+    }
+    
     grouped[def.category].push(key as SettingsKeys);
   }
 

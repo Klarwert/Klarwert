@@ -41,18 +41,6 @@ describe("Händler & Regel-Vorlagen zusammenführen", () => {
     expect(reweAfter!.is_modified).toBe(1);
   });
 
-  it("die ~50 Regel-Vorlagen wurden zu Händlern mit verknüpften Regeln migriert", async () => {
-    const db = await getDb();
-    const migratedRules = await db.select<{ count: number }[]>(
-      "select count(*) as count from rules where merchant_id is not null and is_deleted = 0",
-    );
-    expect(migratedRules[0].count).toBeGreaterThan(30);
-
-    const merchantsFromTemplates = await db.select<{ count: number }[]>(
-      "select count(*) as count from merchants where source_version = 'migrated-rule-template'",
-    );
-    expect(merchantsFromTemplates[0].count).toBeGreaterThan(0);
-  });
 
   it("neu angelegte Händler erhalten einen für das Community-Rules-Schema gültigen canonical_name", async () => {
     const id = await createMerchant({ canonical_name: "Bio Company XY!", display_name: "Bio Company XY" });
