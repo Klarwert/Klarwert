@@ -57,7 +57,7 @@
     "clsx": "^2",
     "cmdk": "^1.1.1",
     "date-fns": "^4",
-    "echarts": "^5",
+    "echarts": "^6",
     "echarts-for-react": "^3",
     "i18next": "^26.4.0",
     "lucide-react": "^0.469.0",
