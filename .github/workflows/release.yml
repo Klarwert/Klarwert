@@ -37,8 +37,13 @@ jobs:
           if gh release view "v${{ steps.app_version.outputs.version }}" --repo "${{ github.repository }}" >/dev/null 2>&1; then
             echo "Release already exists, reusing it."
           else
+            # --target is required here: without it, gh release create falls back to an ambiguous
+            # "untagged-..." release object when the tag isn't already a real git ref (draft releases
+            # never create one) - that ambiguity is what let a platform job's later "find release by
+            # tag" lookup miss it and create its own duplicate (v0.1.2 incident, 2026-09-03).
             gh release create "v${{ steps.app_version.outputs.version }}" \
               --repo "${{ github.repository }}" \
+              --target "${{ github.sha }}" \
               --title "Klarwert v${{ steps.app_version.outputs.version }}" \
               --notes "Klarwert Multi-Platform Desktop Release (macOS, Windows, Linux)" \
               --draft
@@ -122,10 +127,63 @@ jobs:
     permissions:
       contents: write
     steps:
-      - name: Publish the draft release
-        # Alle drei Plattform-Jobs laden ihre Installer in denselben (von create-release einmalig
-        # angelegten) Draft-Release hoch. Erst wenn ALLE erfolgreich fertig sind, wird er
-        # veröffentlicht - so sieht kein Nutzer jemals einen halbfertigen Release.
-        run: gh release edit "v${{ needs.create-release.outputs.version }}" --draft=false --repo "${{ github.repository }}"
+      - name: Merge any duplicate release objects for this tag, then publish
+        # Despite create-release running first, this exact tag has produced TWO separate release
+        # objects twice now (v0.1.0 on 2026-08-29, v0.1.2 on 2026-09-03) - a GitHub-side lookup
+        # inconsistency that let a late platform job's "find or create" step miss the already-created
+        # release and make its own. Rather than trust that can't happen a third time, merge defensively:
+        # find every release object sharing this tag, move all assets onto the one with the most
+        # assets, delete the rest, then publish whatever's left.
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: v${{ needs.create-release.outputs.version }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+
+          mapfile -t release_ids < <(gh api "repos/$REPO/releases" --paginate \
+            --jq ".[] | select(.tag_name == \"$TAG\") | .id")
+
+          if [ "${#release_ids[@]}" -eq 0 ]; then
+            echo "::error::No release object found for tag $TAG"
+            exit 1
+          fi
+
+          echo "Found ${#release_ids[@]} release object(s) for $TAG: ${release_ids[*]}"
+
+          if [ "${#release_ids[@]}" -gt 1 ]; then
+            # Pick the one with the most assets as the survivor.
+            primary_id=""
+            primary_count=-1
+            for id in "${release_ids[@]}"; do
+              count=$(gh api "repos/$REPO/releases/$id/assets" --jq 'length')
+              echo "  release $id has $count asset(s)"
+              if [ "$count" -gt "$primary_count" ]; then
+                primary_id="$id"
+                primary_count="$count"
+              fi
+            done
+            echo "Merging into release $primary_id (most assets: $primary_count)"
+
+            for id in "${release_ids[@]}"; do
+              [ "$id" = "$primary_id" ] && continue
+              echo "Moving assets from duplicate release $id..."
+              gh api "repos/$REPO/releases/$id/assets" --jq '.[] | "\(.id) \(.name)"' | while read -r asset_id asset_name; do
+                echo "  downloading $asset_name (asset $asset_id)"
+                gh api "repos/$REPO/releases/assets/$asset_id" -H "Accept: application/octet-stream" > "/tmp/$asset_name"
+                echo "  uploading $asset_name to release $primary_id"
+                # Upload straight to the primary release's numeric ID via the API - NOT
+                # `gh release upload <tag>`, which resolves by tag name and would be ambiguous
+                # while both releases still share this tag.
+                gh api "repos/$REPO/releases/$primary_id/assets?name=$asset_name" \
+                  --method POST \
+                  --header "Content-Type: application/octet-stream" \
+                  --input "/tmp/$asset_name" > /dev/null
+                rm -f "/tmp/$asset_name"
+              done
+              echo "Deleting duplicate release $id"
+              gh api -X DELETE "repos/$REPO/releases/$id"
+            done
+          fi
+
+          gh release edit "$TAG" --draft=false --repo "$REPO"
