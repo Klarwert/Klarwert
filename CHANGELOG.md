@@ -3,6 +3,14 @@
 Alle relevanten Änderungen an Klarwert werden in dieser Datei dokumentiert.
 Format nach [Keep a Changelog](https://keepachangelog.com/de/1.0.0/), Versionsschema nach [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.3](https://github.com/Klarwert/Klarwert/compare/v0.1.2...v0.1.3) (2026-09-04)
+
+
+### Bug Fixes
+
+* **matching:** SumUp/Square/Zettle/PayLeven prefix strip never fired ([8026a59](https://github.com/Klarwert/Klarwert/commit/8026a592335e3cc8c26ce259210e09b6cab0005c))
+* **release:** make release creation immune to the duplicate-release bug ([060afec](https://github.com/Klarwert/Klarwert/commit/060afeca4746396446e989f566249eed10822909))
+
 ## [0.1.2] – 2026-09-03
 
 ### Behoben
